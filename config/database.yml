@@ -24,11 +24,12 @@ test:
   username: erik
   password: Nobody
 
-# production:
-#   adapter: mysql2
-#   database: recipies_production
-#   pool: 5
-#   reconnect: false
-#   timeout: 5000
-#   username: erik
-#   password: Nobody
+production:
+  adapter: postgresql
+  database: recipies_production
+  encoding: utf8
+  pool: 5
+  reconnect: false
+  timeout: 5000
+  username: erik
+  password: Nobody
