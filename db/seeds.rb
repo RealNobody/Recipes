@@ -9,5 +9,5 @@
 User.where(email: "RealNobody1@cox.net").first_or_initialize().tap do | admin_user |
   admin_user.password = "Nobody12"
   admin_user.name = "Real Nobody"
-  admin_user.save()
+  admin_user.save!()
 end

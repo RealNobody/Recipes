@@ -1,12 +1,34 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.9'
+gem 'rails'
+gem 'bootstrap-sass'
+gem "bcrypt-ruby"
+gem 'devise'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 group :development, :test do
-  gem 'mysql2'
+  gem "rspec-rails"
+  gem "mysql2"
+  gem "guard-rspec"
+  gem "guard-spork"
+  gem "spork"
+
+  gem 'listen'
+  gem 'rb-inotify', :require => false
+  gem 'rb-fsevent', :require => false
+  # gem "autotest-fsevent", require: false
+  gem 'rb-fchange', :require => false
+end
+
+# Test gems on Macintosh OS X
+group :test do
+  gem 'capybara'
+  # gem 'rb-fsevent', '0.9.1', require: false
+  gem 'growl'
+  gem 'factory_girl_rails'
+  gem 'faker'
 end
 
 # Gems used only for assets and not required
@@ -39,5 +61,5 @@ gem 'jquery-rails'
 # gem 'debugger'
 
 group :production do
-  gem 'pg', '0.12.2'
+  gem 'pg'
 end
