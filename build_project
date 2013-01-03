@@ -12,6 +12,7 @@ project_repository_name="RealNobody"
 # sparrow_host
 project_app_directory="."
 
+
 # Todo:
 #   undo commit # git reset --hard HEAD~1
 #   git merge --abort
@@ -1267,11 +1268,11 @@ function record_version
   record_version_dir="$(pwd)"
   cd ${current_directory}
   find_version "${1}" current_file_version
-  record_history "  # build_sparrow version = \"${current_file_version}\""
+  record_history "  # build_project version = \"${current_file_version}\""
   cd ${record_version_dir}
 }
 
-function update_build_sparrow
+function update_build_project
 {
   # This function compares the version number of the two build filse
   # (the current one, and the one in the project folder - checked in)
@@ -1282,8 +1283,8 @@ function update_build_sparrow
 
   mkdir -p ${build_log_directory}/script_backups
 
-  find_version "${build_base_directory}/build_sparrow" core_file_version
-  find_version "${build_parent_directory}/build_sparrow" current_file_version
+  find_version "${build_base_directory}/build_project" core_file_version
+  find_version "${build_parent_directory}/build_project" current_file_version
 
   # split the version by .
   orig_ifs="${IFS}"
@@ -1329,19 +1330,19 @@ function update_build_sparrow
     echo "The checked in version (${core_file_version}) is ${version_comparison} the current version (${current_file_version})."
     echo ""
 
-    if [ -f ${build_log_directory}/script_backups/${current_file_version}.build_sparrow ]; then
-      if ! diff -q ${build_log_directory}/script_backups/${current_file_version}.build_sparrow ${build_parent_directory}/build_sparrow; then
-        mv ${build_log_directory}/script_backups/${current_file_version}.build_sparrow ${build_log_directory}/script_backups/${current_file_version}.build_sparrow.$(date ${time_format_sting})
+    if [ -f ${build_log_directory}/script_backups/${current_file_version}.build_project ]; then
+      if ! diff -q ${build_log_directory}/script_backups/${current_file_version}.build_project ${build_parent_directory}/build_project; then
+        mv ${build_log_directory}/script_backups/${current_file_version}.build_project ${build_log_directory}/script_backups/${current_file_version}.build_project.$(date ${time_format_sting})
       fi
     fi
 
-    if [ -f "${build_parent_directory}/build_sparrow" ]; then
-      mv ${build_parent_directory}/build_sparrow ${build_log_directory}/script_backups/${current_file_version}.build_sparrow
+    if [ -f "${build_parent_directory}/build_project" ]; then
+      mv ${build_parent_directory}/build_project ${build_log_directory}/script_backups/${current_file_version}.build_project
     fi
 
-    cp ${build_base_directory}/build_sparrow ${build_parent_directory}/build_sparrow
-    chmod +x ${build_base_directory}/build_sparrow
-    chmod +x ${build_parent_directory}/build_sparrow
+    cp ${build_base_directory}/build_project ${build_parent_directory}/build_project
+    chmod +x ${build_base_directory}/build_project
+    chmod +x ${build_parent_directory}/build_project
   fi
 }
 
@@ -1470,7 +1471,7 @@ function prompt_commands_or_help
   max_single_len=$((${max_single_len} + 1))
 
   if [ "${show_help}" = "true" ]; then
-    help_pre_text="Usage: build_sparrow [<OPTION> ...]${return_line}${return_line}OPTION:"
+    help_pre_text="Usage: build_project [<OPTION> ...]${return_line}${return_line}OPTION:"
     help_prompt_text=""
   else
     help_pre_text="Please select the command to run:"
@@ -2594,29 +2595,31 @@ function build_sub_folder
     build_sub_folder "${1}" "${2}/spec/dummy" "${3}" "${4}" "${5}" "${6}"
   fi
 
-  if [ "${build_folder}" = "sparrow_crm" ]; then
-    build_sub_folder "${base_folder}" "${project_app_directory}" "${build_environment}" "${skip_install}" "${skip_db_reset}" "${trace_file}"
-  fi
+  # if [ "${build_folder}" = "sparrow_crm" ]; then
+  #   build_sub_folder "${base_folder}" "${project_app_directory}" "${build_environment}" "${skip_install}" "${skip_db_reset}" "${trace_file}"
+  # fi
 }
 
 function build_project
 {
   # This function performs the commands needed to "build" the sparrow project.
+  build_project_full
 
-  record_branch recorded_name
-  cd ${build_base_directory}
-  backup_outputs "${build_log_directory}" "build_output.txt" "1w" "7 days"
+  # record_branch recorded_name
+  # cd ${build_base_directory}
+  # backup_outputs "${build_log_directory}" "build_output.txt" "1w" "7 days"
 
-  if [ -d "${build_base_directory}/sparrow_crm" ]; then
-    build_sub_folder ${build_base_directory} "sparrow_crm" "${rails_env_to_use}" "false" "false" "${build_log_directory}/build_output.txt"
-  else
-    build_project_full
-  fi
-  # build_sub_folder ${build_base_directory} "${project_app_directory}" "${rails_env_to_use}" "false" "false" "${build_log_directory}/build_output.txt"
+  # if [ -d "${build_base_directory}/sparrow_crm" ]; then
+  #   build_sub_folder ${build_base_directory} "sparrow_crm" "${rails_env_to_use}" "false" "false" "${build_log_directory}/build_output.txt"
+  # else
+  #   build_project_full
+  # fi
+  # # build_sub_folder ${build_base_directory} "${project_app_directory}" "${rails_env_to_use}" "false" "false" "${build_log_directory}/build_output.txt"
 }
 
 function build_project_full
 {
+  record_branch recorded_name
   cd ${build_base_directory}
   backup_outputs "${build_log_directory}" "build_output.txt" "1w" "7 days"
 
@@ -3194,7 +3197,7 @@ function report_test_success
 
       echo "" 2>&1 | tee -a ${report_log}
       if [ ! -z "${report_build_project_test_params}" ]; then
-        echo "./build_sparrow ---test --test-params \"${report_build_project_test_params}\"" 2>&1 | tee -a ${report_log}
+        echo "./build_project ---test --test-params \"${report_build_project_test_params}\"" 2>&1 | tee -a ${report_log}
       fi
       echo "cd ${build_base_directory}/${report_rspec_folder}" 2>&1 | tee -a ${report_log}
       echo "bundle exec ${rspec_command_line}${rspec_command_line_number}" 2>&1 | tee -a ${report_log}
@@ -3246,7 +3249,7 @@ function report_test_success
         echo "      [00;31mTest failed!!!!![00m" 2>&1 | tee -a ${report_log}
         echo "" 2>&1 | tee -a ${report_log}
         if [ ! -z "${report_build_project_test_params}" ]; then
-          echo "./build_sparrow ---test --test-params \"${report_build_project_test_params}\"" 2>&1 | tee -a ${report_log}
+          echo "./build_project ---test --test-params \"${report_build_project_test_params}\"" 2>&1 | tee -a ${report_log}
         fi
         echo "cd ${build_base_directory}/sparrow_crm" 2>&1 | tee -a ${report_log}
         echo "bundle exec ${report_failed_cucumber}" 2>&1 | tee -a ${report_log}
@@ -3703,12 +3706,14 @@ function show_test_menu
 
   while read sub_menu_line_read; do
     # 2 + ${guard_index}
-    format_line_for_menu "${test_menu_list_index}" "" "${sub_menu_line_read:2:${#sub_menu_line_read} - 10 - 2}" test_menu_line
-    test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-    file_name_list[${#file_name_list[@]}]="${sub_menu_line_read:2:${#sub_menu_line_read} - 10 - 2}"
-    sub_file_list[${#sub_file_list[@]}]=""
-    test_type_list[${#test_type_list[@]}]="guard"
-    test_menu_list_index=$((${test_menu_list_index} + 1))
+    if [ "${sub_menu_line_read}" != "./Guardfile" ]; then
+      format_line_for_menu "${test_menu_list_index}" "" "${sub_menu_line_read:2:${#sub_menu_line_read} - 10 - 2}" test_menu_line
+      test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
+      file_name_list[${#file_name_list[@]}]="${sub_menu_line_read:2:${#sub_menu_line_read} - 10 - 2}"
+      sub_file_list[${#sub_file_list[@]}]=""
+      test_type_list[${#test_type_list[@]}]="guard"
+      test_menu_list_index=$((${test_menu_list_index} + 1))
+    fi
   done <<< "${test_folders_list}"
 
   # RSPEC
@@ -3727,30 +3732,32 @@ function show_test_menu
 
   while read sub_menu_line_read; do
     # 3 + ${num_guard_tests} + ${rspec_index}
-    format_line_for_menu "${test_menu_list_index}" "" "  ${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}" test_menu_line
-    test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-    file_name_list[${#file_name_list[@]}]="${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}"
-    sub_file_list[${#sub_file_list[@]}]=""
-    test_type_list[${#test_type_list[@]}]="rspec"
-    test_menu_list_index=$((${test_menu_list_index} + 1))
+    if [ "${sub_menu_line_read}" != "./spec" ]; then
+      format_line_for_menu "${test_menu_list_index}" "" "  ${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}" test_menu_line
+      test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
+      file_name_list[${#file_name_list[@]}]="${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}"
+      sub_file_list[${#sub_file_list[@]}]=""
+      test_type_list[${#test_type_list[@]}]="rspec"
+      test_menu_list_index=$((${test_menu_list_index} + 1))
 
-    cd ${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}/spec
-    rspec_files=""
-    set +e
-    rspec_files="$(find . | grep "_spec.rb$")"
-    set -e
-    if [ ! -z "${rspec_files}" ]; then
-      while read rspec_file_name; do
-        format_line_with_prefix "          " "${rspec_file_name:2:${#rspec_file_name} - 2}" "          " test_menu_line
-        format_line_for_menu "${test_menu_list_index}" "" "${test_menu_line:6}" test_menu_line
-        test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-        file_name_list[${#file_name_list[@]}]="${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}"
-        sub_file_list[${#sub_file_list[@]}]="${rspec_file_name:2:${#rspec_file_name} - 2}"
-        test_type_list[${#test_type_list[@]}]="rspec"
-        test_menu_list_index=$((${test_menu_list_index} + 1))
-      done <<< "${rspec_files}"
+      cd ${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}/spec
+      rspec_files=""
+      set +e
+      rspec_files="$(find . | grep "_spec.rb$")"
+      set -e
+      if [ ! -z "${rspec_files}" ]; then
+        while read rspec_file_name; do
+          format_line_with_prefix "          " "${rspec_file_name:2:${#rspec_file_name} - 2}" "          " test_menu_line
+          format_line_for_menu "${test_menu_list_index}" "" "${test_menu_line:6}" test_menu_line
+          test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
+          file_name_list[${#file_name_list[@]}]="${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}"
+          sub_file_list[${#sub_file_list[@]}]="${rspec_file_name:2:${#rspec_file_name} - 2}"
+          test_type_list[${#test_type_list[@]}]="rspec"
+          test_menu_list_index=$((${test_menu_list_index} + 1))
+        done <<< "${rspec_files}"
+      fi
+      cd ../..
     fi
-    cd ../..
   done <<< "${test_folders_list}"
 
   # Features
@@ -6417,10 +6424,10 @@ function debug_test_test_reporting
   testing_array_files[${#testing_array_files[@]}]="sparrow_crm"
   testing_array_sub_files[${#testing_array_sub_files[@]}]="controllers/sparrow_crm/member_test.rb"
 
-  report_test_success ${build_parent_directory}/BuildLogs/build_sparrow_debug_report.txt "${testing_rspec_success}" testing_feature_failed_lines[@] testing_retest_results[@] testing_rspec_failed_lines[@] testing_array_types[@] testing_array_files[@] testing_array_sub_files[@] debug_test_reporting_missing_steps[@]
+  report_test_success ${build_parent_directory}/BuildLogs/build_project_debug_report.txt "${testing_rspec_success}" testing_feature_failed_lines[@] testing_retest_results[@] testing_rspec_failed_lines[@] testing_array_types[@] testing_array_files[@] testing_array_sub_files[@] debug_test_reporting_missing_steps[@]
 
-  if [ -f ${build_parent_directory}/BuildLogs/build_sparrow_debug_report.txt ]; then
-    rm ${build_parent_directory}/BuildLogs/build_sparrow_debug_report.txt
+  if [ -f ${build_parent_directory}/BuildLogs/build_project_debug_report.txt ]; then
+    rm ${build_parent_directory}/BuildLogs/build_project_debug_report.txt
   fi
 }
 
@@ -6885,7 +6892,7 @@ fi
 record_history "  ### Done ###"
 cd ${current_directory}
 
-update_build_sparrow
+update_build_project
 
 exit 0
 

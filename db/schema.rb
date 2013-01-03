@@ -11,7 +11,27 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121231234814) do
+ActiveRecord::Schema.define(:version => 20130102063537) do
+
+  create_table "measurement_aliases", :force => true do |t|
+    t.string   "alias"
+    t.integer  "measuring_unit_id"
+    t.datetime "created_at",        :null => false
+    t.datetime "updated_at",        :null => false
+  end
+
+  add_index "measurement_aliases", ["alias"], :name => "index_measurement_aliases_on_alias", :unique => true
+  add_index "measurement_aliases", ["measuring_unit_id"], :name => "index_measurement_aliases_on_measuring_unit_id"
+
+  create_table "measuring_units", :force => true do |t|
+    t.string   "name"
+    t.string   "abreviation"
+    t.string   "search_name"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
+
+  add_index "measuring_units", ["search_name"], :name => "index_measuring_units_on_search_name", :unique => true
 
   create_table "users", :force => true do |t|
     t.string   "name"
