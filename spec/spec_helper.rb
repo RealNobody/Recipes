@@ -1,6 +1,9 @@
 require 'rubygems'
 require 'spork'
 require "devise"
+require "support/login_macros"
+
+include LoginMacros
 
 #uncomment the following line to use spork with the debugger
 #require 'spork/ext/ruby-debug'

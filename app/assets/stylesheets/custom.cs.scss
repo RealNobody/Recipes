@@ -1,1 +1,60 @@
-@import "bootstrap";
+// Constants
+$footer_height : 60px;
+$header_height : 60px;
+$combined_height : 120px;
+
+// Sticky footer styles
+html,
+body,
+.recipie-body
+{
+  height: 100%;
+  /* The html and body elements cannot have any padding or margin. */
+  margin: 0px;
+  padding: 0px;
+}
+
+/* Wrapper for page content to push down footer */
+.recipie-container
+{
+  position: relative;
+  margin: 0 auto $footer_height;
+  overflow: auto;
+}
+
+.recipie-menu-adjust
+{
+  margin-top: $header_height;
+}
+
+/* Set the fixed height of the footer here */
+.recipie-footer-float
+{
+  position: absolute;
+  bottom: 0;
+  height: $footer_height;
+}
+
+.recipie-footer-static
+{
+  height: $footer_height;
+}
+
+/* Lastly, apply responsive CSS fixes as necessary */
+@media (max-width: 979px)
+{
+  .recipie-menu-adjust
+  {
+    margin-top: 0px;
+  }
+}
+
+@media (max-width: 767px)
+{
+  .navbar-fixed-top,
+  .navbar-fixed-bottom
+  {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+}

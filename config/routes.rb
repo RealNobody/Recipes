@@ -1,7 +1,10 @@
 Recipies::Application.routes.draw do
+  get "measuring_unit/new"
+
   devise_for :users
 
   resources :users
+  resources :measuring_units
 
   root to: 'static#index'
 
