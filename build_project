@@ -2506,6 +2506,7 @@ function build_sub_folder
 
       if [ "${db_version}" = "0" ]; then
         # Setup the DB.
+        # The DB Setup includes migrations and seeding.
         # echo "Setting up the DB in $(pwd)" 2>&1 | tee -a ${trace_file}
         echo "${return_line}Setting up the database..." 2>&1 | tee -a ${trace_file}
         execute_command "RAILS_ENV=${build_environment} bundle exec rake db:setup" ${trace_file} "" ""
@@ -3063,7 +3064,7 @@ function test_rspec
 
         # Run the rspec test.
         # echo "Testing the package $(pwd)"
-        echo "${return_line}Testing package...}" 2>&1 | tee -a ${build_log_directory}/rspec_single_run.txt
+        echo "${return_line}Testing package..." 2>&1 | tee -a ${build_log_directory}/rspec_single_run.txt
         execute_command "bundle exec rspec spec/${rspec_line}" ${build_log_directory}/rspec_single_run.txt rspec_test_fail_break ""
         if [ "${rspec_test_fail_break}" -ne "0" ]; then
           rspec_test_fail_break="true"
@@ -3117,7 +3118,7 @@ function test_smoke
   smoke_retest_lines_var="${8}"
   smoke_missing_steps_var="${9}"
 
-  smoke_test_success="false"
+  smoke_test_success="true"
   smoke_local_params="${user_smoke_params}"
 
   will_feature_tests_run "${smoke_ci_folder}" smoke_can_run
@@ -3348,14 +3349,14 @@ function run_smoke_test
   run_smoke_test_retest_var="${7}"
   test_run_smoke_missing_steps_var="${8}"
 
+  test_smoke_success="true"
+
   if [ -d ${build_base_directory}/${run_smoke_directory} ]; then
     cd ${build_base_directory}
     record_branch recorded_name
     backup_outputs "${build_log_directory}" "test_run.txt" "1w" "7 days"
 
     test_smoke "${run_smoke_directory}" "${run_smoke_ci_type}" "${build_log_directory}/test_run.txt" test_smoke_success "${run_smoke_test_failed_folders_var}" "${run_smoke_test_failed_lines_var}" "${run_smoke_test_rspec_failed_lines_var}" "${run_smoke_test_retest_var}" "${test_run_smoke_missing_steps_var}"
-  else
-    test_smoke_success="true"
   fi
 
   set_param_value "${run_smoke_test_success_var}" "${test_smoke_success}"
@@ -3604,21 +3605,27 @@ function test_all_features
 
   test_all_features_files="$(find . -name *.feature)"
   last_build_folder=""
+  all_features_test_success="true"
 
-  while read feature_file_name; do
-    split_feature_file_name "${feature_file_name}" feature_folder_name feature_file_path
-    if [ "${last_build_folder}" != "${feature_folder_name}" ]; then
-      build_sub_folder ${build_base_directory} ${feature_folder_name} "test" "false" "false" "${all_features_log_file}"
-      last_build_folder="${feature_folder_name}"
-    fi
+  if [ ! -z "${test_all_features_files}" ]; then
+    while read feature_file_name; do
+      split_feature_file_name "${feature_file_name}" feature_folder_name feature_file_path
+      if [ "${last_build_folder}" != "${feature_folder_name}" ]; then
+        build_sub_folder ${build_base_directory} ${feature_folder_name} "test" "false" "false" "${all_features_log_file}"
+        last_build_folder="${feature_folder_name}"
+      fi
 
-    test_feature "${feature_folder_name}" "${feature_file_path}" "${all_features_log_file}" all_features_test_success "${all_features_failed_folders}" "${all_features_failed_lines}" "${all_features_rspec_failed_lines}" "${all_features_failed_results}" "${all_features_missing_steps_var}"
+      test_feature "${feature_folder_name}" "${feature_file_path}" "${all_features_log_file}" all_features_single_success "${all_features_failed_folders}" "${all_features_failed_lines}" "${all_features_rspec_failed_lines}" "${all_features_failed_results}" "${all_features_missing_steps_var}"
+      if [ "${all_features_single_success}" = "false" ]; then
+        all_features_test_success="false"
+      fi
 
-    # # If the test failed, exit.
-    # if [ "${all_features_test_success}" = "false" ]; then
-    #   break
-    # fi
-  done <<< "${test_all_features_files}"
+      # # If the test failed, exit.
+      # if [ "${all_features_test_success}" = "false" ]; then
+      #   break
+      # fi
+    done <<< "${test_all_features_files}"
+  fi
 
   set_param_value "${all_features_return_var}" "${all_features_test_success}"
 }
@@ -3638,8 +3645,20 @@ function test_all_rspecs
   all_rspec_return_var="${2}"
   all_rspec_failed_lines_var="${3}"
 
+  all_rspec_test_success="true"
+
+  test_rspec "." "" "false" "${all_rspec_log_file}" single_rspec_success "${all_rspec_failed_lines_var}"
+  if [ "${single_rspec_success}" = "false" ]; then
+    all_rspec_test_success="false"
+  fi
+
   for directory_name in *; do
-    test_rspec "${directory_name}" "" "false" "${all_rspec_log_file}" all_rspec_test_success "${all_rspec_failed_lines_var}"
+    if [ -d ${directory_name} ]; then
+      test_rspec "${directory_name}" "" "false" "${all_rspec_log_file}" single_rspec_success "${all_rspec_failed_lines_var}"
+      if [ "${single_rspec_success}" = "false" ]; then
+        all_rspec_test_success="false"
+      fi
+    fi
   done
 
   set_param_value "${all_rspec_return_var}" "${all_rspec_test_success}"
@@ -3670,20 +3689,31 @@ function test_project
   backup_outputs "${build_log_directory}" "test_run.txt" "1w" "7 days"
 
   test_project_rspec_failed_lines=""
+  test_project_test_success="true"
 
-  test_all_rspecs "${build_log_directory}/test_run.txt" test_project_test_success "${test_project_failed_rspec_lines_var}"
+  test_all_rspecs "${build_log_directory}/test_run.txt" test_project_single_success "${test_project_failed_rspec_lines_var}"
+  if [ "${test_project_single_success}" = "false" ]; then
+    test_project_test_success="false"
+  fi
+echo "test_project_test_success = \"${test_project_test_success}\""
 
   cd ${build_base_directory}
 
   smoke_project_list=$(find . -name ci.rake)
-  while read smoke_project_folder; do
-    split_line_on_char "${smoke_project_folder}" "/" smoke_base_folder smoke_project_folder # remove the . directory.
-    split_line_on_char "${smoke_project_folder}" "/" smoke_base_folder smoke_project_folder
-    if [ -d ${smoke_base_folder} ]; then
-      build_sub_folder ${build_base_directory} "${smoke_base_folder}" "test" "false" "false" "${build_log_directory}/test_run.txt"
-      test_smoke "${smoke_base_folder}" "ci:smoke" "${build_log_directory}/test_run.txt" test_project_test_success "${test_project_failed_folders_var}" "${test_project_failed_lines_var}" "${test_project_failed_rspec_lines_var}" "${test_project_retest_results_var}" "${test_project_missing_steps_var}"
-    fi
-  done <<< "${smoke_project_list}"
+  if [ ! -z "${smoke_project_list}" ]; then
+    while read smoke_project_folder; do
+      split_line_on_char "${smoke_project_folder}" "/" smoke_base_folder smoke_project_folder # remove the . directory.
+      split_line_on_char "${smoke_project_folder}" "/" smoke_base_folder smoke_project_folder
+      if [ -d ${smoke_base_folder} ]; then
+        build_sub_folder ${build_base_directory} "${smoke_base_folder}" "test" "false" "false" "${build_log_directory}/test_run.txt"
+        test_smoke "${smoke_base_folder}" "ci:smoke" "${build_log_directory}/test_run.txt" test_project_single_success "${test_project_failed_folders_var}" "${test_project_failed_lines_var}" "${test_project_failed_rspec_lines_var}" "${test_project_retest_results_var}" "${test_project_missing_steps_var}"
+        if [ "${test_project_single_success}" = "false" ]; then
+          test_project_test_success="false"
+        fi
+      fi
+    done <<< "${smoke_project_list}"
+  fi
+echo "2 test_project_test_success = \"${test_project_test_success}\""
 
   set_param_value "${test_project_test_success_var}" "${test_project_test_success}"
 }
@@ -3757,71 +3787,87 @@ function show_test_menu
   test_menu_list_index=$((${test_menu_list_index} + 1))
 
   test_smoke_list=$(find . -name ci.rake)
-  while read test_smoke_folder; do
-    split_line_on_char "${test_smoke_folder}" "/" test_smoke_base_folder test_smoke_folder # remove the . directory.
-    split_line_on_char "${test_smoke_folder}" "/" test_smoke_base_folder test_smoke_folder
-    if [ -d ${test_smoke_base_folder} ]; then
-      # 1
-      format_line_for_menu "${test_menu_list_index}" "" "CI:Smoke - ${test_smoke_base_folder}" test_menu_line
-      test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-      file_name_list[${#file_name_list[@]}]="${test_smoke_base_folder}"
-      sub_file_list[${#sub_file_list[@]}]=""
-      test_type_list[${#test_type_list[@]}]="ci smoke"
-      test_menu_list_index=$((${test_menu_list_index} + 1))
+  if [ ! -z "${test_smoke_list}" ]; then
+    while read test_smoke_folder; do
+      if [ ! -z "${test_smoke_folder}" ]; then
+        split_line_on_char "${test_smoke_folder}" "/" test_smoke_base_folder test_smoke_folder # remove the . directory.
+        split_line_on_char "${test_smoke_folder}" "/" test_smoke_base_folder test_smoke_folder
+        if [ -d ${test_smoke_base_folder} ]; then
+          # 1
+          format_line_for_menu "${test_menu_list_index}" "" "CI:Smoke - ${test_smoke_base_folder}" test_menu_line
+          test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
+          file_name_list[${#file_name_list[@]}]="${test_smoke_base_folder}"
+          sub_file_list[${#sub_file_list[@]}]=""
+          test_type_list[${#test_type_list[@]}]="ci smoke"
+          test_menu_list_index=$((${test_menu_list_index} + 1))
 
-      # 2
-      format_line_for_menu "${test_menu_list_index}" "" "cucumber:all - ${test_smoke_base_folder}" test_menu_line
-      test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-      file_name_list[${#file_name_list[@]}]="${test_smoke_base_folder}"
-      sub_file_list[${#sub_file_list[@]}]=""
-      test_type_list[${#test_type_list[@]}]="ci cucumber"
-      test_menu_list_index=$((${test_menu_list_index} + 1))
-    fi
-  done <<< "${test_smoke_list}"
+          # 2
+          format_line_for_menu "${test_menu_list_index}" "" "cucumber:all - ${test_smoke_base_folder}" test_menu_line
+          test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
+          file_name_list[${#file_name_list[@]}]="${test_smoke_base_folder}"
+          sub_file_list[${#sub_file_list[@]}]=""
+          test_type_list[${#test_type_list[@]}]="ci cucumber"
+          test_menu_list_index=$((${test_menu_list_index} + 1))
+        fi
+      fi
+    done <<< "${test_smoke_list}"
+  fi
 
   # Guard
-  test_menu_options[${#test_menu_options[@]}]=""
-  format_line "Guard:" "" test_menu_line
-  test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
   test_folders_list="$(find . -name Guardfile)"
+  if [ ! -z "${test_folders_list}" ]; then
+    test_menu_options[${#test_menu_options[@]}]=""
+    format_line "Guard:" "" test_menu_line
+    test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
 
-  while read sub_menu_line_read; do
-    # 2 + ${guard_index}
-    if [ "${sub_menu_line_read}" != "./Guardfile" ]; then
-      format_line_for_menu "${test_menu_list_index}" "" "${sub_menu_line_read:2:${#sub_menu_line_read} - 10 - 2}" test_menu_line
+    while read sub_menu_line_read; do
+      # 2 + ${guard_index}
+      if [ "${sub_menu_line_read}" != "./Guardfile" ]; then
+        submenu_line_value="${sub_menu_line_read:2:${#sub_menu_line_read} - 10 - 2}"
+      else
+        submenu_line_value="."
+      fi
+      format_line_for_menu "${test_menu_list_index}" "" "${submenu_line_value}" test_menu_line
+      file_name_list[${#file_name_list[@]}]="${submenu_line_value}"
       test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-      file_name_list[${#file_name_list[@]}]="${sub_menu_line_read:2:${#sub_menu_line_read} - 10 - 2}"
       sub_file_list[${#sub_file_list[@]}]=""
       test_type_list[${#test_type_list[@]}]="guard"
       test_menu_list_index=$((${test_menu_list_index} + 1))
-    fi
-  done <<< "${test_folders_list}"
+    done <<< "${test_folders_list}"
+  fi
 
   # RSPEC
-  test_menu_options[${#test_menu_options[@]}]=""
-  format_line "RSPEC:" "" test_menu_line
-  test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
   test_folders_list="$(find . -name spec)"
+  if [ ! -z "${test_folders_list}" ]; then
+    test_menu_options[${#test_menu_options[@]}]=""
+    format_line "RSPEC:" "" test_menu_line
+    test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
 
-  # 2 + ${num_guard_tests}
-  format_line_for_menu "${test_menu_list_index}" "" "All RSPEC tests" test_menu_line
-  test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-  file_name_list[${#file_name_list[@]}]=""
-  sub_file_list[${#sub_file_list[@]}]=""
-  test_type_list[${#test_type_list[@]}]="rspec"
-  test_menu_list_index=$((${test_menu_list_index} + 1))
+    # 2 + ${num_guard_tests}
+    format_line_for_menu "${test_menu_list_index}" "" "All RSPEC tests" test_menu_line
+    test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
+    file_name_list[${#file_name_list[@]}]=""
+    sub_file_list[${#sub_file_list[@]}]=""
+    test_type_list[${#test_type_list[@]}]="rspec"
+    test_menu_list_index=$((${test_menu_list_index} + 1))
 
-  while read sub_menu_line_read; do
-    # 3 + ${num_guard_tests} + ${rspec_index}
-    if [ "${sub_menu_line_read}" != "./spec" ]; then
-      format_line_for_menu "${test_menu_list_index}" "" "  ${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}" test_menu_line
+    while read sub_menu_line_read; do
+      # 3 + ${num_guard_tests} + ${rspec_index}
+      if [ "${sub_menu_line_read}" != "./spec" ]; then
+        submenu_line_value="${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}"
+      else
+        submenu_line_value="."
+      fi
+      format_line_for_menu "${test_menu_list_index}" "" "  ${submenu_line_value}" test_menu_line
+      file_name_list[${#file_name_list[@]}]="${submenu_line_value}"
+
       test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-      file_name_list[${#file_name_list[@]}]="${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}"
       sub_file_list[${#sub_file_list[@]}]=""
       test_type_list[${#test_type_list[@]}]="rspec"
       test_menu_list_index=$((${test_menu_list_index} + 1))
 
-      cd ${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}/spec
+      cd ${submenu_line_value}/spec
+
       rspec_files=""
       set +e
       rspec_files="$(find . | grep "_spec.rb$")"
@@ -3831,42 +3877,44 @@ function show_test_menu
           format_line_with_prefix "          " "${rspec_file_name:2:${#rspec_file_name} - 2}" "          " test_menu_line
           format_line_for_menu "${test_menu_list_index}" "" "${test_menu_line:6}" test_menu_line
           test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-          file_name_list[${#file_name_list[@]}]="${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}"
+          file_name_list[${#file_name_list[@]}]="${submenu_line_value}"
           sub_file_list[${#sub_file_list[@]}]="${rspec_file_name:2:${#rspec_file_name} - 2}"
           test_type_list[${#test_type_list[@]}]="rspec"
           test_menu_list_index=$((${test_menu_list_index} + 1))
         done <<< "${rspec_files}"
       fi
       cd ../..
-    fi
-  done <<< "${test_folders_list}"
+    done <<< "${test_folders_list}"
+  fi
 
   # Features
-  test_menu_options[${#test_menu_options[@]}]=""
-  format_line "Feature Tests:" "" test_menu_line
-  test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
   test_folders_list="$(find . -name *.feature)"
-
-  # 3 + ${num_guard_tests} + ${num_rspec_tests}
-  format_line_for_menu "${test_menu_list_index}" "" "All feature tests (one file at a time...)" test_menu_line
-  test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-  file_name_list[${#file_name_list[@]}]=""
-  sub_file_list[${#sub_file_list[@]}]=""
-  test_type_list[${#test_type_list[@]}]="feature"
-  test_menu_list_index=$((${test_menu_list_index} + 1))
-
-  while read sub_menu_line_read; do
-    # 5 + ${num_guard_tests} + ${num_rspec_tests} + ${feature_index}
-    format_line_with_prefix "          " "${sub_menu_line_read:2:${#sub_menu_line_read} - 2}" "          " test_menu_line
-    format_line_for_menu "${test_menu_list_index}" "" "${test_menu_line:6}" test_menu_line
-    # format_line_for_menu "${test_menu_list_index}" "" "  ${sub_menu_line_read:2:${#sub_menu_line_read} - 2}" test_menu_line
+  if [ ! -z "${test_folders_list}" ]; then
+    test_menu_options[${#test_menu_options[@]}]=""
+    format_line "Feature Tests:" "" test_menu_line
     test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-    split_feature_file_name "${file_name_list[${selected_test_number}]}" test_feature_folder_name test_feature_file_path
-    file_name_list[${#file_name_list[@]}]="${test_feature_file_path}"
-    sub_file_list[${#sub_file_list[@]}]="${test_feature_folder_name}"
+
+    # 3 + ${num_guard_tests} + ${num_rspec_tests}
+    format_line_for_menu "${test_menu_list_index}" "" "All feature tests (one file at a time...)" test_menu_line
+    test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
+    file_name_list[${#file_name_list[@]}]=""
+    sub_file_list[${#sub_file_list[@]}]=""
     test_type_list[${#test_type_list[@]}]="feature"
     test_menu_list_index=$((${test_menu_list_index} + 1))
-  done <<< "${test_folders_list}"
+
+    while read sub_menu_line_read; do
+      # 5 + ${num_guard_tests} + ${num_rspec_tests} + ${feature_index}
+      format_line_with_prefix "          " "${sub_menu_line_read:2:${#sub_menu_line_read} - 2}" "          " test_menu_line
+      format_line_for_menu "${test_menu_list_index}" "" "${test_menu_line:6}" test_menu_line
+      # format_line_for_menu "${test_menu_list_index}" "" "  ${sub_menu_line_read:2:${#sub_menu_line_read} - 2}" test_menu_line
+      test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
+      split_feature_file_name "${file_name_list[${selected_test_number}]}" test_feature_folder_name test_feature_file_path
+      file_name_list[${#file_name_list[@]}]="${test_feature_file_path}"
+      sub_file_list[${#sub_file_list[@]}]="${test_feature_folder_name}"
+      test_type_list[${#test_type_list[@]}]="feature"
+      test_menu_list_index=$((${test_menu_list_index} + 1))
+    done <<< "${test_folders_list}"
+  fi
 
   test_menu_options[${#test_menu_options[@]}]=""
   test_menu_list_index=$((${test_menu_list_index} - 1))
@@ -4756,9 +4804,11 @@ function show_guard_menu
   folders_list="$(find . -name Guardfile)"
   validated_branch_index=""
 
-  while read guard_folder; do
-    guard_folder_list[${#guard_folder_list[@]}]="${guard_folder:2:${#guard_folder} - 10 - 2}"
-  done <<< "${folders_list}"
+  if [ ! -z "${folders_list}" ]; then
+    while read guard_folder; do
+      guard_folder_list[${#guard_folder_list[@]}]="${guard_folder:2:${#guard_folder} - 10 - 2}"
+    done <<< "${folders_list}"
+  fi
 
   present_menu guard_folder_list[@] "true" "0" "Select which folder to run Guard in:" "Type the number of the folder to run Guard in: " validated_branch_index "false" "0"
 
@@ -4903,22 +4953,24 @@ function stash_lock_files
   log_backup_dir="${build_log_directory}/old/Gemfile.lock.$(date ${time_format_sting})"
   cd ${build_base_directory}
   lock_file_list="$(find . -name Gemfile.lock)"
-  while read lock_file; do
-    if [ -e ${lock_file} ]; then
-      set +e
-      lock_return="$(git ls-files ${lock_file} --error-unmatch 2>&1)"
-      lock_exists="${?}"
-      set -e
+  if [ ! -z "${lock_file_list}" ]; then
+    while read lock_file; do
+      if [ -e ${lock_file} ]; then
+        set +e
+        lock_return="$(git ls-files ${lock_file} --error-unmatch 2>&1)"
+        lock_exists="${?}"
+        set -e
 
-      mkdir -p ${log_backup_dir}/${lock_file}
-      rmdir ${log_backup_dir}/${lock_file}
-      if [ "${lock_exists}" != "0" ]; then
-        execute_command "mv ${lock_file} ${log_backup_dir}/${lock_file}" "" "" ""
-      else
-        execute_command "cp ${lock_file} ${log_backup_dir}/${lock_file}" "" "" ""
+        mkdir -p ${log_backup_dir}/${lock_file}
+        rmdir ${log_backup_dir}/${lock_file}
+        if [ "${lock_exists}" != "0" ]; then
+          execute_command "mv ${lock_file} ${log_backup_dir}/${lock_file}" "" "" ""
+        else
+          execute_command "cp ${lock_file} ${log_backup_dir}/${lock_file}" "" "" ""
+        fi
       fi
-    fi
-  done <<< "${lock_file_list}"
+    done <<< "${lock_file_list}"
+  fi
 }
 
 function get_current_status
@@ -5818,35 +5870,37 @@ function recreate_database_schema
     declare -a migrate_folder_list
 
     schema_dump_db_folders="$(find . -name db)"
-    while read schema_dump_db_path; do
-      cd ${build_base_directory}
-      if [ -d ${schema_dump_db_path} ]; then
-        if ! echo "${schema_dump_db_path}" | grep -q ".git/"; then
-          if ! echo "${schema_dump_db_path}" | grep -q "sparrow_crm"; then
-            if ! echo "${schema_dump_db_path}" | grep -q "sparrow_host"; then
-              if ! echo "${schema_dump_db_path}" | grep -q "spec/dummy"; then
-                # The folder exists, is not sparrow_crm, sparrow_host, and not spec/dummy.
-                # Therefore, this folder has DB migrations we need to include in our program.
-                schema_dump_db_path="${schema_dump_db_path:2:${#schema_dump_db_path} - 5}"
-                migrate_folder_list[${#migrate_folder_list[@]}]=${schema_dump_db_path}
+    if [ ! -z "${schema_dump_db_folders}" ]; then
+      while read schema_dump_db_path; do
+        cd ${build_base_directory}
+        if [ -d ${schema_dump_db_path} ]; then
+          if ! echo "${schema_dump_db_path}" | grep -q ".git/"; then
+            if ! echo "${schema_dump_db_path}" | grep -q "sparrow_crm"; then
+              if ! echo "${schema_dump_db_path}" | grep -q "sparrow_host"; then
+                if ! echo "${schema_dump_db_path}" | grep -q "spec/dummy"; then
+                  # The folder exists, is not sparrow_crm, sparrow_host, and not spec/dummy.
+                  # Therefore, this folder has DB migrations we need to include in our program.
+                  schema_dump_db_path="${schema_dump_db_path:2:${#schema_dump_db_path} - 5}"
+                  migrate_folder_list[${#migrate_folder_list[@]}]=${schema_dump_db_path}
 
-                cd ${build_base_directory}/${schema_dump_db_path}
-                if [ -d spec/dummy/db ]; then
-                  cd spec/dummy
-                  execute_command "bundle install" "" "" ""
-                  execute_command "RAILS_ENV=test bundle exec rake db:drop db:create db:migrate" "" "" ""
-                  cd ../..
-                  execute_command "bundle install" "" "" ""
-                  execute_command "RAILS_ENV=test bundle exec rake db:migrate" "" "" ""
-                  cd spec/dummy
-                  execute_command "RAILS_ENV=test bundle exec rake db:schema:dump db:drop" "" "" ""
+                  cd ${build_base_directory}/${schema_dump_db_path}
+                  if [ -d spec/dummy/db ]; then
+                    cd spec/dummy
+                    execute_command "bundle install" "" "" ""
+                    execute_command "RAILS_ENV=test bundle exec rake db:drop db:create db:migrate" "" "" ""
+                    cd ../..
+                    execute_command "bundle install" "" "" ""
+                    execute_command "RAILS_ENV=test bundle exec rake db:migrate" "" "" ""
+                    cd spec/dummy
+                    execute_command "RAILS_ENV=test bundle exec rake db:schema:dump db:drop" "" "" ""
+                  fi
                 fi
               fi
             fi
           fi
         fi
-      fi
-    done <<< "${schema_dump_db_folders}"
+      done <<< "${schema_dump_db_folders}"
+    fi
 
     if [ ${#migrate_folder_list[@]} -gt 0 ]; then
       cd ${build_base_directory}/sparrow_host
@@ -6991,4 +7045,4 @@ update_build_project
 
 exit 0
 
-# version=0.0.43
+# version=0.0.44

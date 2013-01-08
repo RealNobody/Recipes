@@ -30,10 +30,15 @@ Recipies.Application.prototype =
   */
   resize_body: function ()
   {
-    window_height = $(window).height () - recipiesApp.footer_height - recipiesApp.header_height;
+    recipiesApp.do_resize_body (false, $("#recipe-button-menu").height ());
+  },
+
+  do_resize_body: function (force_footer, adjust_height_value)
+  {
+    window_height = $(window).height () - recipiesApp.footer_height - recipiesApp.header_height - adjust_height_value;
     body_height = $(".recipie-body").height ();
 
-    if (window_height < recipiesApp.min_height)
+    if (window_height < recipiesApp.min_height || force_footer)
     {
       window_height = recipiesApp.min_height;
       $(".recipie-footer").removeClass ("recipie-footer-float");
@@ -101,3 +106,23 @@ $(document).ready (
 $(document).ready('bootstrap_buttons', function() {
   $('.btn').button('reset');
 });
+
+/*
+  I don't want the site to look different when the menu buttons are shown
+  so I hack some JScript together to acomodate the look/feel I want.
+*/
+$("#recipe-button-menu-button").click(
+  function ()
+  {
+    if ($("#recipe-button-menu").hasClass ("in"))
+    {
+      $("#recipe-button-menu").height ("0px");
+      recipiesApp.do_resize_body (false, 0);
+    }
+    else
+    {
+      $("#recipe-button-menu").height ("auto");
+      recipiesApp.resize_body ();
+    }
+  }
+);
