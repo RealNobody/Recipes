@@ -3,6 +3,11 @@
 debug_mode="true"
 debug_mode="false"
 
+# TODO -- Add --heroku option for:
+#               build
+#               db_reset
+#               deploy?
+
 function load_project_settings
 {
   exe_name="${1}"
@@ -4904,11 +4909,38 @@ function deploy_to_production
 function deploy_system
 {
   # This function deploys the system.
-  # At this time, all it does is prompt you which deployment to use and then
-  # calls the capistrano deployment call.
-  #
-  # It is built however for the eventual deployment of a branch, where it will
-  # prompt you for a branch to deploy then make the appropriate call.
+
+  declare -a deployment_options
+
+  cd ${build_base_directory}
+
+  deployment_menu_selection="-1"
+
+  if [ -f ${build_base_directory}/${project_app_directory}/Capfile ]; then
+    deployment_options[${#deployment_options[@]}]="Capestrano"
+    deployment_menu_selection="0"
+  fi
+  if git remote | grep -q "heroku"; then
+    deployment_options[${#deployment_options[@]}]="Heroku"
+    deployment_menu_selection="1"
+  fi
+
+  if [ ${#deployment_options[@]} -gt 1 ]; then
+    present_menu deployment_menu_selection[@] "false" "0" "Select the type of deployment to use..." "Select the deployment you want to use: " deployment_menu_selection "false" 0
+  fi
+
+  if [ "${deployment_menu_selection}" = "0" ]; then
+    deploy_capestrano
+  fi
+
+  if [ "${deployment_menu_selection}" = "1" ]; then
+    deploy_heroku
+  fi
+}
+
+function deploy_capestrano
+{
+  # If the system supports capestrano deployment, it will deploy to capestrano
 
   # If available, do a capestrano deployment...
   if [ -f ${build_base_directory}/${project_app_directory}/Capfile ]; then
@@ -4943,6 +4975,26 @@ function deploy_system
 
     cd ${build_base_directory}/${project_app_directory}
     execute_command "bundle exec cap ${extra_params} deploy" "${build_log_directory}/deploy.txt" "" ""
+  fi
+}
+
+function deploy_heroku
+{
+  cd ${build_base_directory}
+  backup_outputs "${build_log_directory}" "heroku_deploy.txt" "1w" "7 days"
+  if git remote | grep -q "heroku"; then
+    record_branch deploy_orig_branch_name
+    if [ "${deploy_orig_branch_name}" != "master" ]; then
+      switch_to_branch "master"
+    fi
+
+    execute_command "git push heroku master" "${build_log_directory}/heroku_deploy.txt" "" ""
+    execute_command "heroku run rake db:migrate" "${build_log_directory}/heroku_deploy.txt" "" ""
+    execute_command "heroku run rake db:seed" "${build_log_directory}/heroku_deploy.txt" "" ""
+
+    if [ "${deploy_orig_branch_name}" != "master" ]; then
+      switch_to_branch "${deploy_orig_branch_name}"
+    fi
   fi
 }
 
@@ -5028,6 +5080,7 @@ function clear_log_histories
   clear_old_outputs "${build_log_directory}" "test_run.txt" "1w" "7 days"
   clear_old_outputs "${build_log_directory}" "deploy_output.txt" "1w" "7 days"
   clear_old_outputs "${build_log_directory}" "deploy.txt" "1w" "7 days"
+  clear_old_outputs "${build_log_directory}" "heroku_deploy.txt" "1w" "7 days"
   clear_old_outputs "${build_log_directory}" "Gemfile.lock" "1w" "7 days"
   clear_old_outputs "${build_log_directory}" "prod_deploy.txt" "1w" "7 days"
 }
@@ -7045,4 +7098,4 @@ update_build_project
 
 exit 0
 
-# version=0.0.44
+# version=0.0.45
