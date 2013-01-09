@@ -14,6 +14,9 @@ class MeasuringUnit < ActiveRecord::Base
   attr_accessible :name, :abreviation
   has_many :measurement_aliases
 
+  default_scope order("name")
+  paginates_per 2
+
   validates :name,
             length:     { maximum: 255, minimum: 1 },
             presence:   true

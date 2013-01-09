@@ -1,0 +1,6 @@
+<% @measuring_units.each do | measuring_unit | %>
+  <li><%= link_to("#{measuring_unit.name} (#{measuring_unit.abreviation})", measuring_unit) %></li>
+<% end %>
+<% if @measuring_units.length >= MeasuringUnit.default_per_page %>
+  <li class="scrolling-next"><%= link_to_next_page @measuring_units, 'Next Page' %></li>
+<% end %>

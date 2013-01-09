@@ -4,6 +4,12 @@ Recipies::Application.routes.draw do
   devise_for :users
 
   resources :users
+
+  # match :controller/page/:page, action: :page
+
+  resources :measuring_units do
+    get 'page/:page', action: :page, on: :collection
+  end
   resources :measuring_units
 
   root to: 'static#index'
