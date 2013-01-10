@@ -1,0 +1,9 @@
+  <%= render(partial: "#{@_controller.controller_name}/list", layout: false) %>
+  <%
+    next_element = render(partial: "#{@_controller.controller_name}/next_link", layout: false)
+    unless next_element.blank?
+  %>
+    <div class="scrolling-next">
+      <%= next_element %>
+    </div>
+  <% end %>
