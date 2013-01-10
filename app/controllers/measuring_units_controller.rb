@@ -22,7 +22,7 @@ class MeasuringUnitsController < ApplicationController
     @measuring_units = MeasuringUnit.page(params[:page])
 
     respond_to do |format|
-      format.html { render(partial: "list", layout: false) }
+      format.html { render(partial: "scrolling_list/scroll_content", layout: false) }
       format.json { render json: @measuring_units }
     end
   end
