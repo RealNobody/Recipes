@@ -14,6 +14,9 @@ class MeasuringUnit < ActiveRecord::Base
   attr_accessible :name, :abreviation
   has_many :measurement_aliases
 
+  default_scope order("name")
+  paginates_per 4
+
   validates :name,
             length:     { maximum: 255, minimum: 1 },
             presence:   true
@@ -51,6 +54,14 @@ class MeasuringUnit < ActiveRecord::Base
     else
       self[:abreviation]
     end
+  end
+
+  def list_name
+    return_name=self.name
+    unless (self.abreviation.blank? || self.name == self.abreviation)
+      return_name += " (#{self.abreviation})"
+    end
+    return_name
   end
 
   # This is a helper function for seeding, but may be helpful

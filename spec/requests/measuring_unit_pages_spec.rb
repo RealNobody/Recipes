@@ -13,7 +13,7 @@ describe "MeasuringUnit pages" do
     end
 
     describe "should have a list" do
-      it { should have_selector("p", text: "This is a start.")}
+      it { should have_selector("h1", text: "Measuring Units")}
     end
 
     # it "works! (now write some real specs)" do
