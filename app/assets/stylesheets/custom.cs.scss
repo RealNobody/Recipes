@@ -33,6 +33,7 @@ body,
   position: absolute;
   bottom: 0;
   height: $footer_height;
+  width: 100%;
 }
 
 .recipie-footer-static
@@ -57,4 +58,11 @@ body,
     margin-left: 0px;
     margin-right: 0px;
   }
+}
+
+.recipie-footer-divider
+{
+  width: 100%;
+  border-top-style: solid;
+  border-top-width: 1px;
 }
