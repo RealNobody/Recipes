@@ -16,9 +16,10 @@ Recipies.Application.prototype =
 {
   last_height: -1,
   last_width: -1,
-  header_height: 80,
+  header_height: 40,
   footer_height: 60,
   min_height: 120,
+  container_margin: 20,
 
   /*
     I wanted a static floating footer, and to use/test the BootStrap menus.
@@ -30,20 +31,42 @@ Recipies.Application.prototype =
   */
   resize_body: function ()
   {
-    recipiesApp.do_resize_body (false, $("#recipe-button-menu").height ());
+    this.do_resize_body (false);
   },
 
-  do_resize_body: function (force_footer, adjust_height_value)
+  do_resize_body: function (from_button_click)
   {
-    window_height = $(window).height () - recipiesApp.footer_height - recipiesApp.header_height - adjust_height_value;
-    body_height = $(".recipie-body").height ();
+    header_menu_height = 0;
 
-    if (window_height < recipiesApp.min_height || force_footer)
+    menu_showing = $("#recipe-button-menu").hasClass ("in");
+    if (from_button_click)
+      menu_showing = !menu_showing;
+
+    if (menu_showing)
+      adjust_height_value = $("#recipe-button-menu").height ();
+    else
+      adjust_height_value = 0;
+
+    body_height = $(".recipie-body").height ();
+    if ($("#recipe-button-menu-button").is (":hidden"))
     {
-      window_height = recipiesApp.min_height;
+      header_menu_height = $("#recipie-main-menu").height ();
+      $(".recipie-menu-adjust").css ("margin-top", (header_menu_height + 19).toString () + "px");
+    }
+    else
+    {
+      $(".recipie-menu-adjust").css ("margin-top", "0px");
+      header_menu_height = this.container_margin + 30;
+    }
+
+    window_height = $(window).height () - this.footer_height - this.header_height - 1 - header_menu_height - adjust_height_value;
+
+    if (window_height < this.min_height)
+    {
+      window_height = this.min_height;
       $(".recipie-footer").removeClass ("recipie-footer-float");
       $(".recipie-footer").addClass ("recipie-footer-static");
-      body_height = (recipiesApp.min_height + recipiesApp.footer_height).toString ();
+      body_height = (this.min_height + this.footer_height).toString ();
     }
     else
     {
@@ -52,8 +75,9 @@ Recipies.Application.prototype =
       body_height = "100%";
     }
 
-    if ($(window).width () > 979)
-      body_height = ($(window).height () - recipiesApp.header_height).toString ();
+    if ($("#recipe-button-menu-button").is (":hidden"))
+      body_height = ($(window).height () - header_menu_height - this.header_height - 1).toString ();
+
     if (body_height === "100%")
     {
       $(".recipie-body").height (body_height);
@@ -68,10 +92,10 @@ Recipies.Application.prototype =
       }
     }
 
-    if (window_height != recipiesApp.last_height)
+    if (window_height != this.last_height)
     {
       // When we hit min_height, the footer just becomes an in-line footer.
-      if (window_height == recipiesApp.min_height)
+      if (window_height == this.min_height)
         $(".recipie-container").height ("auto");
       else
         $(".recipie-container").height (window_height);
@@ -117,12 +141,12 @@ $("#recipe-button-menu-button").click(
     if ($("#recipe-button-menu").hasClass ("in"))
     {
       $("#recipe-button-menu").height ("0px");
-      recipiesApp.do_resize_body (false, 0);
     }
     else
     {
       $("#recipe-button-menu").height ("auto");
-      recipiesApp.resize_body ();
     }
+
+    recipiesApp.do_resize_body (true);
   }
 );
