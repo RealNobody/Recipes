@@ -3,15 +3,36 @@
 debug_mode="true"
 debug_mode="false"
 
-# sparrow
-project_base_name="Recipies"
-# Sparrow/
-project_base_parent_dir=""
-# SageACT
-project_repository_name="RealNobody"
-# sparrow_host
-project_app_directory="."
+# TODO -- Add --heroku option for:
+#               build
+#               db_reset
+#               deploy?
 
+function load_project_settings
+{
+  exe_name="${1}"
+  # Default values based on the system being build for the Sparrow project.
+  # sparrow
+  project_base_name="Recipies"
+  # Sparrow/
+  project_base_parent_dir=""
+  # SageACT
+  project_repository_name="RealNobody"
+  # sparrow_host
+  project_app_directory="."
+
+  # build_project
+  proj_dir="${exe_name:0:$((${#exe_name} - 13))}"
+
+  if [ -f ${proj_dir}/settings_for_build_project ]; then
+    settings_lines=$(cat ${proj_dir}/settings_for_build_project)
+    while read exec_setting_val; do
+      eval ${exec_setting_val}
+    done <<< "${settings_lines}"
+  fi
+}
+
+load_project_settings "${0}"
 
 # Todo:
 #   undo commit # git reset --hard HEAD~1
@@ -31,6 +52,7 @@ merge_conflict_status_grep="^\(DD\|AA\|.U\|U.\)"
 test_param_test_number=""
 test_param_test_line=""
 
+smoke_browser_set="false"
 local_branch=-1
 local_branch_name="master"
 command_line_arguments=("$@")
@@ -38,6 +60,7 @@ current_directory="$(pwd)"
 rails_env_to_use="development"
 return_line="
 "
+tab_character="	"
 
 build_base_directory="${current_directory}/${project_base_name}"
 build_parent_directory="${current_directory}"
@@ -88,7 +111,7 @@ function initialize_commands
   # Having them in the array also simplifies the help screen and
   # a command prompt option.
 
-  # -b, --build                   - Build Sparrow
+  # -b, --build                   - Build the project
   # -t, --test                    - Run tests
   # -p, --pull                    - Pull the source
   # -m, --merge                   - Merge a branch
@@ -105,7 +128,7 @@ function initialize_commands
   # -v, --move                    - Move the current git directory out of the way
   # -l, --clone                   - Clone the repository
   # -o, --production              - Production Deployment
-  # --base_dir --base-dir         - The base directory to work in (the parent to sparrow)
+  # --base_dir --base-dir         - The base directory to work in (the parent to the project)
   # --rails_env --rails-env       - The RAILS_ENV to use for build/deploy
   # -y --deploy                   - Deploy the system to one of the known machines
   # --history                     - Show recent history
@@ -129,7 +152,7 @@ function initialize_commands
 
   # If this has been called before, don't do it again...
   if [ "${#command_vars[@]}" -le "0" ]; then
-    # -b, --build                   - Build Sparrow
+    # -b, --build                   - Build the project
     command_vars[${#command_vars[@]}]="do_build_project"
     command_options_show[${#command_options_show[@]}]="-b --build"
     command_options[${#command_options[@]}]="${command_options_show[$((${#command_options_show[@]} - 1))]}"
@@ -231,7 +254,7 @@ function initialize_commands
     command_options[${#command_options[@]}]="${command_options_show[$((${#command_options_show[@]} - 1))]}"
     command_descriptions[${#command_descriptions[@]}]="Production Deployment"
 
-    # --base_dir --base-dir         - The base directory to work in (the parent to sparrow)
+    # --base_dir --base-dir         - The base directory to work in
     command_vars[${#command_vars[@]}]="set_base_dir base_dir_param"
     command_options_show[${#command_options_show[@]}]="--base_dir"
     command_options[${#command_options[@]}]="${command_options_show[$((${#command_options_show[@]} - 1))]} --base-dir"
@@ -594,8 +617,8 @@ function get_origin_branch
   # This code was from before I learned about git config branch.<branch>.[merge|push|pull]
   # # Sample output:
   # # * remote origin
-  # #   Fetch URL: git@github.com:SageACT/sparrow.git
-  # #   Push  URL: git@github.com:SageACT/sparrow.git
+  # #   Fetch URL: git@github.com:SageACT/s parrow.git
+  # #   Push  URL: git@github.com:SageACT/s parrow.git
   # #   HEAD branch: master
   # #   Remote branches:
   # #     B-03837-linkedin_basic_feed          tracked
@@ -1618,26 +1641,10 @@ function set_default_param_values
   # to organize it, and in case we want to have more in the future.
 
   # Check to see if a -p option has been set...
-  set_user_smoke_p="true"
+  smoke_browser_set="false"
   if [ ! -z "${user_smoke_params}" ]; then
     if echo "${user_smoke_params}" | grep -q -e "-p[[:space:]][[:space:]]*[a-z0-9][a-z0-9]*"; then
-      set_user_smoke_p="false"
-    fi
-  fi
-
-  # if a -p option hasn't been set, add a -p option to the options...
-  if [ "${set_user_smoke_p}" = "true" ]; then
-    if [ ! -z "${user_smoke_params}" ]; then
-      user_smoke_params="${user_smoke_params} "
-    fi
-
-    if [ "${project_base_name}" = "sparrow" ]; then
-      # What option to use depends on which branch has or hasn't been merged to master yet...
-      if grep "browser-webkit\:" ${build_base_directory}/sparrow_crm/config/cucumber.yml; then
-        user_smoke_params="${user_smoke_params}-p webkit"
-      else
-        user_smoke_params="${user_smoke_params}-p firefox"
-      fi
+      smoke_browser_set="true"
     fi
   fi
 }
@@ -2118,9 +2125,9 @@ function extract_db_configurations
 
   while read extract_config_line; do
     # ignore comment lines...
-    if ! echo "${extract_config_line}" | grep -q "^[ 	]*\#"; then
+    if ! echo "${extract_config_line}" | grep -q "^[ ${tab_character}]*\#"; then
       if [ ! -z "${extract_config_line}" ]; then
-        if echo "${extract_config_line}" | grep -q "^[^ 	][^ 	]*\:"; then
+        if echo "${extract_config_line}" | grep -q "^[^ ${tab_character}][^ ${tab_character}]*\:"; then
           if [ ! -z "${extract_section_name_val}" ]; then
             append_array_value "${section_names_var}" "${extract_section_name_val}"
             append_array_value "${databases_var}" "${extract_database_val}"
@@ -2138,7 +2145,7 @@ function extract_db_configurations
           # Minus a real string library, this is how I can do it quickly...
           extract_config_parse_start_index="0"
           while [ ${extract_config_parse_start_index} -lt ${#extract_config_line} ]; do
-            if [ "${extract_config_line:${extract_config_parse_start_index}:1}" = "	" ]; then # <tab>
+            if [ "${extract_config_line:${extract_config_parse_start_index}:1}" = "${tab_character}" ]; then # <tab>
               extract_config_parse_start_index=$((${extract_config_parse_start_index} + 1))
             else
               if [ "${extract_config_line:${extract_config_parse_start_index}:1}" = " " ]; then
@@ -2150,7 +2157,7 @@ function extract_db_configurations
           done
           extract_config_parse_end_index="${extract_config_parse_start_index}"
           while [ ${extract_config_parse_end_index} -lt ${#extract_config_line} ]; do
-            if [ "${extract_config_line:${extract_config_parse_end_index}:1}" != "	" ]; then # <tab>
+            if [ "${extract_config_line:${extract_config_parse_end_index}:1}" != "${tab_character}" ]; then # <tab>
               if [ "${extract_config_line:${extract_config_parse_end_index}:1}" != " " ]; then
                 if [ "${extract_config_line:${extract_config_parse_end_index}:1}" != ":" ]; then
                   extract_config_parse_end_index=$((${extract_config_parse_end_index} + 1))
@@ -2173,7 +2180,7 @@ function extract_db_configurations
           done
           extract_config_val_start_index=$((${extract_config_val_start_index} + 1))
           while [ ${extract_config_val_start_index} -lt ${#extract_config_line} ]; do
-            if [ "${extract_config_line:${extract_config_val_start_index}:1}" = "	" ]; then # <tab>
+            if [ "${extract_config_line:${extract_config_val_start_index}:1}" = "${tab_character}" ]; then # <tab>
               extract_config_val_start_index=$((${extract_config_val_start_index} + 1))
             else
               if [ "${extract_config_line:${extract_config_val_start_index}:1}" = " " ]; then
@@ -2185,7 +2192,7 @@ function extract_db_configurations
           done
           extract_config_val_end_index=$((${#extract_config_line} - 1))
           while [ ${extract_config_val_end_index} -ge ${extract_config_val_start_index} ]; do
-            if [ "${extract_config_line:${extract_config_val_end_index}:1}" = "	" ]; then # <tab>
+            if [ "${extract_config_line:${extract_config_val_end_index}:1}" = "${tab_character}" ]; then # <tab>
               extract_config_val_end_index=$((${extract_config_val_end_index} - 1))
             else
               if [ "${extract_config_line:${extract_config_val_end_index}:1}" = " " ]; then
@@ -2366,7 +2373,7 @@ function build_sub_folder
   # This function will build a single folder.
   #
   # Parameters:
-  #   ${1}  - base_folder       - The base folder for sparrow.
+  #   ${1}  - base_folder       - The base folder for the project.
   #   ${2}  - build_folder      - The folder to build.
   #   ${3}  - build_environment - The environment to build.  Should be development or production.
   #   ${4}  - skip_install      - Administrative param to allow a call to skip the bundle install.
@@ -2443,19 +2450,19 @@ function build_sub_folder
   # This migration shouldn't be needed.  I'm leaving it in the code
   # as a reminder that we may need it...
 
-  #   if [ "${build_folder}" = "sparrow_host" ]; then
+  #   if [ "${build_folder}" = "s parrow_host" ]; then
   #     # The NAP core model has migrations, and we need to import these into the host.
   #     # echo "Raking the core model..." 2>&1 | tee -a ${trace_file}
   #     echo "
   # Raking the core model... 2>&1 | tee -a ${trace_file}
-  # $(pwd) \$ RAILS_ENV=${build_environment} bundle exec rake sparrow_core_models:install:migrations" 2>&1 | tee -a ${trace_file}
-  #     RAILS_ENV=${build_environment} bundle exec rake sparrow_core_models:install:migrations 2>&1 | tee -a ${trace_file}
+  # $(pwd) \$ RAILS_ENV=${build_environment} bundle exec rake s parrow_core_models:install:migrations" 2>&1 | tee -a ${trace_file}
+  #     RAILS_ENV=${build_environment} bundle exec rake s parrow_core_models:install:migrations 2>&1 | tee -a ${trace_file}
   #   fi
 
   if [ -d "db" -o -d "spec/dummy/db" ]; then
-    # We don't do the "db stuff" in sparrow_crm because the spec_dummy folder in sparrow_crm
-    # is really an alias to sparrow_host, so we do/will do it there...
-    if [ "${build_folder}" != "sparrow_crm" ]; then
+    # We don't do the "db stuff" in s parrow_crm because the spec_dummy folder in s parrow_crm
+    # is really an alias to s parrow_host, so we do/will do it there...
+    # if [ "${build_folder}" != "s parrow_crm" ]; then
       is_dummy="false"
       if [ -d "spec/dummy" ]; then
         is_dummy="true"
@@ -2504,6 +2511,7 @@ function build_sub_folder
 
       if [ "${db_version}" = "0" ]; then
         # Setup the DB.
+        # The DB Setup includes migrations and seeding.
         # echo "Setting up the DB in $(pwd)" 2>&1 | tee -a ${trace_file}
         echo "${return_line}Setting up the database..." 2>&1 | tee -a ${trace_file}
         execute_command "RAILS_ENV=${build_environment} bundle exec rake db:setup" ${trace_file} "" ""
@@ -2586,7 +2594,7 @@ function build_sub_folder
       if [ "${is_dummy}" = "true" ]; then
         cd ../..
       fi
-    fi
+    # fi  # if we are in the s parrow_crm folder...
   fi
 
   cd ${start_dir}
@@ -2595,22 +2603,22 @@ function build_sub_folder
     build_sub_folder "${1}" "${2}/spec/dummy" "${3}" "${4}" "${5}" "${6}"
   fi
 
-  # if [ "${build_folder}" = "sparrow_crm" ]; then
+  # if [ "${build_folder}" = "s parrow_crm" ]; then
   #   build_sub_folder "${base_folder}" "${project_app_directory}" "${build_environment}" "${skip_install}" "${skip_db_reset}" "${trace_file}"
   # fi
 }
 
 function build_project
 {
-  # This function performs the commands needed to "build" the sparrow project.
+  # This function performs the commands needed to "build" the s parrow project.
   build_project_full
 
   # record_branch recorded_name
   # cd ${build_base_directory}
   # backup_outputs "${build_log_directory}" "build_output.txt" "1w" "7 days"
 
-  # if [ -d "${build_base_directory}/sparrow_crm" ]; then
-  #   build_sub_folder ${build_base_directory} "sparrow_crm" "${rails_env_to_use}" "false" "false" "${build_log_directory}/build_output.txt"
+  # if [ -d "${build_base_directory}/s parrow_crm" ]; then
+  #   build_sub_folder ${build_base_directory} "s parrow_crm" "${rails_env_to_use}" "false" "false" "${build_log_directory}/build_output.txt"
   # else
   #   build_project_full
   # fi
@@ -2632,7 +2640,7 @@ function build_project_full
   done
 }
 
-function check_test_run
+function check_rspec_test_run
 {
   # This function checks if the test run succeeded or failed...
   #   ${1}  - check_rspec_folder      - The folder the rspec test was run in
@@ -2738,24 +2746,34 @@ function test_smoke_fails
   # If we see those, we ignore them.  If not, then the test failed.
   #
   # Parameters:
-  #   ${1}  - test_smoke_file               - The full path to the file to check
-  #   ${2}  - check_smoke_var               - The variable to return the result in
-  #   ${3}  - fail_lines_return             - The lines that were not expected that failed
-  #   ${4}  - rspec_fail_lines_return       - The lines that were not expected that failed
-  #   ${5}  - test_smoke_missing_steps_var  - An array variable to return missing steps in.
+  #   ${1}  - test_smoke_directory          - The directory name for the smoke tests
+  #   ${2}  - test_smoke_file               - The full path to the file to check
+  #   ${3}  - check_smoke_var               - The variable to return the result in
+  #   ${4}  - fail_lines_folder_return      - The folder that the feature failed in.
+  #   ${5}  - fail_lines_return             - The lines that were not expected that failed
+  #   ${6}  - rspec_fail_lines_return       - The lines that were not expected that failed
+  #   ${7}  - test_smoke_missing_steps_var  - An array variable to return missing steps in.
 
-  test_smoke_file="${1}"
-  check_smoke_var="${2}"
-  fail_lines_return="${3}"
-  rspec_fail_lines_return="${4}"
-  test_smoke_missing_steps_var="${5}"
+  test_smoke_directory="${1}"
+  test_smoke_file="${2}"
+  check_smoke_var="${3}"
+  fail_lines_folder_return="${4}"
+  fail_lines_return="${5}"
+  rspec_fail_lines_return="${6}"
+  test_smoke_missing_steps_var="${7}"
 
   declare -a expected_errors
   fail_lines=""
   found_count=0
 
-  expected_errors[${#expected_errors[@]}]="suggest search and link Twitter profile"
-  expected_errors[${#expected_errors[@]}]="Link Twitter profile"
+  if [ -f ${proj_dir}/expected_errors_for_build_project ]; then
+    error_lines=$(cat ${proj_dir}/settings_for_build_project)
+    while read exec_error_line; do
+      eval ${exec_error_line}
+    done <<< "${error_lines}"
+  fi
+  # expected_errors[${#expected_errors[@]}]="suggest search and link Twitter profile"
+  # expected_errors[${#expected_errors[@]}]="Link Twitter profile"
 
   smoke_check_return="false"
   if [ -f ${test_smoke_file} ]; then
@@ -2768,7 +2786,7 @@ function test_smoke_fails
     if grep -q "Failed examples:" ${test_smoke_file}; then
       # ci:smoke runs a rake test, see if this is what failed...
       smoke_check_return="false"
-      check_test_run "sparrow_crm" "${test_smoke_file}" smoke_rspec_success "${rspec_fail_lines_return}"
+      check_rspec_test_run "${test_smoke_directory}" "${test_smoke_file}" smoke_rspec_success "${rspec_fail_lines_return}"
     fi
 
     if grep -q "You can implement step definitions for undefined steps with these snippets:" ${test_smoke_file}; then
@@ -2826,6 +2844,7 @@ function test_smoke_fails
 
         if [  "${is_new_error_line}" = "true" ]; then
           if [ ! -z "${fail_lines}" ]; then
+            append_array_value "${fail_lines_folder_return}" "${test_smoke_directory}"
             append_array_value "${fail_lines_return}" "${fail_lines}"
           fi
           split_failed_line "${error_line}" test_error_cucumber test_error_scenario
@@ -2850,6 +2869,7 @@ function test_smoke_fails
         fi
       done <<< "${tail_lines}"
       if [ ! -z "${fail_lines}" ]; then
+        append_array_value "${fail_lines_folder_return}" "${test_smoke_directory}"
         append_array_value "${fail_lines_return}" "${fail_lines}"
       fi
 
@@ -2940,17 +2960,20 @@ function retest_lines
   # re-run the failed tests to see if they are realy failing.
   #
   # PARAMETERS:
-  #   ${1}  - failed_retest_lines_var - Lines to retest
-  #   ${2}  - retest_log              - The log file to output information to.
-  #   ${3}  - retest_success          - Return variable for if the retest succeeds.
-  #   ${4}  - retest_line_results_var - Return variable for if the retest succeeds.
+  #   ${1}  - retest_folder_name      - The name of the folder being retested.
+  #   ${2}  - failed_retest_lines_var - Lines to retest
+  #   ${3}  - retest_log              - The log file to output information to.
+  #   ${4}  - retest_success          - Return variable for if the retest succeeds.
+  #   ${5}  - retest_line_results_var - Return variable for if the retest succeeds.
 
-  failed_retest_lines_var="${1}"
-  retest_log="${2}"
-  retest_success="${3}"
-  retest_line_results_var="${4}"
+  retest_folder_name="${1}"
+  failed_retest_lines_var="${2}"
+  retest_log="${3}"
+  retest_success="${4}"
+  retest_line_results_var="${5}"
 
   declare -a retest_mising_steps
+  declare -a retest_failed_folders
   declare -a retest_failed_lines
   declare -a retest_rspec_failed_lines
 
@@ -2972,7 +2995,7 @@ function retest_lines
         rm ${build_log_directory}/retest_single_run.txt
       fi
 
-      cd ${build_base_directory}/sparrow_crm
+      cd ${build_base_directory}/${retest_folder_name}
       format_line "Re-running failed cucumber test (${re_run_number}/${num_fail_retests}): ${retest_scenario}...${return_line}${return_line}" "" retest_notice_line_format
       echo "${return_line}${return_line}${retest_notice_line_format}" 2>&1 | tee -a ${build_log_directory}/retest_single_run.txt
 
@@ -2982,7 +3005,7 @@ function retest_lines
       cat ${build_log_directory}/retest_single_run.txt >> ${retest_log}
 
       # Test cucumber results...
-      test_smoke_fails ${build_log_directory}/retest_single_run.txt sub_test_retest_success retest_failed_lines retest_rspec_failed_lines retest_mising_steps
+      test_smoke_fails "${retest_folder_name}" ${build_log_directory}/retest_single_run.txt sub_test_retest_success retest_failed_folders retest_failed_lines retest_rspec_failed_lines retest_mising_steps
       if [ "${sub_test_retest_success}" = "false" ]; then
         test_retest_success="false"
       fi
@@ -3044,15 +3067,9 @@ function test_rspec
 
         build_sub_folder ${build_base_directory} ${rspec_folder} "test" "false" "${test_rspec_skip_db_reset}" "${build_log_directory}/rspec_single_run.txt"
 
-        if [ "${rspec_folder}" = "sparrow_crm" ]; then
-          # The sparrow_crm folder uses sparrow_host as the spec/dummy, so if we are building/testing
-          # sparrow_crm, we also have to build/test sparrow_host...
-          build_sub_folder ${build_base_directory} "${project_app_directory}" "test" "false" "${test_rspec_skip_db_reset}" "${build_log_directory}/rspec_single_run.txt"
-        fi
-
         # Run the rspec test.
         # echo "Testing the package $(pwd)"
-        echo "${return_line}Testing package...}" 2>&1 | tee -a ${build_log_directory}/rspec_single_run.txt
+        echo "${return_line}Testing package..." 2>&1 | tee -a ${build_log_directory}/rspec_single_run.txt
         execute_command "bundle exec rspec spec/${rspec_line}" ${build_log_directory}/rspec_single_run.txt rspec_test_fail_break ""
         if [ "${rspec_test_fail_break}" -ne "0" ]; then
           rspec_test_fail_break="true"
@@ -3063,7 +3080,7 @@ function test_rspec
         cat ${build_log_directory}/rspec_single_run.txt >> ${rspec_trace_file}
 
         # test the output...
-        check_test_run "${rspec_folder}" ${build_log_directory}/rspec_single_run.txt rspec_test_success "${test_rspec_failed_lines_var}"
+        check_rspec_test_run "${rspec_folder}" ${build_log_directory}/rspec_single_run.txt rspec_test_success "${test_rspec_failed_lines_var}"
 
         # Delete the temporary backup file...
         if [ -f ${build_log_directory}/rspec_single_run.txt ]; then
@@ -3086,39 +3103,61 @@ function test_smoke
   # This function only runs the CI:Smoke.
   #
   # PARAMETERS:
-  #   ${1}  - smoke_ci_type               - smoke or cucumber for the CI command
-  #   ${2}  - smoke_log_file              - The log file to output the log to
-  #   ${3}  - smoke_success_var           - The variable to return success or failure in
-  #   ${4}  - smoke_fail_lines_var        - The variable to return the lines that failed in
-  #   ${5}  - smoke_rspec_fail_lines_var  - The variable to return the lines that failed in
-  #   ${6}  - smoke_retest_lines_var      - The variable to return the results of retesting the lines.
-  #   ${7}  - smoke_missing_steps_var     - The array variable to return the missing steps in.
+  #   ${1}  - smoke_ci_folder             - folder to try to run the smoke ci in
+  #   ${2}  - smoke_ci_type               - smoke or cucumber for the CI command
+  #   ${3}  - smoke_log_file              - The log file to output the log to
+  #   ${4}  - smoke_success_var           - The variable to return success or failure in
+  #   ${5}  - smoke_fail_folders_var      - The variable to return the lines that failed in
+  #   ${6}  - smoke_fail_lines_var        - The variable to return the lines that failed in
+  #   ${7}  - smoke_rspec_fail_lines_var  - The variable to return the lines that failed in
+  #   ${8}  - smoke_retest_lines_var      - The variable to return the results of retesting the lines.
+  #   ${9}  - smoke_missing_steps_var     - The array variable to return the missing steps in.
 
-  smoke_ci_type="${1}"
-  smoke_log_file="${2}"
-  smoke_success_var="${3}"
-  smoke_fail_lines_var="${4}"
-  smoke_rspec_fail_lines_var="${5}"
-  smoke_retest_lines_var="${6}"
-  smoke_missing_steps_var="${7}"
+  smoke_ci_folder="${1}"
+  smoke_ci_type="${2}"
+  smoke_log_file="${3}"
+  smoke_success_var="${4}"
+  smoke_fail_folders_var="${5}"
+  smoke_fail_lines_var="${6}"
+  smoke_rspec_fail_lines_var="${7}"
+  smoke_retest_lines_var="${8}"
+  smoke_missing_steps_var="${9}"
 
-  smoke_test_success="false"
+  smoke_test_success="true"
+  smoke_local_params="${user_smoke_params}"
 
-  will_feature_tests_run smoke_can_run
+  will_feature_tests_run "${smoke_ci_folder}" smoke_can_run
+  if [ ! -f ${build_base_directory}/${smoke_ci_folder}/lib/tasks/ci.rake ]; then
+    smoke_can_run="false"
+  fi
 
   if [ "${smoke_can_run}" = "true" ]; then
     if [ -f ${build_log_directory}/smoke_single_run.txt ]; then
       rm ${build_log_directory}/smoke_single_run.txt
     fi
 
-    cd ${build_base_directory}/sparrow_crm
+    # if a -p option hasn't been set, add a -p option to the options...
+    if [ "${smoke_browser_set}" = "false" ]; then
+      if [ ! -z "${smoke_local_params}" ]; then
+        smoke_local_params="${smoke_local_params} "
+      fi
+
+      # What option to use depends on which branch has or hasn't been merged to master yet...
+      if grep "browser-webkit\:" ${build_base_directory}/${smoke_ci_folder}/config/cucumber.yml; then
+        smoke_local_params="${smoke_local_params}-p webkit"
+      else
+        smoke_local_params="${smoke_local_params}-p firefox"
+      fi
+    fi
+
+    cd ${build_base_directory}/${smoke_ci_folder}
     echo "Testing CI..." 2>&1 | tee -a ${build_log_directory}/smoke_single_run.txt
-    execute_command "bundle exec rake ${smoke_ci_type}'[${user_smoke_params}]'" ${build_log_directory}/smoke_single_run.txt smoke_fail_result ""
+    execute_command "bundle exec rake ${smoke_ci_type}'[${smoke_local_params}]'" ${build_log_directory}/smoke_single_run.txt smoke_fail_result ""
 
     cat ${build_log_directory}/smoke_single_run.txt >> ${smoke_log_file}
 
     # Test cucumber results...
-    test_smoke_fails ${build_log_directory}/smoke_single_run.txt smoke_test_success "${smoke_fail_lines_var}" "${smoke_rspec_fail_lines_var}" "${smoke_missing_steps_var}"
+    test_smoke_fails "${smoke_ci_folder}" ${build_log_directory}/smoke_single_run.txt smoke_test_success "${smoke_fail_folders_var}" "${smoke_fail_lines_var}" "${smoke_rspec_fail_lines_var}" "${smoke_missing_steps_var}"
 
     if [ -f ${build_log_directory}/smoke_single_run.txt ]; then
       rm ${build_log_directory}/smoke_single_run.txt
@@ -3127,7 +3166,7 @@ function test_smoke
     eval "num_smoke_fail_lines=\${#${smoke_fail_lines_var}[@]}"
     if [ ${num_smoke_fail_lines} -gt 0 ]; then
       smoke_test_success="false"
-      retest_lines "${smoke_fail_lines_var}" "${smoke_log_file}" smoke_test_success "${smoke_retest_lines_var}"
+      retest_lines "${smoke_ci_folder}" "${smoke_fail_lines_var}" "${smoke_log_file}" smoke_test_success "${smoke_retest_lines_var}"
     fi
   fi
 
@@ -3141,22 +3180,26 @@ function report_test_success
   # PARAMETERS:
   #   ${1}  - report_log                  - The log file to report into.
   #   ${2}  - report_success              - If the tests succeeded or not
-  #   ${3}  - report_failed_lines         - The lines of the failed reports if applicable.
-  #   ${4}  - report_failed_status_lines  - The status of the retest of the failed lines.
-  #   ${5}  - report_failed_rspec_lines   - The lines of the faile rspec tests if applicable.
-  #   ${6}  - report_menu_types           - An array of the menu list of types
-  #   ${7}  - report_file_names           - An array of the menu list of file names
-  #   ${8}  - report_sub_file_names       - An array of the menu list of sub file names
-  #   ${9}  - report_missing_steps        - An array of missing step definitions
+  #   ${3}  - report_failed_folders       - The folders of the failed reports if applicable.
+  #   ${4}  - report_failed_lines         - The lines of the failed reports if applicable.
+  #   ${5}  - report_failed_status_lines  - The status of the retest of the failed lines.
+  #   ${6}  - report_failed_rspec_lines   - The lines of the faile rspec tests if applicable.
+  #   ${7}  - report_menu_types           - An array of the menu list of types
+  #   ${8}  - report_file_names           - An array of the menu list of file names
+  #   ${9}  - report_sub_file_names       - An array of the menu list of sub file names
+  #   ${10} - report_missing_steps        - An array of missing step definitions
 
   report_log="${1}"
   report_success="${2}"
-  declare -a report_failed_lines=("${!3}")
-  declare -a report_failed_status_lines=("${!4}")
-  declare -a report_failed_rspec_lines=("${!5}")
-  declare -a report_menu_types=("${!6}")
-  declare -a report_file_names=("${!7}")
-  declare -a report_sub_file_names=("${!8}")
+  declare -a report_failed_folders=("${!3}")
+  declare -a report_failed_lines=("${!4}")
+  declare -a report_failed_status_lines=("${!5}")
+  declare -a report_failed_rspec_lines=("${!6}")
+  declare -a report_menu_types=("${!7}")
+  declare -a report_file_names=("${!8}")
+  declare -a report_sub_file_names=("${!9}")
+  # Because there are more than 9 parameters...
+  shift
   declare -a report_missing_steps=("${!9}")
 
   if [ ${#report_failed_rspec_lines[@]} -gt 0 ]; then
@@ -3210,6 +3253,7 @@ function report_test_success
     echo "${return_line}The following tests failed and had to be retested:" 2>&1 | tee -a ${report_log}
     report_failed_line_index=0
     while [ ${report_failed_line_index} -lt ${#report_failed_lines[@]} ]; do
+      failed_line_folder="${report_failed_folders[${report_failed_line_index}]}"
       failed_line_details="${report_failed_lines[${report_failed_line_index}]}"
       line_fail_status="${report_failed_status_lines[${report_failed_line_index}]}"
 
@@ -3229,7 +3273,7 @@ function report_test_success
       find_test_index=0
       while [ ${find_test_index} -lt ${#report_menu_types[@]} ]; do
         if [ "${report_menu_types[${find_test_index}]}" = "feature" ]; then
-          if [ "${report_file_names[${find_test_index}]}" = "sparrow_crm/${report_cucumber_file_name}" ]; then
+          if [ "${report_file_names[${find_test_index}]}" = "${report_cucumber_file_name}" -a "${report_sub_file_names[${find_test_index}]}" = "${failed_line_folder}" ]; then
             report_build_project_test_params="${find_test_index}${cucumber_param}"
             break
           fi
@@ -3251,7 +3295,7 @@ function report_test_success
         if [ ! -z "${report_build_project_test_params}" ]; then
           echo "./build_project ---test --test-params \"${report_build_project_test_params}\"" 2>&1 | tee -a ${report_log}
         fi
-        echo "cd ${build_base_directory}/sparrow_crm" 2>&1 | tee -a ${report_log}
+        echo "cd ${build_base_directory}/${failed_line_folder}" 2>&1 | tee -a ${report_log}
         echo "bundle exec ${report_failed_cucumber}" 2>&1 | tee -a ${report_log}
       fi
 
@@ -3287,36 +3331,40 @@ function report_test_success
   echo "[00;32mTest succeeded!!![00m" 2>&1 | tee -a ${report_log}
 }
 
-function test_sparrow_smoke
+function run_smoke_test
 {
   # This function only runs the CI:Smoke.
   #
   # PARAMETERS:
-  #   ${1}  - sparrow_smoke_ci_type                     - smoke or cucumber for the ci: type.
-  #   ${2}  - test_sparrow_smoke_success_var            - The variable to return the success in
-  #   ${3}  - test_sparrow_smoke_failed_lines_var       - The variable to return the failed lines in
-  #   ${4}  - test_sparrow_smoke_rspec_failed_lines_var - The variable to return the failed lines in
-  #   ${5}  - test_sparrow_smoke_retest_var             - The variable to return the retest results in
-  #   ${6}  - test_sparrow_missing_steps_var            - The array variable to return the missing steps in
+  #   ${1}  - run_smoke_ci_type                     - smoke or cucumber for the ci: type.
+  #   ${2}  - run_smoke_directory                   - The directory to run the smoke in.
+  #   ${3}  - run_smoke_test_success_var            - The variable to return the success in
+  #   ${4}  - run_smoke_test_failed_folders_var     - The variable to return the failed folders in
+  #   ${5}  - run_smoke_test_failed_lines_var       - The variable to return the failed lines in
+  #   ${6}  - run_smoke_test_rspec_failed_lines_var - The variable to return the failed lines in
+  #   ${7}  - run_smoke_test_retest_var             - The variable to return the retest results in
+  #   ${8}  - test_run_smoke_missing_steps_var      - The array variable to return the missing steps in
 
-  sparrow_smoke_ci_type="${1}"
-  test_sparrow_smoke_success_var="${2}"
-  test_sparrow_smoke_failed_lines_var="${3}"
-  test_sparrow_smoke_rspec_failed_lines_var="${4}"
-  test_sparrow_smoke_retest_var="${5}"
-  test_sparrow_missing_steps_var="${6}"
+  run_smoke_ci_type="${1}"
+  run_smoke_directory="${2}"
+  run_smoke_test_success_var="${3}"
+  run_smoke_test_failed_folders_var="${4}"
+  run_smoke_test_failed_lines_var="${5}"
+  run_smoke_test_rspec_failed_lines_var="${6}"
+  run_smoke_test_retest_var="${7}"
+  test_run_smoke_missing_steps_var="${8}"
 
-  if [ -d ${build_base_directory}/sparrow_crm ]; then
+  test_smoke_success="true"
+
+  if [ -d ${build_base_directory}/${run_smoke_directory} ]; then
     cd ${build_base_directory}
     record_branch recorded_name
     backup_outputs "${build_log_directory}" "test_run.txt" "1w" "7 days"
 
-    test_smoke "${sparrow_smoke_ci_type}" "${build_log_directory}/test_run.txt" test_smoke_success "${test_sparrow_smoke_failed_lines_var}" "${test_sparrow_smoke_rspec_failed_lines_var}" "${test_sparrow_smoke_retest_var}" "${test_sparrow_missing_steps_var}"
-  else
-    test_smoke_success="true"
+    test_smoke "${run_smoke_directory}" "${run_smoke_ci_type}" "${build_log_directory}/test_run.txt" test_smoke_success "${run_smoke_test_failed_folders_var}" "${run_smoke_test_failed_lines_var}" "${run_smoke_test_rspec_failed_lines_var}" "${run_smoke_test_retest_var}" "${test_run_smoke_missing_steps_var}"
   fi
 
-  set_param_value "${test_sparrow_smoke_success_var}" "${test_smoke_success}"
+  set_param_value "${run_smoke_test_success_var}" "${test_smoke_success}"
 }
 
 function test_feature
@@ -3329,10 +3377,11 @@ function test_feature
   #   ${2}  - single_feature_file                   - The file to run the feature tests on.
   #   ${3}  - single_feature_trace_file             - The file to trace the output to.
   #   ${4}  - single_feature_success_var            - The variable to return the success in.
-  #   ${5}  - single_feature_failed_lines_var       - The variable to return the failed lines in.
-  #   ${6}  - single_feature_rspec_failed_lines_var - The variable to return the failed lines in.
-  #   ${7}  - single_feature_failed_status_var      - The variable to return the retest status in.
-  #   ${8}  - single_feature_missing_steps_var      - The array variable to return the missing steps in.
+  #   ${5}  - single_feature_failed_folders_var     - The variable to return the failed folders in.
+  #   ${6}  - single_feature_failed_lines_var       - The variable to return the failed lines in.
+  #   ${7}  - single_feature_rspec_failed_lines_var - The variable to return the failed lines in.
+  #   ${8}  - single_feature_failed_status_var      - The variable to return the retest status in.
+  #   ${9}  - single_feature_missing_steps_var      - The array variable to return the missing steps in.
 
   cd ${build_base_directory}
 
@@ -3340,17 +3389,37 @@ function test_feature
   single_feature_file="${2}"
   single_feature_trace_file="${3}"
   single_feature_success_var="${4}"
-  single_feature_failed_lines_var="${5}"
-  single_feature_rspec_failed_lines_var="${6}"
-  single_feature_failed_status_var="${7}"
-  single_feature_missing_steps_var="${8}"
+  single_feature_failed_folders_var="${5}"
+  single_feature_failed_lines_var="${6}"
+  single_feature_rspec_failed_lines_var="${7}"
+  single_feature_failed_status_var="${8}"
+  single_feature_missing_steps_var="${9}"
 
   single_feature_test_success="false"
 
-  will_feature_tests_run feature_can_run
+  will_feature_tests_run "${single_feature_folder}" feature_can_run
+  if [ ! -f ${build_base_directory}/${single_feature_folder}/lib/tasks/ci.rake ]; then
+    smoke_can_run="false"
+  fi
+
+  single_smoke_local_params="${user_smoke_params}"
 
   if [ "${feature_can_run}" = "true" ]; then
     single_feature_test_success="true"
+
+    # if a -p option hasn't been set, add a -p option to the options...
+    if [ "${smoke_browser_set}" = "false" ]; then
+      if [ ! -z "${single_smoke_local_params}" ]; then
+        single_smoke_local_params="${single_smoke_local_params} "
+      fi
+
+      # What option to use depends on which branch has or hasn't been merged to master yet...
+      if grep "browser-webkit\:" ${build_base_directory}/${smoke_ci_folder}/config/cucumber.yml; then
+        single_smoke_local_params="${single_smoke_local_params}-p webkit"
+      else
+        single_smoke_local_params="${single_smoke_local_params}-p firefox"
+      fi
+    fi
 
     split_line_on_char "${single_feature_file}" ":" single_feature_file_name single_feature_file_line
     if [ -f ${build_base_directory}/${single_feature_folder}/${single_feature_file_name} ]; then
@@ -3362,7 +3431,7 @@ function test_feature
 
       # Run the feature test.
       echo "${return_line}Testing feature..." 2>&1 | tee -a ${build_log_directory}/feature_single_run.txt
-      execute_command "bundle exec cucumber ${single_feature_file} ${user_smoke_params}" ${build_log_directory}/feature_single_run.txt single_feature_test_fail_break ""
+      execute_command "bundle exec cucumber ${single_feature_file} ${single_smoke_local_params}" ${build_log_directory}/feature_single_run.txt single_feature_test_fail_break ""
       if [ "${single_feature_test_fail_break}" -ne "0" ]; then
         single_feature_test_fail_break="true"
       else
@@ -3372,7 +3441,7 @@ function test_feature
       cat ${build_log_directory}/feature_single_run.txt >> ${single_feature_trace_file}
 
       # Test cucumber results...
-      test_smoke_fails ${build_log_directory}/feature_single_run.txt single_feature_test_success "${single_feature_failed_lines_var}" "${single_feature_rspec_failed_lines_var}" "${single_feature_missing_steps_var}"
+      test_smoke_fails "${single_feature_folder}" ${build_log_directory}/feature_single_run.txt single_feature_test_success "${single_feature_failed_folders_var}" "${single_feature_failed_lines_var}" "${single_feature_rspec_failed_lines_var}" "${single_feature_missing_steps_var}"
 
       if [ -f ${build_log_directory}/feature_single_run.txt ]; then
         rm ${build_log_directory}/feature_single_run.txt
@@ -3381,7 +3450,7 @@ function test_feature
       eval "num_single_feature_failed_lines=\${#${single_feature_failed_lines_var}[@]}"
       if [ "${num_single_feature_failed_lines}" -gt 0 ]; then
         smoke_test_success="false"
-        retest_lines "${single_feature_failed_lines_var}" "${single_feature_trace_file}" single_feature_test_success "${single_feature_failed_status_var}"
+        retest_lines "${single_feature_folder}" "${single_feature_failed_lines_var}" "${single_feature_trace_file}" single_feature_test_success "${single_feature_failed_status_var}"
       fi
     fi
 
@@ -3523,37 +3592,45 @@ function test_all_features
   # PARAMETERS:
   #   ${1}  - all_features_log_file           - The log file to output to.
   #   ${2}  - all_features_return_var         - Returns the success of the tests.
-  #   ${3}  - all_features_failed_lines       - Returns the lines of the failed tests.
-  #   ${4}  - all_features_rspec_failed_lines - Returns the lines of the failed tests.
-  #   ${5}  - all_features_failed_results     - Returns the success of the retest of the failed lines.
-  #   ${6}  - all_features_missing_steps_var  - The array variable to return the missing steps in.
+  #   ${3}  - all_features_failed_folders     - Returns the folders of the failed tests.
+  #   ${4}  - all_features_failed_lines       - Returns the lines of the failed tests.
+  #   ${5}  - all_features_rspec_failed_lines - Returns the lines of the failed tests.
+  #   ${6}  - all_features_failed_results     - Returns the success of the retest of the failed lines.
+  #   ${7}  - all_features_missing_steps_var  - The array variable to return the missing steps in.
 
   cd ${build_base_directory}
 
   all_features_log_file="${1}"
   all_features_return_var="${2}"
-  all_features_failed_lines="${3}"
-  all_features_rspec_failed_lines="${4}"
-  all_features_failed_results="${5}"
-  all_features_missing_steps_var="${6}"
+  all_features_failed_folders="${3}"
+  all_features_failed_lines="${4}"
+  all_features_rspec_failed_lines="${5}"
+  all_features_failed_results="${6}"
+  all_features_missing_steps_var="${7}"
 
   test_all_features_files="$(find . -name *.feature)"
   last_build_folder=""
+  all_features_test_success="true"
 
-  while read feature_file_name; do
-    split_feature_file_name "${feature_file_name}" feature_folder_name feature_file_path
-    if [ "${last_build_folder}" != "${feature_folder_name}" ]; then
-      build_sub_folder ${build_base_directory} ${feature_folder_name} "test" "false" "false" "${all_features_log_file}"
-      last_build_folder="${feature_folder_name}"
-    fi
+  if [ ! -z "${test_all_features_files}" ]; then
+    while read feature_file_name; do
+      split_feature_file_name "${feature_file_name}" feature_folder_name feature_file_path
+      if [ "${last_build_folder}" != "${feature_folder_name}" ]; then
+        build_sub_folder ${build_base_directory} ${feature_folder_name} "test" "false" "false" "${all_features_log_file}"
+        last_build_folder="${feature_folder_name}"
+      fi
 
-    test_feature "${feature_folder_name}" "${feature_file_path}" "${all_features_log_file}" all_features_test_success "${all_features_failed_lines}" "${all_features_rspec_failed_lines}" "${all_features_failed_results}" "${all_features_missing_steps_var}"
+      test_feature "${feature_folder_name}" "${feature_file_path}" "${all_features_log_file}" all_features_single_success "${all_features_failed_folders}" "${all_features_failed_lines}" "${all_features_rspec_failed_lines}" "${all_features_failed_results}" "${all_features_missing_steps_var}"
+      if [ "${all_features_single_success}" = "false" ]; then
+        all_features_test_success="false"
+      fi
 
-    # # If the test failed, exit.
-    # if [ "${all_features_test_success}" = "false" ]; then
-    #   break
-    # fi
-  done <<< "${test_all_features_files}"
+      # # If the test failed, exit.
+      # if [ "${all_features_test_success}" = "false" ]; then
+      #   break
+      # fi
+    done <<< "${test_all_features_files}"
+  fi
 
   set_param_value "${all_features_return_var}" "${all_features_test_success}"
 }
@@ -3573,8 +3650,20 @@ function test_all_rspecs
   all_rspec_return_var="${2}"
   all_rspec_failed_lines_var="${3}"
 
+  all_rspec_test_success="true"
+
+  test_rspec "." "" "false" "${all_rspec_log_file}" single_rspec_success "${all_rspec_failed_lines_var}"
+  if [ "${single_rspec_success}" = "false" ]; then
+    all_rspec_test_success="false"
+  fi
+
   for directory_name in *; do
-    test_rspec "${directory_name}" "" "false" "${all_rspec_log_file}" all_rspec_test_success "${all_rspec_failed_lines_var}"
+    if [ -d ${directory_name} ]; then
+      test_rspec "${directory_name}" "" "false" "${all_rspec_log_file}" single_rspec_success "${all_rspec_failed_lines_var}"
+      if [ "${single_rspec_success}" = "false" ]; then
+        all_rspec_test_success="false"
+      fi
+    fi
   done
 
   set_param_value "${all_rspec_return_var}" "${all_rspec_test_success}"
@@ -3586,29 +3675,50 @@ function test_project
   #
   # PARAMETERS:
   #   ${1}  - test_project_test_success_var       - The variable to return the test success in
-  #   ${2}  - test_project_failed_lines_var       - The variable to return the failed lines in
-  #   #{3}  - test_project_retest_results_var     - The variable to return the retest results in
-  #   ${4}  - test_project_failed_rspec_lines_var - The variable to return the failed rspec lines in
-  #   ${5}  - test_project_missing_steps_var      - The array variable to return the missing steps in
+  #   ${2}  - test_project_failed_folders_var     - The variable to return the failed folders in
+  #   ${3}  - test_project_failed_lines_var       - The variable to return the failed lines in
+  #   #{4}  - test_project_retest_results_var     - The variable to return the retest results in
+  #   ${5}  - test_project_failed_rspec_lines_var - The variable to return the failed rspec lines in
+  #   ${6}  - test_project_missing_steps_var      - The array variable to return the missing steps in
 
   cd ${build_base_directory}
 
   test_project_test_success_var="${1}"
-  test_project_failed_lines_var="${2}"
-  test_project_retest_results_var="${3}"
-  test_project_failed_rspec_lines_var="${4}"
-  test_project_missing_steps_var="${5}"
+  test_project_failed_folders_var="${2}"
+  test_project_failed_lines_var="${3}"
+  test_project_retest_results_var="${4}"
+  test_project_failed_rspec_lines_var="${5}"
+  test_project_missing_steps_var="${6}"
 
   record_branch recorded_name
   backup_outputs "${build_log_directory}" "test_run.txt" "1w" "7 days"
 
   test_project_rspec_failed_lines=""
+  test_project_test_success="true"
 
-  test_all_rspecs "${build_log_directory}/test_run.txt" test_project_test_success "${test_project_failed_rspec_lines_var}"
-
-  if [ "${test_project_test_success}" != "false" ]; then
-    test_smoke "ci:smoke" "${build_log_directory}/test_run.txt" test_project_test_success "${test_project_failed_lines_var}" "${test_project_failed_rspec_lines_var}" "${test_project_retest_results_var}" "${test_project_missing_steps_var}"
+  test_all_rspecs "${build_log_directory}/test_run.txt" test_project_single_success "${test_project_failed_rspec_lines_var}"
+  if [ "${test_project_single_success}" = "false" ]; then
+    test_project_test_success="false"
   fi
+echo "test_project_test_success = \"${test_project_test_success}\""
+
+  cd ${build_base_directory}
+
+  smoke_project_list=$(find . -name ci.rake)
+  if [ ! -z "${smoke_project_list}" ]; then
+    while read smoke_project_folder; do
+      split_line_on_char "${smoke_project_folder}" "/" smoke_base_folder smoke_project_folder # remove the . directory.
+      split_line_on_char "${smoke_project_folder}" "/" smoke_base_folder smoke_project_folder
+      if [ -d ${smoke_base_folder} ]; then
+        build_sub_folder ${build_base_directory} "${smoke_base_folder}" "test" "false" "false" "${build_log_directory}/test_run.txt"
+        test_smoke "${smoke_base_folder}" "ci:smoke" "${build_log_directory}/test_run.txt" test_project_single_success "${test_project_failed_folders_var}" "${test_project_failed_lines_var}" "${test_project_failed_rspec_lines_var}" "${test_project_retest_results_var}" "${test_project_missing_steps_var}"
+        if [ "${test_project_single_success}" = "false" ]; then
+          test_project_test_success="false"
+        fi
+      fi
+    done <<< "${smoke_project_list}"
+  fi
+echo "2 test_project_test_success = \"${test_project_test_success}\""
 
   set_param_value "${test_project_test_success_var}" "${test_project_test_success}"
 }
@@ -3619,12 +3729,15 @@ function will_feature_tests_run
   # from running properly.
   #
   # PARAMETERS:
-  #   ${1}  - will_run_var  - The variable to return if the feature tests can be run.
+  #   ${1}  - will_run_folder - The folder to check to see if the tests will run.
+  #   ${2}  - will_run_var    - The variable to return if the feature tests can be run.
 
-  will_run_var="${1}"
+  will_run_folder="${1}"
+  will_run_var="${2}"
+
   port_not_in_use="true"
 
-  if [ -d ${build_base_directory}/sparrow_crm ]; then
+  if [ port_not_in_use = "true" ]; then
     conflicting_process_id=""
     set +e
     conflicting_process_id="$(lsof -i -n -P | grep "TCP \*:3000")"
@@ -3644,7 +3757,7 @@ function will_feature_tests_run
           set -e
           sleep 1
 
-          will_feature_tests_run "${will_run_var}"
+          will_feature_tests_run "${will_run_folder}" "${will_run_var}"
           eval "port_not_in_use=\"\${${will_run_var}}\""
         fi
       else
@@ -3652,8 +3765,6 @@ function will_feature_tests_run
         echo "${conflict_format_line}"
       fi
     fi
-  else
-    port_not_in_use="false"
   fi
 
   set_param_value "${will_run_var}" "${port_not_in_use}"
@@ -3680,67 +3791,88 @@ function show_test_menu
   test_type_list[${#test_type_list[@]}]="full"
   test_menu_list_index=$((${test_menu_list_index} + 1))
 
-  if [ -d ${build_base_directory}/sparrow_crm ]; then
-    # 1
-    format_line_for_menu "${test_menu_list_index}" "" "CI:Smoke" test_menu_line
-    test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-    file_name_list[${#file_name_list[@]}]=""
-    sub_file_list[${#sub_file_list[@]}]=""
-    test_type_list[${#test_type_list[@]}]="ci smoke"
-    test_menu_list_index=$((${test_menu_list_index} + 1))
+  test_smoke_list=$(find . -name ci.rake)
+  if [ ! -z "${test_smoke_list}" ]; then
+    while read test_smoke_folder; do
+      if [ ! -z "${test_smoke_folder}" ]; then
+        split_line_on_char "${test_smoke_folder}" "/" test_smoke_base_folder test_smoke_folder # remove the . directory.
+        split_line_on_char "${test_smoke_folder}" "/" test_smoke_base_folder test_smoke_folder
+        if [ -d ${test_smoke_base_folder} ]; then
+          # 1
+          format_line_for_menu "${test_menu_list_index}" "" "CI:Smoke - ${test_smoke_base_folder}" test_menu_line
+          test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
+          file_name_list[${#file_name_list[@]}]="${test_smoke_base_folder}"
+          sub_file_list[${#sub_file_list[@]}]=""
+          test_type_list[${#test_type_list[@]}]="ci smoke"
+          test_menu_list_index=$((${test_menu_list_index} + 1))
 
-    # 2
-    format_line_for_menu "${test_menu_list_index}" "" "cucumber:all" test_menu_line
-    test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-    file_name_list[${#file_name_list[@]}]=""
-    sub_file_list[${#sub_file_list[@]}]=""
-    test_type_list[${#test_type_list[@]}]="ci cucumber"
-    test_menu_list_index=$((${test_menu_list_index} + 1))
+          # 2
+          format_line_for_menu "${test_menu_list_index}" "" "cucumber:all - ${test_smoke_base_folder}" test_menu_line
+          test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
+          file_name_list[${#file_name_list[@]}]="${test_smoke_base_folder}"
+          sub_file_list[${#sub_file_list[@]}]=""
+          test_type_list[${#test_type_list[@]}]="ci cucumber"
+          test_menu_list_index=$((${test_menu_list_index} + 1))
+        fi
+      fi
+    done <<< "${test_smoke_list}"
   fi
 
   # Guard
-  test_menu_options[${#test_menu_options[@]}]=""
-  format_line "Guard:" "" test_menu_line
-  test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
   test_folders_list="$(find . -name Guardfile)"
+  if [ ! -z "${test_folders_list}" ]; then
+    test_menu_options[${#test_menu_options[@]}]=""
+    format_line "Guard:" "" test_menu_line
+    test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
 
-  while read sub_menu_line_read; do
-    # 2 + ${guard_index}
-    if [ "${sub_menu_line_read}" != "./Guardfile" ]; then
-      format_line_for_menu "${test_menu_list_index}" "" "${sub_menu_line_read:2:${#sub_menu_line_read} - 10 - 2}" test_menu_line
+    while read sub_menu_line_read; do
+      # 2 + ${guard_index}
+      if [ "${sub_menu_line_read}" != "./Guardfile" ]; then
+        submenu_line_value="${sub_menu_line_read:2:${#sub_menu_line_read} - 10 - 2}"
+      else
+        submenu_line_value="."
+      fi
+      format_line_for_menu "${test_menu_list_index}" "" "${submenu_line_value}" test_menu_line
+      file_name_list[${#file_name_list[@]}]="${submenu_line_value}"
       test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-      file_name_list[${#file_name_list[@]}]="${sub_menu_line_read:2:${#sub_menu_line_read} - 10 - 2}"
       sub_file_list[${#sub_file_list[@]}]=""
       test_type_list[${#test_type_list[@]}]="guard"
       test_menu_list_index=$((${test_menu_list_index} + 1))
-    fi
-  done <<< "${test_folders_list}"
+    done <<< "${test_folders_list}"
+  fi
 
   # RSPEC
-  test_menu_options[${#test_menu_options[@]}]=""
-  format_line "RSPEC:" "" test_menu_line
-  test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
   test_folders_list="$(find . -name spec)"
+  if [ ! -z "${test_folders_list}" ]; then
+    test_menu_options[${#test_menu_options[@]}]=""
+    format_line "RSPEC:" "" test_menu_line
+    test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
 
-  # 2 + ${num_guard_tests}
-  format_line_for_menu "${test_menu_list_index}" "" "All RSPEC tests" test_menu_line
-  test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-  file_name_list[${#file_name_list[@]}]=""
-  sub_file_list[${#sub_file_list[@]}]=""
-  test_type_list[${#test_type_list[@]}]="rspec"
-  test_menu_list_index=$((${test_menu_list_index} + 1))
+    # 2 + ${num_guard_tests}
+    format_line_for_menu "${test_menu_list_index}" "" "All RSPEC tests" test_menu_line
+    test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
+    file_name_list[${#file_name_list[@]}]=""
+    sub_file_list[${#sub_file_list[@]}]=""
+    test_type_list[${#test_type_list[@]}]="rspec"
+    test_menu_list_index=$((${test_menu_list_index} + 1))
 
-  while read sub_menu_line_read; do
-    # 3 + ${num_guard_tests} + ${rspec_index}
-    if [ "${sub_menu_line_read}" != "./spec" ]; then
-      format_line_for_menu "${test_menu_list_index}" "" "  ${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}" test_menu_line
+    while read sub_menu_line_read; do
+      # 3 + ${num_guard_tests} + ${rspec_index}
+      if [ "${sub_menu_line_read}" != "./spec" ]; then
+        submenu_line_value="${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}"
+      else
+        submenu_line_value="."
+      fi
+      format_line_for_menu "${test_menu_list_index}" "" "  ${submenu_line_value}" test_menu_line
+      file_name_list[${#file_name_list[@]}]="${submenu_line_value}"
+
       test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-      file_name_list[${#file_name_list[@]}]="${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}"
       sub_file_list[${#sub_file_list[@]}]=""
       test_type_list[${#test_type_list[@]}]="rspec"
       test_menu_list_index=$((${test_menu_list_index} + 1))
 
-      cd ${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}/spec
+      cd ${submenu_line_value}/spec
+
       rspec_files=""
       set +e
       rspec_files="$(find . | grep "_spec.rb$")"
@@ -3750,41 +3882,44 @@ function show_test_menu
           format_line_with_prefix "          " "${rspec_file_name:2:${#rspec_file_name} - 2}" "          " test_menu_line
           format_line_for_menu "${test_menu_list_index}" "" "${test_menu_line:6}" test_menu_line
           test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-          file_name_list[${#file_name_list[@]}]="${sub_menu_line_read:2:${#sub_menu_line_read} - 5 - 2}"
+          file_name_list[${#file_name_list[@]}]="${submenu_line_value}"
           sub_file_list[${#sub_file_list[@]}]="${rspec_file_name:2:${#rspec_file_name} - 2}"
           test_type_list[${#test_type_list[@]}]="rspec"
           test_menu_list_index=$((${test_menu_list_index} + 1))
         done <<< "${rspec_files}"
       fi
       cd ../..
-    fi
-  done <<< "${test_folders_list}"
+    done <<< "${test_folders_list}"
+  fi
 
   # Features
-  test_menu_options[${#test_menu_options[@]}]=""
-  format_line "Feature Tests:" "" test_menu_line
-  test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
   test_folders_list="$(find . -name *.feature)"
-
-  # 3 + ${num_guard_tests} + ${num_rspec_tests}
-  format_line_for_menu "${test_menu_list_index}" "" "All feature tests (one file at a time...)" test_menu_line
-  test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-  file_name_list[${#file_name_list[@]}]=""
-  sub_file_list[${#sub_file_list[@]}]=""
-  test_type_list[${#test_type_list[@]}]="feature"
-  test_menu_list_index=$((${test_menu_list_index} + 1))
-
-  while read sub_menu_line_read; do
-    # 5 + ${num_guard_tests} + ${num_rspec_tests} + ${feature_index}
-    format_line_with_prefix "          " "${sub_menu_line_read:2:${#sub_menu_line_read} - 2}" "          " test_menu_line
-    format_line_for_menu "${test_menu_list_index}" "" "${test_menu_line:6}" test_menu_line
-    # format_line_for_menu "${test_menu_list_index}" "" "  ${sub_menu_line_read:2:${#sub_menu_line_read} - 2}" test_menu_line
+  if [ ! -z "${test_folders_list}" ]; then
+    test_menu_options[${#test_menu_options[@]}]=""
+    format_line "Feature Tests:" "" test_menu_line
     test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
-    file_name_list[${#file_name_list[@]}]="${sub_menu_line_read:2:${#sub_menu_line_read} - 2}"
+
+    # 3 + ${num_guard_tests} + ${num_rspec_tests}
+    format_line_for_menu "${test_menu_list_index}" "" "All feature tests (one file at a time...)" test_menu_line
+    test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
+    file_name_list[${#file_name_list[@]}]=""
     sub_file_list[${#sub_file_list[@]}]=""
     test_type_list[${#test_type_list[@]}]="feature"
     test_menu_list_index=$((${test_menu_list_index} + 1))
-  done <<< "${test_folders_list}"
+
+    while read sub_menu_line_read; do
+      # 5 + ${num_guard_tests} + ${num_rspec_tests} + ${feature_index}
+      format_line_with_prefix "          " "${sub_menu_line_read:2:${#sub_menu_line_read} - 2}" "          " test_menu_line
+      format_line_for_menu "${test_menu_list_index}" "" "${test_menu_line:6}" test_menu_line
+      # format_line_for_menu "${test_menu_list_index}" "" "  ${sub_menu_line_read:2:${#sub_menu_line_read} - 2}" test_menu_line
+      test_menu_options[${#test_menu_options[@]}]="${test_menu_line}"
+      split_feature_file_name "${file_name_list[${selected_test_number}]}" test_feature_folder_name test_feature_file_path
+      file_name_list[${#file_name_list[@]}]="${test_feature_file_path}"
+      sub_file_list[${#sub_file_list[@]}]="${test_feature_folder_name}"
+      test_type_list[${#test_type_list[@]}]="feature"
+      test_menu_list_index=$((${test_menu_list_index} + 1))
+    done <<< "${test_folders_list}"
+  fi
 
   test_menu_options[${#test_menu_options[@]}]=""
   test_menu_list_index=$((${test_menu_list_index} - 1))
@@ -3810,6 +3945,7 @@ function show_test_menu
   fi
 
   declare -a test_menu_missing_steps
+  declare -a test_menu_failed_folders
   declare -a test_menu_failed_lines
   declare -a test_menu_failed_rspec_lines
   declare -a test_menu_failed_status
@@ -3820,23 +3956,21 @@ function show_test_menu
     # (
     "full" )
       backup_outputs "${build_log_directory}" "test_run.txt" "1w" "7 days"
-      # erik - do something here.
-      # build_sub_folder ${build_base_directory} "sparrow_crm" "test" "false" "false" "${build_log_directory}/test_run.txt"
-      test_project test_menu_success test_menu_failed_lines test_menu_failed_status test_menu_failed_rspec_lines test_menu_missing_steps
+      test_project test_menu_success test_menu_failed_folders test_menu_failed_lines test_menu_failed_status test_menu_failed_rspec_lines test_menu_missing_steps
       ;;
 
     # (
     "ci smoke" )
       backup_outputs "${build_log_directory}" "test_run.txt" "1w" "7 days"
-      build_sub_folder ${build_base_directory} "sparrow_crm" "test" "false" "false" "${build_log_directory}/test_run.txt"
-      test_sparrow_smoke "ci:smoke" test_menu_success test_menu_failed_lines test_menu_failed_rspec_lines test_menu_failed_status test_menu_missing_steps
+      build_sub_folder ${build_base_directory} "${file_name_list[${selected_test_number}]}" "test" "false" "false" "${build_log_directory}/test_run.txt"
+      run_smoke_test "ci:smoke" "${file_name_list[${selected_test_number}]}" test_menu_success test_menu_failed_folders test_menu_failed_lines test_menu_failed_rspec_lines test_menu_failed_status test_menu_missing_steps
       ;;
 
     # (
     "ci cucumber" )
       backup_outputs "${build_log_directory}" "test_run.txt" "1w" "7 days"
-      build_sub_folder ${build_base_directory} "sparrow_crm" "test" "false" "false" "${build_log_directory}/test_run.txt"
-      test_sparrow_smoke "cucumber:all" test_menu_success test_menu_failed_lines test_menu_failed_rspec_lines test_menu_failed_status test_menu_missing_steps
+      build_sub_folder ${build_base_directory} "${file_name_list[${selected_test_number}]}" "test" "false" "false" "${build_log_directory}/test_run.txt"
+      run_smoke_test "cucumber:all" "${file_name_list[${selected_test_number}]}" test_menu_success test_menu_failed_folders test_menu_failed_lines test_menu_failed_rspec_lines test_menu_failed_status test_menu_missing_steps
       ;;
 
     # (
@@ -3859,17 +3993,16 @@ function show_test_menu
     "feature" )
       backup_outputs "${build_log_directory}" "test_run.txt" "1w" "7 days"
       if [ -z "${file_name_list[${selected_test_number}]}" ]; then
-        test_all_features "${build_log_directory}/test_run.txt" test_menu_success test_menu_failed_lines test_menu_failed_rspec_lines test_menu_failed_status test_menu_missing_steps
+        test_all_features "${build_log_directory}/test_run.txt" test_menu_success test_menu_failed_folders test_menu_failed_lines test_menu_failed_rspec_lines test_menu_failed_status test_menu_missing_steps
       else
-        split_feature_file_name "${file_name_list[${selected_test_number}]}" test_feature_folder_name test_feature_file_path
-        build_sub_folder ${build_base_directory} ${test_feature_folder_name} "test" "false" "false" "${build_log_directory}/test_run.txt"
-        test_feature "${test_feature_folder_name}" "${test_feature_file_path}${selected_test_line}" "${build_log_directory}/test_run.txt" test_menu_success test_menu_failed_lines test_menu_failed_rspec_lines test_menu_failed_status test_menu_missing_steps
+        build_sub_folder ${build_base_directory} ${sub_file_list[${selected_test_number}]} "test" "false" "false" "${build_log_directory}/test_run.txt"
+        test_feature "${sub_file_list[${selected_test_number}]}" "${file_name_list[${selected_test_number}]}${selected_test_line}" "${build_log_directory}/test_run.txt" test_menu_success test_menu_failed_folders test_menu_failed_lines test_menu_failed_rspec_lines test_menu_failed_status test_menu_missing_steps
       fi
       ;;
   esac
 
   if [ "${show_test_results}" = "true" ]; then
-    report_test_success "${build_log_directory}/test_run.txt" "${test_menu_success}" test_menu_failed_lines[@] test_menu_failed_status[@] test_menu_failed_rspec_lines[@] test_type_list[@] file_name_list[@] sub_file_list[@] test_menu_missing_steps[@]
+    report_test_success "${build_log_directory}/test_run.txt" "${test_menu_success}" test_menu_failed_folders[@] test_menu_failed_lines[@] test_menu_failed_status[@] test_menu_failed_rspec_lines[@] test_type_list[@] file_name_list[@] sub_file_list[@] test_menu_missing_steps[@]
   fi
 }
 
@@ -4676,9 +4809,11 @@ function show_guard_menu
   folders_list="$(find . -name Guardfile)"
   validated_branch_index=""
 
-  while read guard_folder; do
-    guard_folder_list[${#guard_folder_list[@]}]="${guard_folder:2:${#guard_folder} - 10 - 2}"
-  done <<< "${folders_list}"
+  if [ ! -z "${folders_list}" ]; then
+    while read guard_folder; do
+      guard_folder_list[${#guard_folder_list[@]}]="${guard_folder:2:${#guard_folder} - 10 - 2}"
+    done <<< "${folders_list}"
+  fi
 
   present_menu guard_folder_list[@] "true" "0" "Select which folder to run Guard in:" "Type the number of the folder to run Guard in: " validated_branch_index "false" "0"
 
@@ -4721,28 +4856,28 @@ function run_site
 
 function move_build_base_directory
 {
-  # Moves the sparrow directory out of the way so you can clone a clean repository.
+  # Moves the project directory out of the way so you can clone a clean repository.
 
   if [ -d ${build_base_directory} ]; then
-    new_sparrow_name="$(date ${time_format_sting})_${project_base_name}"
-    # new_sparrow_name="old_sparrow_$(date ${time_format_sting})"
-    record_history "  # Moving ${project_base_name} to ${new_sparrow_name}"
+    new_project_name="$(date ${time_format_sting})_${project_base_name}"
+    # new_project_name="old_project_$(date ${time_format_sting})"
+    record_history "  # Moving ${project_base_name} to ${new_project_name}"
     cd ${build_parent_directory}
-    mv ${project_base_name} ${new_sparrow_name}
-    record_history "  # Moved ${project_base_name} to ${new_sparrow_name}"
+    mv ${project_base_name} ${new_project_name}
+    record_history "  # Moved ${project_base_name} to ${new_project_name}"
   fi
 }
 
 function clone_repository
 {
-  # This function clones sparrow into the current directory.
+  # This function clones project into the current directory.
 
   if [ -d ${build_base_directory}/.git ]; then
-    echo "The sparrow directory \"${build_base_directory}\" already exists.  Clone aborted."
+    echo "The project directory \"${build_base_directory}\" already exists.  Clone aborted."
     exit 3
   fi
 
-  record_history "  # Clone Sparrow"
+  record_history "  # Clone Project"
   cd ${build_parent_directory}
   execute_command "git clone git@github.com:${project_repository_name}/${project_base_name}.git" "" "" ""
 }
@@ -4752,7 +4887,7 @@ function deploy_to_production
   # This function does a "deployment" to a production system.
   #
   # This basically just means that it does the following using the production
-  # environment in the sparrow_host folder:
+  # environment in the project applications main folder:
   #   bundle install
   #   bundle exec rake db:migrate
   #   bundle exec rake db:seed
@@ -4764,29 +4899,62 @@ function deploy_to_production
   cd ${build_base_directory}
   backup_outputs "${build_log_directory}" "prod_deploy.txt" "1w" "7 days"
 
-  if [ -d ${build_base_directory}/sparrow_host ]; then
-    build_sub_folder ${build_base_directory} "sparrow_host" "production" "false" "false" "${build_log_directory}/prod_deploy.txt"
+  if [ "${project_app_directory}" != "." ]; then
+    if [ -d ${build_base_directory}/${project_app_directory} ]; then
+      build_sub_folder ${build_base_directory} "${project_app_directory}" "production" "false" "false" "${build_log_directory}/prod_deploy.txt"
+    fi
   fi
 }
 
 function deploy_system
 {
   # This function deploys the system.
-  # At this time, all it does is prompt you which deployment to use and then
-  # calls the capistrano deployment call.
-  #
-  # It is built however for the eventual deployment of a branch, where it will
-  # prompt you for a branch to deploy then make the appropriate call.
 
-  if [ -d ${build_base_directory}/sparrow_host ]; then
+  declare -a deployment_options
+
+  cd ${build_base_directory}
+
+  deployment_menu_selection="-1"
+
+  if [ -f ${build_base_directory}/${project_app_directory}/Capfile ]; then
+    deployment_options[${#deployment_options[@]}]="Capestrano"
+    deployment_menu_selection="0"
+  fi
+  if git remote | grep -q "heroku"; then
+    deployment_options[${#deployment_options[@]}]="Heroku"
+    deployment_menu_selection="1"
+  fi
+
+  if [ ${#deployment_options[@]} -gt 1 ]; then
+    present_menu deployment_menu_selection[@] "false" "0" "Select the type of deployment to use..." "Select the deployment you want to use: " deployment_menu_selection "false" 0
+  fi
+
+  if [ "${deployment_menu_selection}" = "0" ]; then
+    deploy_capestrano
+  fi
+
+  if [ "${deployment_menu_selection}" = "1" ]; then
+    deploy_heroku
+  fi
+}
+
+function deploy_capestrano
+{
+  # If the system supports capestrano deployment, it will deploy to capestrano
+
+  # If available, do a capestrano deployment...
+  if [ -f ${build_base_directory}/${project_app_directory}/Capfile ]; then
     backup_outputs "${build_log_directory}" "deploy.txt" "1w" "7 days"
     cd ${build_base_directory}
 
     declare -a deployment_systems
 
-    deployment_systems[${#deployment_systems[@]}]="www"
-    deployment_systems[${#deployment_systems[@]}]="staging"
-    deployment_systems[${#deployment_systems[@]}]="dev"
+    deploy_list=$(ls ${build_base_directory}/${project_app_directory}/config/deploy)
+
+    while read deploy_type; do
+      deploy_type="${deploy_type:0:$((${#deploy_type} - 3))}"
+      deployment_systems[${#deployment_systems[@]}]="${deploy_type}"
+    done <<< "${deploy_list}"
 
     prompt_branch false true true true "Which branch do you want to try to deploy?" "Type the number of the branch to be deployed: " selected_branch selected_branch_name
     if [ "${#selected_branch_name}" -gt 7 ]; then
@@ -4805,8 +4973,28 @@ function deploy_system
       extra_params="${extra_params} -s branch=\"${selected_branch_name}\""
     fi
 
-    cd ${build_base_directory}/sparrow_host
+    cd ${build_base_directory}/${project_app_directory}
     execute_command "bundle exec cap ${extra_params} deploy" "${build_log_directory}/deploy.txt" "" ""
+  fi
+}
+
+function deploy_heroku
+{
+  cd ${build_base_directory}
+  backup_outputs "${build_log_directory}" "heroku_deploy.txt" "1w" "7 days"
+  if git remote | grep -q "heroku"; then
+    record_branch deploy_orig_branch_name
+    if [ "${deploy_orig_branch_name}" != "master" ]; then
+      switch_to_branch "master"
+    fi
+
+    execute_command "git push heroku master" "${build_log_directory}/heroku_deploy.txt" "" ""
+    execute_command "heroku run rake db:migrate" "${build_log_directory}/heroku_deploy.txt" "" ""
+    execute_command "heroku run rake db:seed" "${build_log_directory}/heroku_deploy.txt" "" ""
+
+    if [ "${deploy_orig_branch_name}" != "master" ]; then
+      switch_to_branch "${deploy_orig_branch_name}"
+    fi
   fi
 }
 
@@ -4817,22 +5005,24 @@ function stash_lock_files
   log_backup_dir="${build_log_directory}/old/Gemfile.lock.$(date ${time_format_sting})"
   cd ${build_base_directory}
   lock_file_list="$(find . -name Gemfile.lock)"
-  while read lock_file; do
-    if [ -e ${lock_file} ]; then
-      set +e
-      lock_return="$(git ls-files ${lock_file} --error-unmatch 2>&1)"
-      lock_exists="${?}"
-      set -e
+  if [ ! -z "${lock_file_list}" ]; then
+    while read lock_file; do
+      if [ -e ${lock_file} ]; then
+        set +e
+        lock_return="$(git ls-files ${lock_file} --error-unmatch 2>&1)"
+        lock_exists="${?}"
+        set -e
 
-      mkdir -p ${log_backup_dir}/${lock_file}
-      rmdir ${log_backup_dir}/${lock_file}
-      if [ "${lock_exists}" != "0" ]; then
-        execute_command "mv ${lock_file} ${log_backup_dir}/${lock_file}" "" "" ""
-      else
-        execute_command "cp ${lock_file} ${log_backup_dir}/${lock_file}" "" "" ""
+        mkdir -p ${log_backup_dir}/${lock_file}
+        rmdir ${log_backup_dir}/${lock_file}
+        if [ "${lock_exists}" != "0" ]; then
+          execute_command "mv ${lock_file} ${log_backup_dir}/${lock_file}" "" "" ""
+        else
+          execute_command "cp ${lock_file} ${log_backup_dir}/${lock_file}" "" "" ""
+        fi
       fi
-    fi
-  done <<< "${lock_file_list}"
+    done <<< "${lock_file_list}"
+  fi
 }
 
 function get_current_status
@@ -4890,6 +5080,7 @@ function clear_log_histories
   clear_old_outputs "${build_log_directory}" "test_run.txt" "1w" "7 days"
   clear_old_outputs "${build_log_directory}" "deploy_output.txt" "1w" "7 days"
   clear_old_outputs "${build_log_directory}" "deploy.txt" "1w" "7 days"
+  clear_old_outputs "${build_log_directory}" "heroku_deploy.txt" "1w" "7 days"
   clear_old_outputs "${build_log_directory}" "Gemfile.lock" "1w" "7 days"
   clear_old_outputs "${build_log_directory}" "prod_deploy.txt" "1w" "7 days"
 }
@@ -5693,6 +5884,9 @@ function validate_merge_conflicts
 
 function recreate_database_schema
 {
+  # NOTE: This function is still build exclusively/special for sparrow_crm.
+  #       I'll work on a generic version of this later if needed/wanted...
+  #
   # This funciton ensures that the checked in schema.rb file for the host is correct.
   # It does this by recreating the database from scratch and dumping the schema file.
   #
@@ -5729,35 +5923,37 @@ function recreate_database_schema
     declare -a migrate_folder_list
 
     schema_dump_db_folders="$(find . -name db)"
-    while read schema_dump_db_path; do
-      cd ${build_base_directory}
-      if [ -d ${schema_dump_db_path} ]; then
-        if ! echo "${schema_dump_db_path}" | grep -q ".git/"; then
-          if ! echo "${schema_dump_db_path}" | grep -q "sparrow_crm"; then
-            if ! echo "${schema_dump_db_path}" | grep -q "sparrow_host"; then
-              if ! echo "${schema_dump_db_path}" | grep -q "spec/dummy"; then
-                # The folder exists, is not sparrow_crm, sparrow_host, and not spec/dummy.
-                # Therefore, this folder has DB migrations we need to include in our program.
-                schema_dump_db_path="${schema_dump_db_path:2:${#schema_dump_db_path} - 5}"
-                migrate_folder_list[${#migrate_folder_list[@]}]=${schema_dump_db_path}
+    if [ ! -z "${schema_dump_db_folders}" ]; then
+      while read schema_dump_db_path; do
+        cd ${build_base_directory}
+        if [ -d ${schema_dump_db_path} ]; then
+          if ! echo "${schema_dump_db_path}" | grep -q ".git/"; then
+            if ! echo "${schema_dump_db_path}" | grep -q "sparrow_crm"; then
+              if ! echo "${schema_dump_db_path}" | grep -q "sparrow_host"; then
+                if ! echo "${schema_dump_db_path}" | grep -q "spec/dummy"; then
+                  # The folder exists, is not sparrow_crm, sparrow_host, and not spec/dummy.
+                  # Therefore, this folder has DB migrations we need to include in our program.
+                  schema_dump_db_path="${schema_dump_db_path:2:${#schema_dump_db_path} - 5}"
+                  migrate_folder_list[${#migrate_folder_list[@]}]=${schema_dump_db_path}
 
-                cd ${build_base_directory}/${schema_dump_db_path}
-                if [ -d spec/dummy/db ]; then
-                  cd spec/dummy
-                  execute_command "bundle install" "" "" ""
-                  execute_command "RAILS_ENV=test bundle exec rake db:drop db:create db:migrate" "" "" ""
-                  cd ../..
-                  execute_command "bundle install" "" "" ""
-                  execute_command "RAILS_ENV=test bundle exec rake db:migrate" "" "" ""
-                  cd spec/dummy
-                  execute_command "RAILS_ENV=test bundle exec rake db:schema:dump db:drop" "" "" ""
+                  cd ${build_base_directory}/${schema_dump_db_path}
+                  if [ -d spec/dummy/db ]; then
+                    cd spec/dummy
+                    execute_command "bundle install" "" "" ""
+                    execute_command "RAILS_ENV=test bundle exec rake db:drop db:create db:migrate" "" "" ""
+                    cd ../..
+                    execute_command "bundle install" "" "" ""
+                    execute_command "RAILS_ENV=test bundle exec rake db:migrate" "" "" ""
+                    cd spec/dummy
+                    execute_command "RAILS_ENV=test bundle exec rake db:schema:dump db:drop" "" "" ""
+                  fi
                 fi
               fi
             fi
           fi
         fi
-      fi
-    done <<< "${schema_dump_db_folders}"
+      done <<< "${schema_dump_db_folders}"
+    fi
 
     if [ ${#migrate_folder_list[@]} -gt 0 ]; then
       cd ${build_base_directory}/sparrow_host
@@ -6316,6 +6512,7 @@ function debug_test_split_cucumber_line
 
 function debug_test_test_reporting
 {
+  declare -a testing_feature_failed_folders
   declare -a testing_feature_failed_lines
   declare -a testing_rspec_failed_lines
   declare -a debug_test_reporting_missing_steps
@@ -6325,7 +6522,7 @@ function debug_test_test_reporting
       rm ${build_parent_directory}/BuildLogs/rspec_test_copy.txt
     fi
     cp ${build_parent_directory}/BuildLogs/rspec_test.txt ${build_parent_directory}/BuildLogs/rspec_test_copy.txt
-    check_test_run "sparrow_crm" ${build_parent_directory}/BuildLogs/rspec_test_copy.txt testing_rspec_success testing_rspec_failed_lines
+    check_rspec_test_run "sparrow_crm" ${build_parent_directory}/BuildLogs/rspec_test_copy.txt testing_rspec_success testing_rspec_failed_lines
     if [ -f ${build_parent_directory}/BuildLogs/rspec_test_copy.txt ]; then
       rm ${build_parent_directory}/BuildLogs/rspec_test_copy.txt
     fi
@@ -6343,13 +6540,18 @@ function debug_test_test_reporting
       rm ${build_parent_directory}/BuildLogs/feature_test_copy.txt
     fi
     cp ${build_parent_directory}/BuildLogs/feature_test.txt ${build_parent_directory}/BuildLogs/feature_test_copy.txt
-    test_smoke_fails ${build_parent_directory}/BuildLogs/feature_test_copy.txt testing_feature_success testing_feature_failed_lines testing_rspec_failed_lines debug_test_reporting_missing_steps
+    test_smoke_fails "parrow_crm" ${build_parent_directory}/BuildLogs/feature_test_copy.txt testing_feature_success testing_feature_failed_folders testing_feature_failed_lines testing_rspec_failed_lines debug_test_reporting_missing_steps
 
     if [ -f ${build_parent_directory}/BuildLogs/feature_test_copy.txt ]; then
       rm ${build_parent_directory}/BuildLogs/feature_test_copy.txt
     fi
 
     echo "testing_feature_success = \"${testing_feature_success}\""
+    test_test_index=0
+    while [ ${test_test_index} -lt ${#testing_feature_failed_folders[@]} ]; do
+      echo "testing_feature_failed_folders [${test_test_index}] = \"${testing_feature_failed_folders[${test_test_index}]}\""
+      test_test_index=$((${test_test_index} + 1))
+    done
     test_test_index=0
     while [ ${test_test_index} -lt ${#testing_feature_failed_lines[@]} ]; do
       echo "testing_feature_failed_lines [${test_test_index}] = \"${testing_feature_failed_lines[${test_test_index}]}\""
@@ -6395,19 +6597,19 @@ function debug_test_test_reporting
   testing_array_sub_files[${#testing_array_sub_files[@]}]=""
   testing_array_types[${#testing_array_types[@]}]="feature"
   testing_array_files[${#testing_array_files[@]}]="features/platform/contacts/addresses.feature"
-  testing_array_sub_files[${#testing_array_sub_files[@]}]=""
+  testing_array_sub_files[${#testing_array_sub_files[@]}]="parrow_crm"
   testing_array_types[${#testing_array_types[@]}]="feature"
   testing_array_files[${#testing_array_files[@]}]="features/platform/contacts/emails.feature"
-  testing_array_sub_files[${#testing_array_sub_files[@]}]=""
+  testing_array_sub_files[${#testing_array_sub_files[@]}]="parrow_crm"
   testing_array_types[${#testing_array_types[@]}]="feature"
   testing_array_files[${#testing_array_files[@]}]="features/platform/contacts/linkedin.feature"
-  testing_array_sub_files[${#testing_array_sub_files[@]}]=""
+  testing_array_sub_files[${#testing_array_sub_files[@]}]="parrow_crm"
   testing_array_types[${#testing_array_types[@]}]="feature"
   testing_array_files[${#testing_array_files[@]}]="features/platform/contacts/phones.feature"
-  testing_array_sub_files[${#testing_array_sub_files[@]}]=""
+  testing_array_sub_files[${#testing_array_sub_files[@]}]="parrow_crm"
   testing_array_types[${#testing_array_types[@]}]="feature"
   testing_array_files[${#testing_array_files[@]}]="features/platform/social/social_media_settings.feature"
-  testing_array_sub_files[${#testing_array_sub_files[@]}]=""
+  testing_array_sub_files[${#testing_array_sub_files[@]}]="parrow_crm"
   testing_array_types[${#testing_array_types[@]}]="rspec"
   testing_array_files[${#testing_array_files[@]}]=""
   testing_array_sub_files[${#testing_array_sub_files[@]}]=""
@@ -6424,7 +6626,7 @@ function debug_test_test_reporting
   testing_array_files[${#testing_array_files[@]}]="sparrow_crm"
   testing_array_sub_files[${#testing_array_sub_files[@]}]="controllers/sparrow_crm/member_test.rb"
 
-  report_test_success ${build_parent_directory}/BuildLogs/build_project_debug_report.txt "${testing_rspec_success}" testing_feature_failed_lines[@] testing_retest_results[@] testing_rspec_failed_lines[@] testing_array_types[@] testing_array_files[@] testing_array_sub_files[@] debug_test_reporting_missing_steps[@]
+  report_test_success ${build_parent_directory}/BuildLogs/build_project_debug_report.txt "${testing_rspec_success}" testing_feature_failed_folders[@] testing_feature_failed_lines[@] testing_retest_results[@] testing_rspec_failed_lines[@] testing_array_types[@] testing_array_files[@] testing_array_sub_files[@] debug_test_reporting_missing_steps[@]
 
   if [ -f ${build_parent_directory}/BuildLogs/build_project_debug_report.txt ]; then
     rm ${build_parent_directory}/BuildLogs/build_project_debug_report.txt
@@ -6677,7 +6879,7 @@ if [ "${show_help}" = "true" ]; then
   exit 0
 fi
 
-# --base_dir --base-dir         - The base directory to work in (the parent to sparrow)
+# --base_dir --base-dir         - The base directory to work in (the parent to the project)
 if [ "${set_base_dir}" = "true" ]; then
   # Set the base directory based on passed in parameters.
   # This was created/added to allow simplified SSH scripting.  Probably not really needed...
@@ -6778,9 +6980,9 @@ fi
 
 # -p, --pull                    - Pull the source
 if [ "${do_pull_source}" = "true" ]; then
-  pull_project_source sparrow_updated
+  pull_project_source project_get_updated
 
-  # if [ "${sparrow_updated}" = "true" ]; then
+  # if [ "${project_get_updated}" = "true" ]; then
   #   do_build_project="true"
   # fi
 fi
@@ -6800,7 +7002,7 @@ if [ "${do_stash_lockfiles}" = "true" ]; then
   stash_lock_files
 fi
 
-# -b, --build                   - Build Sparrow
+# -b, --build                   - Build the project
 if [ "${do_build_project}" = "true" ]; then
   build_project
 fi
@@ -6896,4 +7098,4 @@ update_build_project
 
 exit 0
 
-# version=0.0.43
+# version=0.0.45

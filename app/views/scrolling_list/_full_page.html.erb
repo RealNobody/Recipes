@@ -1,0 +1,14 @@
+<% content_for :scroll_list do %>
+  <%= render(partial: "#{@_controller.controller_name}/list", layout: false) %>
+  <%
+    next_element = render(partial: "#{@_controller.controller_name}/next_link", layout: false)
+    unless next_element.blank?
+  %>
+    <div class="scrolling-next">
+      <%= next_element %>
+    </div>
+  <% end %>
+<% end %>
+<% content_for :first_item do %>
+  <%= render(partial: "#{@_controller.controller_name}/show", layout: false) %>
+<% end %>

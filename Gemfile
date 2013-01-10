@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 gem 'rails'
 gem "bcrypt-ruby"
 gem 'devise'
+gem 'kaminari'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'

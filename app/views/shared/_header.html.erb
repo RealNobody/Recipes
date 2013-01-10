@@ -1,18 +1,22 @@
 <div class="navbar navbar-inverse navbar-fixed-top">
   <div class="navbar-inner">
     <div class="container-fluid">
-      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+      <a id="recipe-button-menu-button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </a>
       <a class="brand" href="#">Recipies</a>
-      <div class="nav-collapse collapse">
+      <div id="recipe-button-menu" class="nav-collapse collapse">
         <p class="navbar-text pull-right">
-          Logged in as <%= current_user.name %>
-<%
-  # <a href="#" class="navbar-link">Username</a>
-%>
+          <% if current_user == nil %>
+            Not Logged In
+          <% else %>
+            Logged in as <%= current_user.name %>
+            <%
+              # <a href="#" class="navbar-link">Username</a>
+            %>
+          <% end %>
         </p>
         <ul class="nav">
           <li class="active"><%= link_to("Home", root_path) %></li>
