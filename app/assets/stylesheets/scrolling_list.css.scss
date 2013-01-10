@@ -1,4 +1,16 @@
+.scrolling-list
+{
+  overflow-y: auto;
+}
+
 .scrolling-next
+{
+  background: asset-data-url('loading.gif') no-repeat;
+  background-position: center center;
+  height: 20px;
+}
+
+.scrolling-next a
 {
   display: none;
 }
