@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Recipies</title>
+    <title>Recipes</title>
     <%= stylesheet_link_tag    "application", :media => "all" %>
     <%= csrf_meta_tags %>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -11,9 +11,9 @@
     <![endif]-->
   </head>
   <body>
-    <div class="recipie-body">
+    <div class="recipe-body">
       <%= render "shared/header" %>
-      <div class="recipie-container">
+      <div class="recipe-container">
         <div class="container-fluid">
           <div class="row-fluid">
             <div class="span2">
@@ -21,7 +21,7 @@
                 <ul class="nav nav-list">
                   <li class="nav-header">Standard Functions</li>
                   <li><%= link_to("Menus", root_path) %></li>
-                  <li><%= link_to("Recipies", root_path) %></li>
+                  <li><%= link_to("Recipes", root_path) %></li>
                   <li class="nav-header">Administrative Functions</li>
                   <li><%= link_to("Measuring Units", measuring_units_path) %></li>
                 </ul>

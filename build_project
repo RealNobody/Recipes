@@ -13,13 +13,13 @@ function load_project_settings
   exe_name="${1}"
   # Default values based on the system being build for the Sparrow project.
   # sparrow
-  project_base_name="Recipies"
+  project_base_name="sparrow"
   # Sparrow/
-  project_base_parent_dir=""
+  project_base_parent_dir="Sparrow/"
   # SageACT
-  project_repository_name="RealNobody"
+  project_repository_name="SageACT"
   # sparrow_host
-  project_app_directory="."
+  project_app_directory="sparrow_host"
 
   # build_project
   proj_dir="${exe_name:0:$((${#exe_name} - 13))}"
@@ -440,6 +440,12 @@ function execute_command
 {
   # This executes a command and echos the output.
   #
+  # NOTE: The value of success_return_var may not be accurate if the
+  #       value of file_to_echo_to is set.
+  #
+  #       If file_to_echo_to is used, you should parse the output
+  #       to validate success.
+  #
   # PARAMETERS:
   #   ${1}  - command_to_execute      - The command to execute
   #   ${2}  - file_to_echo_to         - A file to output the text into.
@@ -501,13 +507,24 @@ function heroku_run
   heroku_run_command="${1}"
   heroku_run_log_file="${2}"
 
-  execute_command "heroku run ${heroku_run_command}" "${heroku_run_log_file}" heroku_run_success ""
+  backup_outputs "${build_log_directory}" "single_heroku_deploy.txt" "1w" "7 days"
+  execute_command "heroku run ${heroku_run_command}" "${build_log_directory}/single_heroku_deploy.txt" heroku_run_success ""
+  cat ${build_log_directory}/single_heroku_deploy.txt >> ${heroku_run_log_file}
+
+  if [ "${heroku_run_success}" = "0" ]; then
+    if grep "Error connecting to process" ${build_log_directory}/single_heroku_deploy.txt; then
+      heroku_run_success="1"
+    fi
+  fi
 
   if [ "${heroku_run_success}" != "0" ]; then
-    execute_command "heroku run:detached ${heroku_run_command}" "${heroku_run_log_file}" heroku_run_success heroku_run_text
-    run_heroku_log=$(echo "${heroku_run_success}" | grep -q "Use \`heroku")
+    execute_command "heroku run:detached ${heroku_run_command}" "${build_log_directory}/single_heroku_deploy.txt" heroku_run_success heroku_run_text
+    cat ${build_log_directory}/single_heroku_deploy.txt >> ${heroku_run_log_file}
+    run_heroku_log=$(grep "Use \`heroku" ${build_log_directory}/single_heroku_deploy.txt)
     split_line_on_char "${run_heroku_log}" "\`" run_heroku_ignore_text run_heroku_log
     split_line_on_char "${run_heroku_log}" "\`" run_heroku_log run_heroku_ignore_text
+
+    execute_command "${run_heroku_log}" "" "" ""
   fi
 }
 
@@ -5109,6 +5126,7 @@ function clear_log_histories
   clear_old_outputs "${build_log_directory}" "deploy_output.txt" "1w" "7 days"
   clear_old_outputs "${build_log_directory}" "deploy.txt" "1w" "7 days"
   clear_old_outputs "${build_log_directory}" "heroku_deploy.txt" "1w" "7 days"
+  clear_old_outputs "${build_log_directory}" "single_heroku_deploy.txt" "1w" "7 days"
   clear_old_outputs "${build_log_directory}" "Gemfile.lock" "1w" "7 days"
   clear_old_outputs "${build_log_directory}" "prod_deploy.txt" "1w" "7 days"
 }
@@ -6852,6 +6870,17 @@ function debug_extract_db_information
   done
 }
 
+function debug_heroku_run
+{
+  cd ${build_base_directory}
+  if git remote | grep -q "heroku"; then
+    heroku_run "rake db:migrate" "${build_log_directory}/heroku_deploy.txt"
+    heroku_run "rake db:seed" "${build_log_directory}/heroku_deploy.txt"
+  else
+    echo "Canot run the heroku tests."
+  fi
+}
+
 process_command_lines command_line_arguments[@]
 
 record_version "${0}"
@@ -6881,6 +6910,7 @@ if [ "${debug_mode}" = "true" ]; then
   # debug_build_sub_directory
   # debug_append_array
   # debug_extract_db_information
+  # debug_heroku_run
 
   record_history "  ###### Debug Test Done"
   exit 1
@@ -6918,7 +6948,7 @@ if [ "${set_base_dir}" = "true" ]; then
 
   cd ${base_dir_param}
   current_directory="$(pwd)"
-  build_base_directory="${current_directory}/Recipies"
+  build_base_directory="${current_directory}/${project_base_name}"
   build_parent_directory="${current_directory}"
   build_log_directory="${build_parent_directory}/BuildLogs"
 fi
@@ -7126,4 +7156,4 @@ update_build_project
 
 exit 0
 
-# version=0.0.46
+# version=0.0.47

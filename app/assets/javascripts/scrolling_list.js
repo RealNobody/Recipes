@@ -1,12 +1,12 @@
-//= require recipies
+//= require recipes
 
 var scrollingList;
 
-Recipies.ScrollingList = function ()
+Recipes.ScrollingList = function ()
 {
 };
 
-Recipies.ScrollingList.prototype =
+Recipes.ScrollingList.prototype =
 {
   minimum_max_height: 120,
 
@@ -65,21 +65,21 @@ Recipies.ScrollingList.prototype =
     max_height = 0;
 
     scrolling_list = $(".scrolling-list");
-    recipie_container = $(".recipie-container");
+    recipe_container = $(".recipe-container");
 
     offset_item = scrolling_list;
-    while (offset_item && !offset_item.hasClass ("recipie-container"))
+    while (offset_item && !offset_item.hasClass ("recipe-container"))
     {
       top_offset += offset_item.offset ().top;
       offset_item = $(offset_item.offsetParent ());
     }
 
-    max_height = recipie_container.height () - top_offset + recipiesApp.container_margin;
+    max_height = recipe_container.height () - top_offset + recipesApp.container_margin;
     if (max_height < this.minimum_max_height)
       max_height = this.minimum_max_height;
 
     scrolling_list.css ("max-height", max_height.toString () + "px");
-    $(".scrolling-content").css ("min-height", (max_height + (2 * recipiesApp.container_margin)).toString () + "px");
+    $(".scrolling-content").css ("min-height", (max_height + (2 * recipesApp.container_margin)).toString () + "px");
     this.list_scrolling ();
   },
 
@@ -137,7 +137,7 @@ $(".scrolling-list").scroll (
   function ()
   {
     if (!scrollingList)
-      scrollingList = new Recipies.ScrollingList ();
+      scrollingList = new Recipes.ScrollingList ();
 
     scrollingList.list_scrolling ();
   }
@@ -147,7 +147,7 @@ $(".scrolling-list").ready(
   function ()
   {
     if (!scrollingList)
-      scrollingList = new Recipies.ScrollingList ();
+      scrollingList = new Recipes.ScrollingList ();
 
     scroll_div = $(".scrolling-list");
     if (scroll_div.get (0).scrollHeight <= scroll_div.innerHeight ())
@@ -161,7 +161,7 @@ $(document).ready (
   function ()
   {
     if (!scrollingList)
-      scrollingList = new Recipies.ScrollingList ();
+      scrollingList = new Recipes.ScrollingList ();
 
     scrollingList.adjust_size ();
     scrollingList.bind_scroll_links ();
@@ -172,7 +172,7 @@ $(window).resize (
   function ()
   {
     if (!scrollingList)
-      scrollingList = new Recipies.ScrollingList ();
+      scrollingList = new Recipes.ScrollingList ();
 
     scrollingList.adjust_size ();
   }
