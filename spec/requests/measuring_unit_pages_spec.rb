@@ -5,7 +5,7 @@ describe "MeasuringUnit pages" do
     @user = FactoryGirl.create(:user)
   end
 
-  subject { page }
+  subject { Capybara.page }
 
   describe "list measuring units" do
     before do

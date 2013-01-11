@@ -1,4 +1,4 @@
-Recipies::Application.routes.draw do
+Recipes::Application.routes.draw do
   get "measuring_unit/new"
 
   devise_for :users

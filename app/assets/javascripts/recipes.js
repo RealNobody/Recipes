@@ -1,18 +1,18 @@
-var recipiesApp;
+var recipesApp;
 
-Recipies = function ()
+Recipes = function ()
 {
 };
 
-Recipies.prototype =
+Recipes.prototype =
 {
 };
 
-Recipies.Application = function ()
+Recipes.Application = function ()
 {
 };
 
-Recipies.Application.prototype =
+Recipes.Application.prototype =
 {
   last_height: -1,
   last_width: -1,
@@ -47,15 +47,15 @@ Recipies.Application.prototype =
     else
       adjust_height_value = 0;
 
-    body_height = $(".recipie-body").height ();
+    body_height = $(".recipe-body").height ();
     if ($("#recipe-button-menu-button").is (":hidden"))
     {
-      header_menu_height = $("#recipie-main-menu").height ();
-      $(".recipie-menu-adjust").css ("margin-top", (header_menu_height + 19).toString () + "px");
+      header_menu_height = $("#recipe-main-menu").height ();
+      $(".recipe-menu-adjust").css ("margin-top", (header_menu_height + 19).toString () + "px");
     }
     else
     {
-      $(".recipie-menu-adjust").css ("margin-top", "0px");
+      $(".recipe-menu-adjust").css ("margin-top", "0px");
       header_menu_height = this.container_margin + 30;
     }
 
@@ -64,14 +64,14 @@ Recipies.Application.prototype =
     if (window_height < this.min_height)
     {
       window_height = this.min_height;
-      $(".recipie-footer").removeClass ("recipie-footer-float");
-      $(".recipie-footer").addClass ("recipie-footer-static");
+      $(".recipe-footer").removeClass ("recipe-footer-float");
+      $(".recipe-footer").addClass ("recipe-footer-static");
       body_height = (this.min_height + this.footer_height).toString ();
     }
     else
     {
-      $(".recipie-footer").removeClass ("recipie-footer-static");
-      $(".recipie-footer").addClass ("recipie-footer-float");
+      $(".recipe-footer").removeClass ("recipe-footer-static");
+      $(".recipe-footer").addClass ("recipe-footer-float");
       body_height = "100%";
     }
 
@@ -80,14 +80,14 @@ Recipies.Application.prototype =
 
     if (body_height === "100%")
     {
-      $(".recipie-body").height (body_height);
+      $(".recipe-body").height (body_height);
       $("body").height (body_height);
     }
     else
     {
-      if (body_height != $(".recipie-body").height ())
+      if (body_height != $(".recipe-body").height ())
       {
-        $(".recipie-body").height (body_height + "px");
+        $(".recipe-body").height (body_height + "px");
         $("body").height (body_height + "px");
       }
     }
@@ -96,9 +96,9 @@ Recipies.Application.prototype =
     {
       // When we hit min_height, the footer just becomes an in-line footer.
       if (window_height == this.min_height)
-        $(".recipie-container").height ("auto");
+        $(".recipe-container").height ("auto");
       else
-        $(".recipie-container").height (window_height);
+        $(".recipe-container").height (window_height);
     }
   }
 };
@@ -106,18 +106,18 @@ Recipies.Application.prototype =
 $(window).resize (
   function ()
   {
-    if (!recipiesApp)
-      recipiesApp = new Recipies.Application ();
-    recipiesApp.resize_body ();
+    if (!recipesApp)
+      recipesApp = new Recipes.Application ();
+    recipesApp.resize_body ();
   }
 );
 
 $(document).ready (
   function ()
   {
-    if (!recipiesApp)
-      recipiesApp = new Recipies.Application ();
-    recipiesApp.resize_body ();
+    if (!recipesApp)
+      recipesApp = new Recipes.Application ();
+    recipesApp.resize_body ();
   }
 );
 
@@ -147,6 +147,6 @@ $("#recipe-button-menu-button").click(
       $("#recipe-button-menu").height ("auto");
     }
 
-    recipiesApp.do_resize_body (true);
+    recipesApp.do_resize_body (true);
   }
 );
