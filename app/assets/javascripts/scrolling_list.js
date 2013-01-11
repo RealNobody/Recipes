@@ -83,10 +83,10 @@ Recipies.ScrollingList.prototype =
     this.list_scrolling ();
   },
 
-  click_item: function (event_item)
+  click_item: function ()
   {
-    clicked_item = $(event_item.currentTarget);
-    event_item.preventDefault ();
+    clicked_item = $(event.currentTarget);
+    event.preventDefault ();
 
     item_url = clicked_item.attr ("href");
     item_url = item_url.replace (/((.*?\/)+)/, "$1item/");
@@ -128,14 +128,8 @@ Recipies.ScrollingList.prototype =
 
   bind_scroll_links: function ()
   {
-    $(".scroll-item-link").unbind ("click");
-
-    $(".scroll-item-link").click (
-      function ()
-      {
-        scrollingList.click_item (event);
-      }
-    );
+    $(".scroll-item-link").unbind ("click", this.click_item);
+    $(".scroll-item-link").click (this.click_item);
   }
 };
 
