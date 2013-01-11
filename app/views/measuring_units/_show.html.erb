@@ -1,1 +1,34 @@
-_Show: <%= @measuring_unit.name %>
+<div class="tabbable measuring-unit-tabs">
+  <ul class="nav nav-tabs">
+    <li class="active">
+      <a href="#measuring_unit" data-toggle="tab">Measuring Unit</a>
+    </li>
+    <li>
+      <a href="#aliases" data-toggle="tab">Aliases</a>
+    </li>
+    <li>
+      <a href="#conversions" data-toggle="tab">Conversions</a>
+    </li>
+    <li>
+      <a href="#ingredients" data-toggle="tab">Ingredients</a>
+    </li>
+  </ul>
+
+  <div class="tab-content measuring-unit-tab-content">
+    <div class="tab-pane active" id="measuring_unit">
+      _Show: <%= @measuring_unit.name %><br>
+    </div>
+
+    <div class="tab-pane" id="aliases">
+      The aliases page<br>
+    </div>
+
+    <div class="tab-pane" id="conversions">
+      The conversions page<br>
+    </div>
+
+    <div class="tab-pane" id="ingredients">
+      The ingredients page<br>
+    </div>
+  </div>
+</div>

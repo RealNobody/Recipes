@@ -1,3 +1,19 @@
 // Place all the styles related to the MeasuringUnit controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+.measuring-unit-tab-content
+{
+  margin-top: -20px;
+  margin-bottom: 20px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #DDD;
+  border-top-style: none;
+  height: 100%;
+}
+
+.measuring-unit-tabs
+{
+  height: 100%;
+}

@@ -79,6 +79,7 @@ Recipies.ScrollingList.prototype =
       max_height = this.minimum_max_height;
 
     scrolling_list.css ("max-height", max_height.toString () + "px");
+    $(".scrolling-content").css ("min-height", (max_height + (2 * recipiesApp.container_margin)).toString () + "px");
     this.list_scrolling ();
   },
 
