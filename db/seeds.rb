@@ -14,7 +14,7 @@ User.where(email: "realnobody1@cox.net").first_or_initialize().tap do | admin_us
 end
 
 
-# Recipies seeds
+# Recipes seeds
 
 # Measuring Units
 puts("Seeding Measuring Units and aliases...")

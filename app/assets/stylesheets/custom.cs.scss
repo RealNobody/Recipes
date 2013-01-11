@@ -6,7 +6,7 @@ $combined_height : 120px;
 // Sticky footer styles
 html,
 body,
-.recipie-body
+.recipe-body
 {
   height: 100%;
   /* The html and body elements cannot have any padding or margin. */
@@ -15,20 +15,20 @@ body,
 }
 
 /* Wrapper for page content to push down footer */
-.recipie-container
+.recipe-container
 {
   position: relative;
   margin: 0 auto $footer_height;
   overflow: auto;
 }
 
-.recipie-menu-adjust
+.recipe-menu-adjust
 {
   margin-top: $header_height;
 }
 
 /* Set the fixed height of the footer here */
-.recipie-footer-float
+.recipe-footer-float
 {
   position: absolute;
   bottom: 0;
@@ -36,7 +36,7 @@ body,
   width: 100%;
 }
 
-.recipie-footer-static
+.recipe-footer-static
 {
   height: $footer_height;
 }
@@ -44,7 +44,7 @@ body,
 /* Lastly, apply responsive CSS fixes as necessary */
 @media (max-width: 979px)
 {
-  .recipie-menu-adjust
+  .recipe-menu-adjust
   {
     margin-top: 0px;
   }
@@ -60,7 +60,7 @@ body,
   }
 }
 
-.recipie-footer-divider
+.recipe-footer-divider
 {
   width: 100%;
   border-top-style: solid;

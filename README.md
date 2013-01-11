@@ -1,2 +1,2 @@
-Recipies
+Recipes
 ========

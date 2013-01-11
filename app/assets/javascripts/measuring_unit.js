@@ -1,12 +1,12 @@
-//= require recipies
+//= require recipes
 
 var measuringUnitPage;
 
-Recipies.MeasuringUnitPage = function ()
+Recipes.MeasuringUnitPage = function ()
 {
 };
 
-Recipies.MeasuringUnitPage.prototype =
+Recipes.MeasuringUnitPage.prototype =
 {
   adjust_size: function ()
   {
@@ -18,7 +18,7 @@ $(document).ready (
   function ()
   {
     if (!measuringUnitPage)
-      measuringUnitPage = new Recipies.MeasuringUnitPage ();
+      measuringUnitPage = new Recipes.MeasuringUnitPage ();
 
     measuringUnitPage.adjust_size ();
   }
@@ -28,7 +28,7 @@ $(window).resize (
   function ()
   {
     if (!measuringUnitPage)
-      measuringUnitPage = new Recipies.MeasuringUnitPage ();
+      measuringUnitPage = new Recipes.MeasuringUnitPage ();
 
     measuringUnitPage.adjust_size ();
   }
