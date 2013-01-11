@@ -6,7 +6,7 @@ describe "User Pages" do
     @user = FactoryGirl.create(:user)
   end
 
-  subject { page }
+  subject { Capybara.page }
 
   describe "GET /user_pages" do
     it do
