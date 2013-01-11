@@ -488,6 +488,29 @@ function execute_command
   fi
 }
 
+function heroku_run
+{
+  # This function executes heroku run for the passed in command.
+  # This allows for problems with fire-walls by checking if the initial
+  # run fails, and if so, does the run in an alternate form.
+  #
+  # PARAMETERS:
+  #   ${1}  - heroku_run_command  - The command to run.
+  #   ${2}  - heroku_run_log_file - The log file to output information to.
+
+  heroku_run_command="${1}"
+  heroku_run_log_file="${2}"
+
+  execute_command "heroku run ${heroku_run_command}" "${heroku_run_log_file}" heroku_run_success ""
+
+  if [ "${heroku_run_success}" != "0" ]; then
+    execute_command "heroku run:detached ${heroku_run_command}" "${heroku_run_log_file}" heroku_run_success heroku_run_text
+    run_heroku_log=$(echo "${heroku_run_success}" | grep -q "Use \`heroku")
+    split_line_on_char "${run_heroku_log}" "\`" run_heroku_ignore_text run_heroku_log
+    split_line_on_char "${run_heroku_log}" "\`" run_heroku_log run_heroku_ignore_text
+  fi
+}
+
 function yes_no_prompt
 {
   # This function presents the user with a y/n message and reads the response.
@@ -4988,9 +5011,14 @@ function deploy_heroku
       switch_to_branch "master"
     fi
 
+    yes_no_prompt "Do you want to pull from master before pushing to heroku? (y/n): " "y" pull_before_deploy
+    if [ "${pull_before_deploy}" = "y" ]; then
+      pull_project_source deploy_pull_heroku_updated
+    fi
+
     execute_command "git push heroku master" "${build_log_directory}/heroku_deploy.txt" "" ""
-    execute_command "heroku run rake db:migrate" "${build_log_directory}/heroku_deploy.txt" "" ""
-    execute_command "heroku run rake db:seed" "${build_log_directory}/heroku_deploy.txt" "" ""
+    heroku_run "rake db:migrate" "${build_log_directory}/heroku_deploy.txt"
+    heroku_run "rake db:seed" "${build_log_directory}/heroku_deploy.txt"
 
     if [ "${deploy_orig_branch_name}" != "master" ]; then
       switch_to_branch "${deploy_orig_branch_name}"
@@ -7098,4 +7126,4 @@ update_build_project
 
 exit 0
 
-# version=0.0.45
+# version=0.0.46
