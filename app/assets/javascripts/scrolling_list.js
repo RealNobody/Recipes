@@ -8,6 +8,8 @@ Recipies.ScrollingList = function ()
 
 Recipies.ScrollingList.prototype =
 {
+  minimum_max_height: 120,
+
   list_scrolling: function ()
   {
     scroll_class = this;
@@ -59,10 +61,25 @@ Recipies.ScrollingList.prototype =
 
   adjust_size: function ()
   {
+    top_offset = 0;
+    max_height = 0;
+
     scrolling_list = $(".scrolling-list");
     recipie_container = $(".recipie-container");
 
-    scrolling_list.css ("max-height", (recipie_container.height () - (2 * recipiesApp.container_margin)).toString () + "px");
+    offset_item = scrolling_list;
+    while (offset_item && !offset_item.hasClass ("recipie-container"))
+    {
+      top_offset += offset_item.offset ().top;
+      offset_item = $(offset_item.offsetParent ());
+    }
+
+    max_height = recipie_container.height () - top_offset + recipiesApp.container_margin;
+    if (max_height < this.minimum_max_height)
+      max_height = this.minimum_max_height;
+
+    scrolling_list.css ("max-height", max_height.toString () + "px");
+    this.list_scrolling ();
   },
 
   click_item: function (event_item)
