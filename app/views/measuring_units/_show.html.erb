@@ -16,7 +16,10 @@
 
   <div class="tab-content measuring-unit-tab-content">
     <div class="tab-pane active" id="measuring_unit">
-      _Show: <%= @measuring_unit.name %><br>
+      <%= form_for @measuring_unit do | form_object |  %>
+        _Show: <%= @measuring_unit.name %><br>
+        <%= form_object.hidden_field(:title, value: "Recipes | Measuring Units - #{@measuring_unit.name}") %>
+      <% end %>
     </div>
 
     <div class="tab-pane" id="aliases">
