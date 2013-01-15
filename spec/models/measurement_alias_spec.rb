@@ -29,8 +29,8 @@ describe MeasurementAlias do
 
   describe "should be unique case insensetive" do
     before do
-      dup_alias = @measurement_alias.dup()
-      dup_alias.alias = dup_alias.alias.upcase()
+      dup_measuring_unit = FactoryGirl.create(:measuring_unit);
+      dup_alias = dup_measuring_unit.add_alias(@measurement_alias.alias.upcase());
       dup_alias.save!()
     end
 

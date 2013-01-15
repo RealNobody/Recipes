@@ -507,6 +507,8 @@ function heroku_run
   heroku_run_command="${1}"
   heroku_run_log_file="${2}"
 
+  heroku_run_success="1"
+
   backup_outputs "${build_log_directory}" "single_heroku_deploy.txt" "1w" "7 days"
   execute_command "heroku run ${heroku_run_command}" "${build_log_directory}/single_heroku_deploy.txt" heroku_run_success ""
   cat ${build_log_directory}/single_heroku_deploy.txt >> ${heroku_run_log_file}
@@ -523,6 +525,16 @@ function heroku_run
     run_heroku_log=$(grep "Use \`heroku" ${build_log_directory}/single_heroku_deploy.txt)
     split_line_on_char "${run_heroku_log}" "\`" run_heroku_ignore_text run_heroku_log
     split_line_on_char "${run_heroku_log}" "\`" run_heroku_log run_heroku_ignore_text
+
+    heroku_prev_process_id="${run_heroku_log}"
+    while [ ! -z "${heroku_prev_process_id}" ]; do
+      heroku_process_id="${heroku_prev_process_id}"
+      split_line_on_char "${heroku_prev_process_id}" " " run_heroku_ignore_text heroku_prev_process_id
+    done
+
+    while heroku ps | grep "${heroku_process_id}"; do
+      sleep 1
+    done
 
     execute_command "${run_heroku_log}" "" "" ""
   fi
@@ -5037,6 +5049,7 @@ function deploy_heroku
     heroku_run "rake db:migrate" "${build_log_directory}/heroku_deploy.txt"
     heroku_run "rake db:seed" "${build_log_directory}/heroku_deploy.txt"
 
+    echo "Switching back to branch: \"${deploy_orig_branch_name}\""
     if [ "${deploy_orig_branch_name}" != "master" ]; then
       switch_to_branch "${deploy_orig_branch_name}"
     fi
@@ -7156,4 +7169,4 @@ update_build_project
 
 exit 0
 
-# version=0.0.47
+# version=0.0.48
