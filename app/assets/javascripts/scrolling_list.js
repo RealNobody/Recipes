@@ -215,6 +215,8 @@ Recipes.ScrollingList.prototype =
             title_text = scroll_class.get_title (history_info.link_url);
             History.pushState (history_info, title_text, history_info.link_url);
           }
+
+          $(window).trigger ("resize");
         }
       )
       .fail (
