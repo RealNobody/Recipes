@@ -9,7 +9,7 @@ Recipes.ScrollingList = function ()
 
 Recipes.ScrollingList.prototype =
 {
-  minimum_max_height  : 120,
+  minimum_max_height  : 160,
   history_supported   : false,
   window_history      : null,
 
@@ -69,31 +69,52 @@ Recipes.ScrollingList.prototype =
     }
   },
 
+  calculate_min_height: function ()
+  {
+    var top_offset = 0;
+    var min_height = 0;
+    var debug_height = 0;
+    var debug_padding = 10;
+    var scroll_list_padding = 2;
+
+    if ($(window).width () < 767)
+      return this.minimum_max_height;
+
+    var scrolling_list = $(".scrolling-list");
+    var recipe_container = $(".recipe-container");
+
+    var offset_item = scrolling_list;
+    // while (offset_item && !offset_item.hasClass ("recipe-container"))
+    // {
+      top_offset += offset_item.offset ().top;
+    //   offset_item = $(offset_item.offsetParent ());
+    // }
+
+    var debug_area = $(".debug_dump");
+    if (debug_area && debug_area.length > 0)
+      debug_height = debug_area.height () + debug_padding;
+
+    min_height = recipe_container.height () - top_offset + recipesApp.container_margin - debug_height - scroll_list_padding;
+    if (min_height < this.minimum_max_height)
+      min_height = this.minimum_max_height;
+
+    return min_height;
+  },
+
   /*
     I want the list to have a maximum size to make it look nicer, so I have
     to do this through a script because I cannot figure out another way...
    */
   adjust_size: function ()
   {
-    top_offset = 0;
-    max_height = 0;
+    var max_height = this.calculate_min_height ();
+    var min_height = max_height;
 
-    scrolling_list = $(".scrolling-list");
-    recipe_container = $(".recipe-container");
-
-    offset_item = scrolling_list;
-    while (offset_item && !offset_item.hasClass ("recipe-container"))
-    {
-      top_offset += offset_item.offset ().top;
-      offset_item = $(offset_item.offsetParent ());
-    }
-
-    max_height = recipe_container.height () - top_offset + recipesApp.container_margin;
-    if (max_height < this.minimum_max_height)
-      max_height = this.minimum_max_height;
+    max_height -= recipesApp.container_margin;
 
     scrolling_list.css ("max-height", max_height.toString () + "px");
-    $(".scrolling-content").css ("min-height", (max_height + (2 * recipesApp.container_margin)).toString () + "px");
+    $(".scrolling-content").css ("min-height", min_height.toString () + "px");
+
     this.list_scrolling ();
   },
 

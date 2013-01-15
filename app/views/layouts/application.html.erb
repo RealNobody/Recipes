@@ -2,6 +2,10 @@
 <html>
   <head>
     <meta charset="utf-8" />
+
+    <!-- enable responsive features -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Recipes</title>
     <%= stylesheet_link_tag    "application", :media => "all" %>
     <%= csrf_meta_tags %>
@@ -28,7 +32,7 @@
               </div>
             </div>
             <div class="span10">
-              <div class="container-fluid">
+              <div class="container-fluid recipe-simple-container">
                 <% if flash.keys.length > 0 %>
                   <div class="row-fluid">
                     <div class="span12">

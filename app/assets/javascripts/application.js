@@ -14,4 +14,5 @@
 //= require jquery_ujs
 //= require recipes
 //= require_tree ../../../vendor/assets/javascripts/History
+//= require scrolling_list
 //= require_tree .

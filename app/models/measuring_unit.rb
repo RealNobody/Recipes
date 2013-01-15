@@ -48,6 +48,10 @@ class MeasuringUnit < ActiveRecord::Base
     self[:name]
   end
 
+  def has_abreviation?
+    self[:abreviation] != nil
+  end
+
   def abreviation
     if (self[:abreviation] == nil)
       self[:name]

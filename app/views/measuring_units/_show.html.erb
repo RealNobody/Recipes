@@ -16,22 +16,42 @@
 
   <div class="tab-content measuring-unit-tab-content">
     <div class="tab-pane active" id="measuring_unit">
-      <%= form_for @measuring_unit do | form_object |  %>
-        _Show: <%= @measuring_unit.name %><br>
-        <%= form_object.hidden_field(:title, value: "Recipes | Measuring Units - #{@measuring_unit.name}") %>
-      <% end %>
+      <div class="recipe-tab-content">
+        <%= form_for @measuring_unit do | form_object |  %>
+          <%= form_object.hidden_field(:title, value: "Recipes | Measuring Units - #{@measuring_unit.name}") %>
+
+          <%= form_object.label :name %>
+          <%= form_object.text_field :name %>
+
+          <label class="checkbox">
+            <input type="checkbox" value="<%= @measuring_unit.abreviation %>"<%= " checked" if (@measuring_unit.has_abreviation?) %>>
+            Show a default abbreviation
+          </label>
+          <%= form_object.label :abreviation %>
+          <%= form_object.text_field(:abreviation, disabled: !@measuring_unit.has_abreviation?) %>
+
+          <br />
+          <%= form_object.submit("Save") %>
+        <% end %>
+      </div>
     </div>
 
     <div class="tab-pane" id="aliases">
-      The aliases page<br>
+      <div class="recipe-tab-content">
+        The aliases page<br>
+      </div>
     </div>
 
     <div class="tab-pane" id="conversions">
-      The conversions page<br>
+      <div class="recipe-tab-content">
+        The conversions page<br>
+      </div>
     </div>
 
     <div class="tab-pane" id="ingredients">
-      The ingredients page<br>
+      <div class="recipe-tab-content">
+        The ingredients page<br>
+      </div>
     </div>
   </div>
 </div>
