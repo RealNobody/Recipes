@@ -4,7 +4,7 @@
 #
 #  id          :integer(4)      not null, primary key
 #  name        :string(255)
-#  abreviation :string(255)
+#  abbreviation :string(255)
 #  search_name :string(255)
 #  created_at  :datetime        not null
 #  updated_at  :datetime        not null
@@ -21,7 +21,7 @@ describe MeasuringUnit do
   subject { @measuring_unit }
 
   it { should respond_to(:name) }
-  it { should respond_to(:abreviation) }
+  it { should respond_to(:abbreviation) }
   # it { should_not respond_to(:search_name) }
   it { should respond_to(:measurement_aliases) }
 
@@ -35,19 +35,19 @@ describe MeasuringUnit do
     it { should_not be_valid }
   end
 
-  describe "abreviation should default to name" do
+  describe "abbreviation should default to name" do
     test_unit = MeasuringUnit.new(name: "Test Tablespoon")
-    test_unit.name.should == test_unit.abreviation
+    test_unit.name.should == test_unit.abbreviation
   end
 
-  describe "abreviation should be able to be different" do
-    test_unit = MeasuringUnit.new(name: "Test Tablespoon", abreviation: "test Tbsp.")
-    test_unit.name.should_not == test_unit.abreviation
+  describe "abbreviation should be able to be different" do
+    test_unit = MeasuringUnit.new(name: "Test Tablespoon", abbreviation: "test Tbsp.")
+    test_unit.name.should_not == test_unit.abbreviation
   end
 
-  describe "abreviation should be able to be an empty string" do
-    test_unit = MeasuringUnit.new(name: "Fred", abreviation: "")
-    test_unit.name.should_not == test_unit.abreviation
+  describe "abbreviation should be able to be an empty string" do
+    test_unit = MeasuringUnit.new(name: "Fred", abbreviation: "")
+    test_unit.name.should_not == test_unit.abbreviation
   end
 
   describe "should create default aliases on save" do
@@ -57,9 +57,9 @@ describe MeasuringUnit do
     end
   end
 
-  describe "should create an alias for the abreviation on save" do
+  describe "should create an alias for the abbreviation on save" do
     it do
-      @measuring_unit.abreviation = Faker::Lorem.sentence()
+      @measuring_unit.abbreviation = Faker::Lorem.sentence()
       @measuring_unit.save!()
       @measuring_unit.measurement_aliases.length.should == 3
     end

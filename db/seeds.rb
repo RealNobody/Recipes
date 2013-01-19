@@ -19,28 +19,28 @@ end
 # Measuring Units
 puts("Seeding Measuring Units and aliases...")
 MeasuringUnit.find_or_intialize("Cup").tap do | unit |
-  unit.abreviation = "C."
+  unit.abbreviation = "C."
   unit.save!()
 
   unit.add_alias("c").save!()
 end
 
 MeasuringUnit.find_or_intialize("Teaspoon").tap do | unit |
-  unit.abreviation = "tsp."
+  unit.abbreviation = "tsp."
   unit.save!()
 
   unit.add_alias("tsp").save!()
 end
 
 MeasuringUnit.find_or_intialize("Tablespoon").tap do | unit |
-  unit.abreviation = "Tbs."
+  unit.abbreviation = "Tbs."
   unit.save!()
 
   unit.add_alias("tbs").save!()
 end
 
 MeasuringUnit.find_or_intialize("Fluid-Ounce").tap do | unit |
-  unit.abreviation = "fl. oz."
+  unit.abbreviation = "fl. oz."
   unit.save!()
 
   unit.add_alias("fl. oz").save!()
@@ -53,14 +53,14 @@ MeasuringUnit.find_or_intialize("Fluid-Ounce").tap do | unit |
 end
 
 MeasuringUnit.find_or_intialize("Ounce").tap do | unit |
-  unit.abreviation = "oz."
+  unit.abbreviation = "oz."
   unit.save!()
 
   unit.add_alias("oz").save!()
 end
 
 MeasuringUnit.find_or_intialize("Pound").tap do | unit |
-  unit.abreviation = "lbs."
+  unit.abbreviation = "lbs."
   unit.save!()
 
   unit.add_alias("lbs").save!()
@@ -69,7 +69,7 @@ MeasuringUnit.find_or_intialize("Pound").tap do | unit |
 end
 
 MeasuringUnit.find_or_intialize("Unit").tap do | unit |
-  unit.abreviation = ""
+  unit.abbreviation = ""
   unit.save!()
 end
 
@@ -78,7 +78,7 @@ MeasuringUnit.find_or_intialize("Bunch").tap do | unit |
 end
 
 MeasuringUnit.find_or_intialize("Package").tap do | unit |
-  unit.abreviation = "pkgs."
+  unit.abbreviation = "pkgs."
   unit.save!()
 
   unit.add_alias("pkg.").save!()
@@ -87,7 +87,7 @@ MeasuringUnit.find_or_intialize("Package").tap do | unit |
 end
 
 MeasuringUnit.find_or_intialize("Pint").tap do | unit |
-  unit.abreviation = "pt."
+  unit.abbreviation = "pt."
   unit.save!()
 
   unit.add_alias("pt").save!()
@@ -96,7 +96,7 @@ MeasuringUnit.find_or_intialize("Pint").tap do | unit |
 end
 
 MeasuringUnit.find_or_intialize("Quart").tap do | unit |
-  unit.abreviation = "qt."
+  unit.abbreviation = "qt."
   unit.save!()
 
   unit.add_alias("qt").save!()
@@ -105,7 +105,7 @@ MeasuringUnit.find_or_intialize("Quart").tap do | unit |
 end
 
 MeasuringUnit.find_or_intialize("Gallon").tap do | unit |
-  unit.abreviation = "gal."
+  unit.abbreviation = "gal."
   unit.save!()
 
   unit.add_alias("gal").save!()
@@ -142,7 +142,7 @@ MeasuringUnit.find_or_intialize("Slice").tap do | unit |
 end
 
 MeasuringUnit.find_or_intialize("Heaping-Teaspoon").tap do | unit |
-  unit.abreviation = "h tsp."
+  unit.abbreviation = "h tsp."
   unit.save!()
 
   unit.add_alias("h tsp").save!()

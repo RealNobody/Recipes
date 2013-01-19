@@ -18,20 +18,21 @@
     <div class="tab-pane active" id="measuring_unit">
       <div class="recipe-tab-content">
         <%= form_for @measuring_unit do | form_object |  %>
-          <%= form_object.hidden_field(:title, value: "Recipes | Measuring Units - #{@measuring_unit.name}") %>
+          <input type="hidden" id="measuring_unit-title" value="Recipes | Measuring Units - <%= @measuring_unit.name %>" />
 
           <%= form_object.label :name %>
           <%= form_object.text_field :name %>
 
           <label class="checkbox">
-            <input type="checkbox" value="<%= @measuring_unit.abreviation %>"<%= " checked" if (@measuring_unit.has_abreviation?) %>>
+            <%= form_object.check_box(:has_abbreviation, value: @measuring_unit.has_abbreviation) %>
             Show a default abbreviation
           </label>
-          <%= form_object.label :abreviation %>
-          <%= form_object.text_field(:abreviation, disabled: !@measuring_unit.has_abreviation?) %>
+          <%= form_object.label :abbreviation %>
+          <%= form_object.text_field(:abbreviation, disabled: !@measuring_unit.has_abbreviation?) %>
 
           <br />
-          <%= form_object.submit("Save") %>
+          <%= form_object.submit("Save", class: "btn btn-primary") %>
+          <%= link_to("Delete", @measuring_unit, class: "btn btn-danger") %>
         <% end %>
       </div>
     </div>
