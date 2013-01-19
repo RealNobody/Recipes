@@ -1,0 +1,10 @@
+AJAXify new link
+Measuring Unit: JavaScript for Abbreviation checkbox.
+Make scrolling page aware
+Scroll up and down both
+Scroll only holds so many pages
+Scroll directly to item on reload
+AJAXify the crud actions so that on failure, only the failure page shows.
+Update the flash notifications so that they are shown appropriately.  (Green/yellow/red for notice, warning, error, etc.)
+Update AJAX responses so that they show flashes.
+Make Tabs AJAXy?

@@ -9,6 +9,7 @@ Recipes::Application.routes.draw do
 
   resources :measuring_units do
     get 'page/:page', action: :page, on: :collection
+    #get 'item/new', action: :new_item, on: :collection
     get 'item/:id', action: :item, on: :collection
   end
   resources :measuring_units

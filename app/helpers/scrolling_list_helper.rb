@@ -1,6 +1,6 @@
 module ScrollingListHelper
   def scrolling_list_next_link(link_item, selected_item)
-    per_default    = eval ("#{selected_item.class.name}.default_per_page")
+    per_default    = eval ("#{link_item.first().class.name}.default_per_page")
     items_per_page = per_default
 
     if (@_controller.params[:per_page] != nil)
@@ -13,7 +13,9 @@ module ScrollingListHelper
         link_value   = link_value.gsub(/\/new\/?/, "")
         link_value   = link_value.gsub(/(\/\d+\/?)?\?page=/, "/page/")
         append_value = ""
-        unless (selected_item == nil || selected_item.id == nil)
+        if (selected_item == nil || selected_item.id == nil)
+          append_value = "?id=new"
+        else
           append_value = "?id=#{selected_item.id}"
         end
         unless (items_per_page == per_default)

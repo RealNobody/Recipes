@@ -32,7 +32,7 @@
 
           <br />
           <%= form_object.submit("Save", class: "btn btn-primary") %>
-          <%= link_to("Delete", @measuring_unit, class: "btn btn-danger") %>
+          <%= link_to("Delete", @measuring_unit, class: "btn btn-danger", method: :delete) %>
         <% end %>
       </div>
     </div>

@@ -20,17 +20,27 @@ Recipes.ScrollingList.prototype =
   list_scrolling    : function (is_recursive)
   {
     var scroll_class = this;
+    var scroll_div = $ (".scrolling-list");
+    var scroll_next = $ (".scrolling-list .scrolling-next");
+    var next_link = $ (scroll_next.find ("a"));
 
-    scroll_div = $ (".scrolling-list");
-    next_link = $ (".scrolling-list .scrolling-next a");
+    if (scroll_next && scroll_next.length > 0)
+    {
+      next_link = $ (scroll_next.find ("a"));
+      scroll_next = scroll_next.height ();
+    }
+    else
+    {
+      scroll_next = 0;
+    }
 
     if (is_recursive || (next_link && next_link.length > 0 && ! next_link.hasClass ("scrolling-fetching")))
     {
       next_link.addClass ("scrolling-fetching");
 
-      if (scroll_div.get (0).scrollHeight <= scroll_div.innerHeight () ||
+      if ((scroll_div.get (0).scrollHeight - scroll_next) <= scroll_div.innerHeight () ||
           scroll_div.find (".scrolling-list-content").height () - scroll_div.scrollTop () -
-              scroll_div.innerHeight () - scroll_div.find (".scrolling-next").height () < 0)
+              scroll_div.innerHeight () - scroll_next < 0)
       {
         $.ajax (
             {
@@ -43,7 +53,7 @@ Recipes.ScrollingList.prototype =
             {
               // I don't know why, but when going forward and back, the system caches
               // some of the links, so I have to check if they are already there...
-              search_link = $ ('<div/>').html (additional_content).find ("li a");
+              var search_link = $ ('<div/>').html (additional_content).find ("li a");
               if (search_link && search_link.length > 0)
               {
                 search_link = $ (search_link [0]).attr ("href");
@@ -57,15 +67,22 @@ Recipes.ScrollingList.prototype =
                 // appending.
                 scroll_div.find (".scrolling-next").remove ();
                 scroll_div.find ("ul").append (additional_content);
-                next_link = $ (".scrolling-list .scrolling-next a");
+                scroll_next = $ (".scrolling-list .scrolling-next");
+                next_link = null;
 
-                if (next_link && next_link.length > 0 && ! next_link.hasClass ("scrolling-fetching"))
+                if (scroll_next && scroll_next.length > 0)
                 {
+                  next_link = $ (scroll_next.find ("a"));
                   next_link.addClass ("scrolling-fetching");
+                  scroll_next = scroll_next.height ();
+                }
+                else
+                {
+                  scroll_next = 0;
                 }
                 scroll_class.bind_scroll_links ();
 
-                if (scroll_div.get (0).scrollHeight <= scroll_div.innerHeight ())
+                if ((scroll_div.get (0).scrollHeight - scroll_next) <= scroll_div.innerHeight ())
                 {
                   if (next_link && next_link.length > 0)
                   {
@@ -109,7 +126,7 @@ Recipes.ScrollingList.prototype =
               if (new_active_item && new_active_item.length > 0)
                 new_active_item.closest ("li").addClass ("active");
 
-              if (! is_recursive)
+              if (! is_recursive && next_link)
               {
                 next_link.removeClass ("scrolling-fetching");
               }
@@ -178,10 +195,13 @@ Recipes.ScrollingList.prototype =
   {
     var max_height = this.calculate_min_height ();
     var min_height = max_height;
+    var scrolling_list = $ (".scrolling-list");
+    var new_link = $ (".scrolling-list-new-link");
 
     max_height -= recipesApp.container_margin;
 
-    scrolling_list.css ("max-height", max_height.toString () + "px");
+    scrolling_list.css ("max-height",
+                        (max_height - new_link.height () - recipesApp.container_margin).toString () + "px");
     $ (".scrolling-content").css ("min-height", min_height.toString () + "px");
 
     this.list_scrolling (false);
@@ -193,7 +213,7 @@ Recipes.ScrollingList.prototype =
    */
   build_click_link    : function (clicked_href)
   {
-    return clicked_href.replace (/((.*?\/)+)/, "$1item/");
+    return clicked_href.replace (/((?:.*?\/)+)/, "$1item/");
   },
 
   /*
@@ -206,6 +226,10 @@ Recipes.ScrollingList.prototype =
     if (get_id)
       return get_id [1];
 
+    get_id = link_url.match (/\/(new$)/);
+    if (get_id)
+      return get_id [1];
+
     return null;
   },
 
@@ -215,11 +239,18 @@ Recipes.ScrollingList.prototype =
    */
   click_item          : function (eventData)
   {
-    var scroll_class;
-
-    scroll_class = eventData.data.scroll_class;
-
+    var scroll_class = eventData.data.scroll_class;
     var clicked_item = $ (event.currentTarget);
+
+    scroll_class.show_item (scroll_class, clicked_item.attr ("href"));
+  },
+
+  click_new_item   : function (eventData)
+  {
+    var scroll_class = eventData.data.scroll_class;
+    var clicked_item = $ (event.currentTarget);
+
+    clicked_item = clicked_item.find ("a");
 
     scroll_class.show_item (scroll_class, clicked_item.attr ("href"));
   },
@@ -228,7 +259,7 @@ Recipes.ScrollingList.prototype =
    A helper function for showing a specific item that can be used
    by both the history and the click event.
    */
-  show_item           : function (scroll_class, clicked_item_url)
+  show_item        : function (scroll_class, clicked_item_url)
   {
     event.preventDefault ();
 
@@ -300,7 +331,7 @@ Recipes.ScrollingList.prototype =
    The title comes from a hidden item on the form which contains
    the title for the shown page.
    */
-  get_title           : function (item_url)
+  get_title        : function (item_url)
   {
     title_text = null;
     object_type = item_url.match (/\/?([^\/]+)/) [1];
@@ -317,10 +348,12 @@ Recipes.ScrollingList.prototype =
    This is necessary because we don't load all items initially, and so when
    the list scrolls and new items are added, we need to bind those items.
    */
-  bind_scroll_links   : function ()
+  bind_scroll_links: function ()
   {
     $ (".scroll-item-link").unbind ("click", this.click_item);
     $ (".scroll-item-link").click ({ scroll_class: this }, this.click_item);
+    $ (".scrolling-list-new-link").unbind ("click", this.click_new_item);
+    $ (".scrolling-list-new-link").click ({ scroll_class: this }, this.click_new_item);
   },
 
   /*
@@ -329,7 +362,7 @@ Recipes.ScrollingList.prototype =
 
    This simply re-renders the item for the page.
    */
-  history_changed     : function (eventData)
+  history_changed  : function (eventData)
   {
     var history_state = History.getState ();
 
@@ -347,12 +380,19 @@ Recipes.ScrollingList.prototype =
       }
       else
       {
-        next_item = $ (".scrolling-list .scrolling-next a");
-        if (next_item && next_item.length > 0)
+        if (window_id === "new")
         {
-          selected_item_id = next_item.attr ("href").match (/\?id=(\d+)/);
-          if (selected_item_id)
-            selected_item_id = selected_item_id [1];
+          selected_item_id = "new";
+        }
+        else
+        {
+          next_item = $ (".scrolling-list .scrolling-next a");
+          if (next_item && next_item.length > 0)
+          {
+            selected_item_id = next_item.attr ("href").match (/\?id=(\d+)/);
+            if (selected_item_id)
+              selected_item_id = selected_item_id [1];
+          }
         }
       }
 
@@ -371,7 +411,7 @@ Recipes.ScrollingList.prototype =
    If it does, it then sets up the initial history information for the initialy
    displayed item.
    */
-  test_for_history    : function ()
+  test_for_history : function ()
   {
     var scroll_class = this;
 
@@ -412,14 +452,21 @@ $ (".scrolling-list").scroll (
 $ (".scrolling-list").ready (
     function ()
     {
-      scrolling_list = $ (".scrolling-list");
+      var scrolling_list = $ (".scrolling-list");
+      var scroll_next = $ (".scrolling-list .scrolling-next");
+
+      if (scroll_next && scroll_next.length > 0)
+        scroll_next = scroll_next.height ();
+      else
+        scroll_next = 0;
+
       if (scrolling_list && scrolling_list.length > 0)
       {
         if (! scrollingList)
           scrollingList = new Recipes.ScrollingList ();
 
         scroll_div = $ (".scrolling-list");
-        if (scroll_div.get (0).scrollHeight <= scroll_div.innerHeight ())
+        if ((scroll_div.get (0).scrollHeight - scroll_next) <= scroll_div.innerHeight ())
         {
           scroll_div.scroll ();
         }
@@ -430,7 +477,7 @@ $ (".scrolling-list").ready (
 $ (document).ready (
     function ()
     {
-      scrolling_list = $ (".scrolling-list");
+      var scrolling_list = $ (".scrolling-list");
       if (scrolling_list && scrolling_list.length > 0)
       {
         if (! scrollingList)
@@ -446,7 +493,7 @@ $ (document).ready (
 $ (window).resize (
     function ()
     {
-      scrolling_list = $ (".scrolling-list");
+      var scrolling_list = $ (".scrolling-list");
       if (scrolling_list && scrolling_list.length > 0)
       {
         if (! scrollingList)
