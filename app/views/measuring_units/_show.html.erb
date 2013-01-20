@@ -32,23 +32,25 @@
 
           <br />
           <%= form_object.submit("Save", class: "btn btn-primary") %>
-          <%= link_to("Delete", @measuring_unit, class: "btn btn-danger", method: :delete, id: "delete-recipe") %>
+          <% unless (@measuring_unit.id == nil) %>
+            <%= link_to("Delete", @measuring_unit, class: "btn btn-danger", method: :delete, id: "delete-recipe") %>
 
-          <div id="confirm-delete-dialog" class="modal hide fade" tabindex="-1" role="dialog" aria-labeledby="confirm-delete-title" aria-hidden="true">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-              <h3 id="confirm-delete-title">Delete Measuring Unit <%= @measuring_unit.name %></h3>
+            <div id="confirm-delete-dialog" class="modal hide fade" tabindex="-1" role="dialog" aria-labeledby="confirm-delete-title" aria-hidden="true">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h3 id="confirm-delete-title">Delete Measuring Unit <%= @measuring_unit.name %></h3>
+              </div>
+              <div class="modal-body">
+                <p>
+                  Are you sure that you want to delete the Measuring Unit <%= @measuring_unit.name %>?
+                </p>
+              </div>
+              <div class="modal-footer">
+                <button id="confirm-delete" class="btn btn-danger" aria-hidden="true">Yes</button>
+                <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
+              </div>
             </div>
-            <div class="modal-body">
-              <p>
-                Are you sure that you want to delete the Measuring Unit <%= @measuring_unit.name %>?
-              </p>
-            </div>
-            <div class="modal-footer">
-              <button id="confirm-delete" class="btn btn-danger" aria-hidden="true">Yes</button>
-              <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
-            </div>
-          </div>
+          <% end %>
         <% end %>
       </div>
     </div>

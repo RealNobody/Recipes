@@ -30,7 +30,7 @@ class MeasuringUnitsController < ApplicationController
     setup_instance_variables(nil)
 
     respond_to do |format|
-      format.html { render(partial: "show", layout: false) }
+      format.html { render(partial: "show", layout: false, status: (((params[:id] == nil || params[:id] == "new") && @measuring_unit.id == nil) || (@measuring_unit.id.to_s() == params[:id])) ? 200 : 404) }
       format.json { render json: @measuring_units }
     end
   end

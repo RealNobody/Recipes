@@ -217,6 +217,15 @@ Recipes.ScrollingList.prototype =
   },
 
   /*
+   A helper function to be used multiple places.
+   Given a full URL link, what is the call for a new item.
+   */
+  build_new_link      : function (clicked_href)
+  {
+    return clicked_href.replace (/((?:.*?\/)+)\d+/, "$1new");
+  },
+
+  /*
    A helper function for fetching the ID of an item link.
    */
   get_item_link_id    : function (link_url)
@@ -242,29 +251,75 @@ Recipes.ScrollingList.prototype =
     var scroll_class = eventData.data.scroll_class;
     var clicked_item = $ (event.currentTarget);
 
-    scroll_class.show_item (scroll_class, clicked_item.attr ("href"));
+    scroll_class.show_item (clicked_item.attr ("href"));
   },
 
-  click_new_item   : function (eventData)
+  click_new_item: function (eventData)
   {
     var scroll_class = eventData.data.scroll_class;
     var clicked_item = $ (event.currentTarget);
 
     clicked_item = clicked_item.find ("a");
 
-    scroll_class.show_item (scroll_class, clicked_item.attr ("href"));
+    scroll_class.show_item (clicked_item.attr ("href"));
+  },
+
+  display_content_on_page: function (display_content, item_url, clicked_item_url, replaceURL)
+  {
+    // Set the HTML of the item display.
+    $ (".scrolling-content").html (display_content);
+
+    // switch the active item in the list.
+    $ (".scrolling-list .active").removeClass ("active");
+    var new_active_item = $ (".scrolling-list a[href=\"" + clicked_item_url + "\"]");
+    if (new_active_item && new_active_item.length > 0)
+      new_active_item.closest ("li").addClass ("active");
+
+    // If there is a "next" link in the scrolling list, update it
+    // to set the value of the selected item, so if we refresh the page,
+    // or if we scroll and the item isn't currently visible, it will be
+    // selected appropriately.
+    next_link = $ (".scrolling-list .scrolling-next a");
+    if (next_link && next_link.length > 0)
+    {
+      next_link_url = next_link.attr ("href");
+      next_link_url = next_link_url.replace (/([\?&])id=\d+/, "$1id=" + item_id);
+      next_link.attr ("href", next_link_url);
+    }
+
+    // If the history option is supported, use it to update the title and the URL.
+    if (this.history_supported)
+    {
+      title_text = null;
+
+      history_info =
+      {
+        link_url: clicked_item_url,
+        ajax_url: item_url
+      };
+
+      title_text = this.get_title (history_info.link_url);
+      if (replaceURL)
+        History.replaceState (history_info, title_text, history_info.link_url);
+      else
+        History.pushState (history_info, title_text, history_info.link_url);
+    }
+
+    $ (".scrolling-content").trigger ("scroll_content_loaded");
+    $ (window).trigger ("resize");
   },
 
   /*
    A helper function for showing a specific item that can be used
    by both the history and the click event.
    */
-  show_item        : function (scroll_class, clicked_item_url)
+  show_item              : function (clicked_item_url)
   {
-    event.preventDefault ();
-
+    var scroll_class = this;
     var item_url = scroll_class.build_click_link (clicked_item_url);
     var item_id = scroll_class.get_item_link_id (item_url);
+
+    event.preventDefault ();
 
     if (item_id)
     {
@@ -277,50 +332,22 @@ Recipes.ScrollingList.prototype =
           .done (
           function (display_content)
           {
-            // Set the HTML of the item display.
-            $ (".scrolling-content").html (display_content);
-
-            // switch the active item in the list.
-            $ (".scrolling-list .active").removeClass ("active");
-            var new_active_item = $ (".scrolling-list a[href=\"" + clicked_item_url + "\"]");
-            if (new_active_item && new_active_item.length > 0)
-              new_active_item.closest ("li").addClass ("active");
-
-            // If there is a "next" link in the scrolling list, update it
-            // to set the value of the selected item, so if we refresh the page,
-            // or if we scroll and the item isn't currently visible, it will be
-            // selected appropriately.
-            next_link = $ (".scrolling-list .scrolling-next a");
-            if (next_link && next_link.length > 0)
-            {
-              next_link_url = next_link.attr ("href");
-              next_link_url = next_link_url.replace (/([\?&])id=\d+/, "$1id=" + item_id);
-              next_link.attr ("href", next_link_url);
-            }
-
-            // If the history option is supported, use it to update the title and the URL.
-            if (scroll_class.history_supported)
-            {
-              title_text = null;
-
-              history_info =
-              {
-                link_url: clicked_item_url,
-                ajax_url: item_url
-              };
-
-              title_text = scroll_class.get_title (history_info.link_url);
-              History.pushState (history_info, title_text, history_info.link_url);
-            }
-
-            $ (".scrolling-content").trigger ("scroll_content_loaded");
-            $ (window).trigger ("resize");
+            scroll_class.display_content_on_page (display_content, item_url, clicked_item_url, false);
           }
       )
           .fail (
-          function ()
+          function (xHeader, status_info, error_Thrown)
           {
-            alert ("erik - do something about the fail.");
+            if (xHeader.status === 404)
+            {
+              var new_url = scroll_class.build_new_link (clicked_item_url);
+              item_url = scroll_class.build_click_link (new_url);
+              scroll_class.display_content_on_page (xHeader.responseText, item_url, new_url, true);
+            }
+            else
+            {
+              alert ("erik - do something about the fail.");
+            }
           }
       );
     }
@@ -331,7 +358,7 @@ Recipes.ScrollingList.prototype =
    The title comes from a hidden item on the form which contains
    the title for the shown page.
    */
-  get_title        : function (item_url)
+  get_title              : function (item_url)
   {
     title_text = null;
     object_type = item_url.match (/\/?([^\/]+)/) [1];
@@ -348,7 +375,7 @@ Recipes.ScrollingList.prototype =
    This is necessary because we don't load all items initially, and so when
    the list scrolls and new items are added, we need to bind those items.
    */
-  bind_scroll_links: function ()
+  bind_scroll_links      : function ()
   {
     $ (".scroll-item-link").unbind ("click", this.click_item);
     $ (".scroll-item-link").click ({ scroll_class: this }, this.click_item);
@@ -362,7 +389,7 @@ Recipes.ScrollingList.prototype =
 
    This simply re-renders the item for the page.
    */
-  history_changed  : function (eventData)
+  history_changed        : function (eventData)
   {
     var history_state = History.getState ();
 
@@ -396,11 +423,11 @@ Recipes.ScrollingList.prototype =
         }
       }
 
-      if (selected_item_id !== window_id)
+      if (selected_item_id !== window_id || window_id === "new")
       {
         // The history has changed to something other than what we're displaying now.
         // update it!
-        scroll_class.show_item (scroll_class, history_state.data.link_url);
+        scroll_class.show_item (history_state.data.link_url);
       }
     }
   },
@@ -411,7 +438,7 @@ Recipes.ScrollingList.prototype =
    If it does, it then sets up the initial history information for the initialy
    displayed item.
    */
-  test_for_history : function ()
+  test_for_history       : function ()
   {
     var scroll_class = this;
 
