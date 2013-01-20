@@ -1,4 +1,3 @@
-AJAXify new link
 Measuring Unit: JavaScript for Abbreviation checkbox.
 Make scrolling page aware
 Scroll up and down both

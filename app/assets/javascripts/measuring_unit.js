@@ -65,7 +65,14 @@ Recipes.MeasuringUnitPage.prototype =
       min_tab_height = tab_height;
 
     return min_tab_height;
-  }
+  },
+
+  check_has_abbreviation: function ()
+  {
+    abbreviation_text = $ ("#measuring_unit .measuring-unit-abbreviation");
+    abbreviation_check = $ ("#measuring_unit .measuring-unit-has-abbreviation");
+    abbreviation_text.prop ("disabled", ! abbreviation_check.is (":checked"));
+  },
 
   // submit_form: function (eventData)
   // {
@@ -82,42 +89,71 @@ Recipes.MeasuringUnitPage.prototype =
   //   $.ajax ({ url: submit_location, type: submit_method, data: submit_data });
   // },
 
-  // delete_item: function (eventData)
-  // {
-  //   var bindObject = eventData.data.bind_object;
+  delete_item: function (eventData)
+  {
+    var bindObject = eventData.data.bind_object;
+    event.preventDefault ();
 
-  //   event.preventDefault ();
+    $ ("#confirm-delete-dialog").modal ();
+  },
 
-  //   var delete_link = $ ("#measuring_unit form a.btn-danger");
-  //   var delete_url = delete_link.attr ("href");
+  delete_confirmed: function (eventData)
+  {
+    var bindObject = eventData.data.bind_object;
+    event.preventDefault ();
 
-  //   $.ajax ({ url: delete_url, type: "post", data: { _method: "delete" } });
-  // },
+    $ ("#confirm-delete-dialog").modal ('hide');
 
-  // bind_form_events: function (eventData)
-  // {
-  //   var bindObject = eventData.data.bind_object;
+    $.ajax ({url: window.location.pathname, type: "post", data: { _method: "delete" }})
+        .done (
+        function ()
+        {
+          window.location.replace ("/measuring_units");
+        }
+    )
+        .fail (
+        function ()
+        {
+          alert ("Delete failed, please try again.");
+        }
+    );
+  },
 
-  //   // This should work, and is put here as a backup for when it does work.
-  //   $ ("#measuring_unit .btn-primary").unbind ("click", bindObject.submit_form);
-  //   $ ("#measuring_unit .btn-primary").click ({ bind_object: bindObject }, bindObject.submit_form);
-  //   $ ("#measuring_unit .btn-danger").unbind ("click", bindObject.delete_item);
-  //   $ ("#measuring_unit .btn-danger").click ({ bind_object: bindObject }, bindObject.delete_item);
+  bind_links: function (bindObject)
+  {
+    $ ("#measuring_unit .measuring-unit-has-abbreviation").unbind ("click", this.check_has_abbreviation);
+    $ ("#measuring_unit .measuring-unit-has-abbreviation").click ({ bind_object: this },
+                                                                  this.check_has_abbreviation);
 
-  //   // For some reason, this isn't working when the event is called from the scroll click event.
-  //   // I think that something is binding to the button after the page loads, but I really just
-  //   // don't know.  But, by using a timeout, it works.
-  //   setTimeout (
-  //       function ()
-  //       {
-  //         $ ("#measuring_unit .btn-primary").unbind ("click", bindObject.submit_form);
-  //         $ ("#measuring_unit .btn-primary").click ({ bind_object: bindObject }, bindObject.submit_form);
-  //         $ ("#measuring_unit .btn-danger").unbind ("click", bindObject.delete_item);
-  //         $ ("#measuring_unit .btn-danger").click ({ bind_object: bindObject }, bindObject.delete_item);
-  //       },
-  //       5
-  //   );
-  // }
+    // $ ("#measuring_unit .btn-primary").unbind ("click", this.submit_form);
+    // $ ("#measuring_unit .btn-primary").click ({ bind_object: this }, this.submit_form);
+
+    $ ("#delete-recipe").unbind ("click", this.delete_item);
+    $ ("#delete-recipe").click ({ bind_object: this }, this.delete_item);
+    $ ("#delete-recipe").removeAttr ("data-method");
+
+    $ ("#confirm-delete").unbind ("click", this.delete_confirmed);
+    $ ("#confirm-delete").click ({ bind_object: this }, this.delete_confirmed);
+  },
+
+  bind_form_events: function (eventData)
+  {
+    var bindObject = eventData.data.bind_object;
+
+    // This should work, and is put here as a backup for when it does work.
+    bindObject.bind_links ();
+
+    // For some reason, this isn't working when the event is called from the scroll click event.
+    // I think that something is binding to the button after the page loads, but I really just
+    // don't know.  But, by using a timeout, it works.
+    setTimeout (
+        function ()
+        {
+          bindObject.bind_links ();
+        },
+        5
+    );
+  }
 };
 
 $ (document).ready (
@@ -127,9 +163,9 @@ $ (document).ready (
         measuringUnitPage = new Recipes.MeasuringUnitPage ();
 
       measuringUnitPage.adjust_size ();
-      // measuringUnitPage.bind_form_events ({ data: { bind_object: measuringUnitPage } });
-      // $ ("#scroll-content-measuring_units").bind ("scroll_content_loaded", { bind_object: measuringUnitPage },
-      //                                             measuringUnitPage.bind_form_events);
+      measuringUnitPage.bind_form_events ({ data: { bind_object: measuringUnitPage } });
+      $ ("#scroll-content-measuring_units").bind ("scroll_content_loaded", { bind_object: measuringUnitPage },
+                                                  measuringUnitPage.bind_form_events);
     }
 );
 
