@@ -28,7 +28,7 @@ describe MeasuringUnit do
 
   describe "names should be unique and not case sensetive" do
     before do
-      @dup_unit = @measuring_unit.dup()
+      @dup_unit      = @measuring_unit.dup()
       @dup_unit.name = @dup_unit.name.upcase()
       @dup_unit.save()
     end
@@ -102,7 +102,14 @@ describe MeasuringUnit do
     it do
       @measuring_unit.save!()
       @measuring_unit.can_delete.should equal true
-      @measuring_unit.destroy()
+      unit_destroyed = @measuring_unit.destroy()
+      unit_destroyed.should equal @measuring_unit
     end
+  end
+
+  describe "seeds should not be deletable" do
+    base_unit = MeasuringUnit.where(search_name: "cup").first()
+    unit_destroyed = base_unit.destroy()
+    unit_destroyed.should == false
   end
 end

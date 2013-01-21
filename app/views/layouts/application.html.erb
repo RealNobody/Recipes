@@ -36,7 +36,7 @@
             <div class="row-fluid recipe-error-information<%= " recipe-error-hidden" unless flash.keys.length > 0 %>">
               <div class="span12">
                 <% if flash.keys.length > 0 %>
-                  <div class="alert alert-error">
+                  <div class="alert alert-error recipe-alert">
                     <button type="button" class="close" data-dismiss="alert">&times;</button>
                     <strong>Error!</strong> The following errors have occured:<br />
                     <% flash.each do |key, value| %>
