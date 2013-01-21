@@ -28,9 +28,14 @@ class MeasuringUnitsController < ApplicationController
 
   def item
     setup_instance_variables(nil)
+    item_status = 200
+    unless (((params[:id] == nil || params[:id] == "new") && @measuring_unit.id == nil) ||
+        (@measuring_unit.id.to_s() == params[:id]))
+      item_status = 404
+    end
 
     respond_to do |format|
-      format.html { render(partial: "show", layout: false, status: (((params[:id] == nil || params[:id] == "new") && @measuring_unit.id == nil) || (@measuring_unit.id.to_s() == params[:id])) ? 200 : 404) }
+      format.html { render(partial: "show", layout: "../scrolling_list/scroll_list_partial", status: item_status) }
       format.json { render json: @measuring_units }
     end
   end
@@ -39,7 +44,7 @@ class MeasuringUnitsController < ApplicationController
   #  setup_instance_variables(MeasuringUnit.new())
   #
   #  respond_to do |format|
-  #    format.html { render(partial: "show", layout: false) }
+  #    format.html { render(partial: "show", layout: "../scrolling_list/scroll_list_partial") }
   #    format.json { render json: @measuring_units }
   #  end
   #end
@@ -77,6 +82,11 @@ class MeasuringUnitsController < ApplicationController
         format.json { render json: @measuring_unit, status: :created, location: @measuring_unit }
       end
     else
+      if (@measuring_unit.errors.full_messages && @measuring_unit.errors.full_messages.length > 0)
+        flash[:error] = @measuring_unit.errors.full_messages.to_sentence
+      else
+        flash[:error] = "Could not create Measuring Unit."
+      end
       respond_to do |format|
         format.html { render action: :index }
         format.json { render json: @measuring_unit }
@@ -96,6 +106,11 @@ class MeasuringUnitsController < ApplicationController
         format.html { render action: :index, notice: 'User was successfully updated.' }
         format.json { render json: @measuring_unit }
       else
+        if (@measuring_unit.errors.full_messages && @measuring_unit.errors.full_messages.length > 0)
+          flash[:error] = @measuring_unit.errors.full_messages.to_sentence
+        else
+          flash[:error] = "Could not save Measuring Unit."
+        end
         format.html { render action: :index }
         format.json { render json: @measuring_units.errors, status: :unprocessable_entity }
       end
@@ -113,6 +128,11 @@ class MeasuringUnitsController < ApplicationController
         format.json { render json: @measuring_unit }
       end
     else
+      if (@measuring_unit.errors.full_messages && @measuring_unit.errors.full_messages.length > 0)
+        flash[:error] = @measuring_unit.errors.full_messages.to_sentence
+      else
+        flash[:error] = "Could not delete Measuring Unit."
+      end
       setup_instance_variables(nil)
       respond_to do |format|
         format.html { render action: :index }

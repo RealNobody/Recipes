@@ -1,4 +1,3 @@
-User - attr_protected
 Make scrolling page aware
 Scroll up and down both
 Scroll only holds so many pages

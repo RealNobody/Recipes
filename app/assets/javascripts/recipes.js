@@ -161,4 +161,5 @@ $ (".recipe-error-information .recipe-alert")
              {
                $ (".recipe-error-information").addClass ("recipe-error-hidden");
              }
+             $ (window).trigger ("resize");
            });
