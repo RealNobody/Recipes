@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130118112701) do
+ActiveRecord::Schema.define(:version => 20130120214951) do
 
   create_table "measurement_aliases", :force => true do |t|
     t.string   "alias"
@@ -29,6 +29,7 @@ ActiveRecord::Schema.define(:version => 20130118112701) do
     t.string   "search_name"
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
+    t.boolean  "can_delete"
   end
 
   add_index "measuring_units", ["search_name"], :name => "index_measuring_units_on_search_name", :unique => true

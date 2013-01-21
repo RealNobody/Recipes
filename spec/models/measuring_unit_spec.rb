@@ -24,6 +24,7 @@ describe MeasuringUnit do
   it { should respond_to(:abbreviation) }
   # it { should_not respond_to(:search_name) }
   it { should respond_to(:measurement_aliases) }
+  it { should respond_to(:can_delete) }
 
   describe "names should be unique and not case sensetive" do
     before do
@@ -94,6 +95,14 @@ describe MeasuringUnit do
     it do
       found_unit = MeasuringUnit.find_by_alias(Faker::Lorem.sentence())
       found_unit.should == nil
+    end
+  end
+
+  describe "Should be deletable" do
+    it do
+      @measuring_unit.save!()
+      @measuring_unit.can_delete.should equal true
+      @measuring_unit.destroy()
     end
   end
 end

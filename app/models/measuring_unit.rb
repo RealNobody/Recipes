@@ -12,14 +12,16 @@
 
 class MeasuringUnit < ActiveRecord::Base
   attr_accessible :name, :abbreviation
+  attr_protected :can_delete
+
   has_many :measurement_aliases, dependent: :delete_all
 
   default_scope order("name")
   paginates_per 2
 
   validates :name,
-            length:     { maximum: 255, minimum: 1 },
-            presence:   true
+            length:   { maximum: 255, minimum: 1 },
+            presence: true
 
   validates :search_name,
             length:     { maximum: 255, minimum: 1 },
@@ -27,7 +29,7 @@ class MeasuringUnit < ActiveRecord::Base
             uniqueness: { case_sensitive: false }
 
   validates :abbreviation,
-            length:     { maximum: 255 }
+            length: { maximum: 255 }
 
   after_save do
     # I want all measuring units to have their own name and abbreviation as aliases.
@@ -39,8 +41,20 @@ class MeasuringUnit < ActiveRecord::Base
     end
   end
 
+  before_destroy do
+    self[:can_delete]
+  end
+
+  after_initialize do
+    if (self[:can_delete] == false || self[:can_delete] == 0)
+      self[:can_delete] = false
+    else
+      self[:can_delete] = true
+    end
+  end
+
   def name=(name)
-    self[:name] = name
+    self[:name]        = name
     self[:search_name] = name.downcase()
   end
 
@@ -91,7 +105,7 @@ class MeasuringUnit < ActiveRecord::Base
 
   def add_alias(alias_name)
     alias_name = alias_name.downcase()
-    alias_list = self.measurement_aliases.select do | measurement_alias |
+    alias_list = self.measurement_aliases.select do |measurement_alias|
       measurement_alias.alias == alias_name
     end
 
