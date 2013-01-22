@@ -1,9 +1,24 @@
-  <%= render(partial: "#{@_controller.controller_name}/list", layout: false) %>
-  <%
-    next_element = render(partial: "#{@_controller.controller_name}/next_link", layout: false)
-    unless next_element.blank?
-  %>
-    <div class="scrolling-next">
-      <%= next_element %>
-    </div>
-  <% end %>
+<%
+   paged_list = eval("@#{@_controller.controller_name}")
+   selected_item = eval("@#{@_controller.controller_name.singularize()}")
+
+   prev_element = scrolling_list_previous_link(paged_list, selected_item)
+   unless prev_element.blank?
+%>
+  <div class="scrolling-previous">
+    <%= prev_element %>
+  </div>
+<% end %>
+
+<% paged_list.each do | page_item | %>
+  <%= scrolling_list_link_to_item("#{page_item.list_name}", page_item, selected_item) %>
+<% end %>
+
+<%
+   next_element = scrolling_list_next_link(paged_list, selected_item)
+   unless next_element.blank?
+%>
+  <div class="scrolling-next">
+    <%= next_element %>
+  </div>
+<% end %>

@@ -1,16 +1,24 @@
 .scrolling-list
 {
-  overflow-y: auto;
+  overflow-y : auto;
 }
 
-.scrolling-next
+.scrolling-next,
+.scrolling-previous
 {
-  background: asset-data-url('loading.gif') no-repeat;
-  background-position: center center;
-  height: 20px;
+  background          : asset-data-url('loading.gif') no-repeat;
+  background-position : center center;
+  height              : 20px;
 }
 
-.scrolling-next a
+.scrolling-next a,
+.scrolling-previous a
 {
-  display: none;
+  display : none;
+}
+
+.scroll-page
+{
+  margin  : 0px;
+  padding : 0px;
 }

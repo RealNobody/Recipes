@@ -13,98 +13,180 @@ Recipes.ScrollingList.prototype =
   history_supported : false,
   window_history    : null,
 
-  /*
-   We don't do the full list when we load the page.
-   So, when the list scrolls, if there is more data, load it...
-   */
-  list_scrolling    : function (is_recursive)
+  should_scroll : function (scroll_div)
   {
-    var scroll_class = this;
-    var scroll_div = $ (".scrolling-list");
+    var scroll_info = { scroll_down: false, scroll_up: false, scroll_down_visible: false, scroll_up_visible: false, scroll_up_height: 0, scroll_link: null};
     var scroll_next = $ (".scrolling-list .scrolling-next");
-    var next_link = $ (scroll_next.find ("a"));
 
     if (scroll_next && scroll_next.length > 0)
     {
-      next_link = $ (scroll_next.find ("a"));
+      scroll_info.scroll_link = $ (scroll_next.find ("a"));
       scroll_next = scroll_next.height ();
     }
     else
     {
+      scroll_next = $ (scroll_div.find ("ul li:last-child")).height ();
+      scroll_info.scroll_down_visible = scroll_div.find (".scrolling-list-content").height () - scroll_div.scrollTop () -
+          scroll_div.innerHeight () - scroll_next < 0;
       scroll_next = 0;
     }
 
-    if (is_recursive || (next_link && next_link.length > 0 && ! next_link.hasClass ("scrolling-fetching")))
+    if (scroll_info.scroll_link && scroll_info.scroll_link.length > 0)
     {
-      next_link.addClass ("scrolling-fetching");
+      scroll_info.scroll_down_visible = scroll_div.find (".scrolling-list-content").height () - scroll_div.scrollTop () -
+          scroll_div.innerHeight () - scroll_next < 0;
 
-      if ((scroll_div.get (0).scrollHeight - scroll_next) <= scroll_div.innerHeight () ||
-          scroll_div.find (".scrolling-list-content").height () - scroll_div.scrollTop () -
-              scroll_div.innerHeight () - scroll_next < 0)
+      // There is a next link
+      if ((scroll_div.get (0).scrollHeight - scroll_next) <= scroll_div.innerHeight () ||     // There is less than can be seen
+          scroll_info.scroll_down_visible)                                                    // The wait can be seen
+      {
+        scroll_info.scroll_down = true;
+      }
+    }
+
+    if (! scroll_info.scroll_down)
+    {
+      scroll_next = $ (".scrolling-list .scrolling-previous");
+      scroll_info.scroll_link = $ (scroll_next.find ("a"));
+
+      if (scroll_next && scroll_next.length > 0)
+      {
+        scroll_info.scroll_link = $ (scroll_next.find ("a"));
+        scroll_next = scroll_next.height ();
+      }
+      else
+      {
+        scroll_next = 0;
+      }
+
+      if (scroll_info.scroll_link && scroll_info.scroll_link.length > 0)
+      {
+        scroll_info.scroll_up_height = scroll_next;
+        scroll_info.scroll_up_visible = scroll_div.scrollTop () < scroll_next;
+
+        if (scroll_div.get (0).scrollHeight - scroll_next <= scroll_div.innerHeight () ||   // There is less than can be seen
+            scroll_info.scroll_up_visible)                                                  // The wait can be seen
+        {
+          scroll_info.scroll_up = true;
+        }
+      }
+    }
+
+    return scroll_info;
+  },
+
+  /*
+   We don't do the full list when we load the page.
+   So, when the list scrolls, if there is more data, load it...
+   */
+  list_scrolling: function ()
+  {
+    var scroll_div = $ (".scrolling-list");
+    var scroll_class = this;
+
+    if (! scroll_div.hasClass ("scrolling-fetching"))
+    {
+      scroll_div.addClass ("scrolling-fetching");
+
+      var scroll_info = scroll_class.should_scroll (scroll_div);
+
+      if (scroll_info.scroll_up || scroll_info.scroll_down)
       {
         $.ajax (
             {
-              url     : next_link.attr ("href"),
+              url     : scroll_info.scroll_link.attr ("href"),
               dataType: "html"
             }
         )
             .done (
             function (additional_content)
             {
+              var add_content = $ ('<div/>').html (additional_content);
+              var search_link = add_content.find ("li a");
+              var scroll_down_class = ".scrolling-next";
+              var scroll_up_class = ".scrolling-previous";
+
+              if (scroll_info.scroll_up)
+              {
+                scroll_up_class = ".scrolling-next";
+                scroll_down_class = ".scrolling-previous";
+              }
+
+              add_content.find (scroll_up_class).remove ();
+
               // I don't know why, but when going forward and back, the system caches
               // some of the links, so I have to check if they are already there...
-              var search_link = $ ('<div/>').html (additional_content).find ("li a");
+              // NOTE:  This probably doesn't work as intended any more...
               if (search_link && search_link.length > 0)
               {
+                var search_url;
+
                 search_link = $ (search_link [0]).attr ("href");
-                search_link = $ (".scrolling-list a[href=\"" + search_link + "\"]");
+
+                search_url = scroll_class.build_find_link (search_link);
+                search_link = $ (".scrolling-list a[href=\"" + search_url + "\"]");
+                if (! search_link || search_link.length <= 0)
+                  search_link = $ (".scrolling-list a[href^=\"" + search_url + "?\"]");
               }
 
               if (! search_link || search_link.length <= 0)
               {
+                var hide_scroll_up = scroll_info.scroll_up;
+
                 // remove the old next that was used to get the new page.
                 // if there is a new next, it will be in the content that we are
                 // appending.
-                scroll_div.find (".scrolling-next").remove ();
-                scroll_div.find ("ul").append (additional_content);
-                scroll_next = $ (".scrolling-list .scrolling-next");
-                next_link = null;
+                scroll_div.find (scroll_down_class).remove ();
 
-                if (scroll_next && scroll_next.length > 0)
+                if (scroll_info.scroll_up)
                 {
-                  next_link = $ (scroll_next.find ("a"));
-                  next_link.addClass ("scrolling-fetching");
-                  scroll_next = scroll_next.height ();
+                  var scroll_cur = $ (scroll_div.find ("ul li:first-child"));
+                  var scroll_offset = 0;
+                  scroll_div.find ("ul").prepend (add_content.html ());
+                  scroll_cur = scroll_cur.prev ();
+                  while (scroll_cur && scroll_cur.length > 0)
+                  {
+                    scroll_offset += scroll_cur.height ();
+                    scroll_cur = scroll_cur.prev ();
+                  }
+                  scroll_div.scrollTop (scroll_div.scrollTop () + scroll_offset);
                 }
                 else
-                {
-                  scroll_next = 0;
-                }
+                  scroll_div.find ("ul").append (add_content.html ());
                 scroll_class.bind_scroll_links ();
 
-                if ((scroll_div.get (0).scrollHeight - scroll_next) <= scroll_div.innerHeight ())
+                var new_scroll_info = scroll_class.should_scroll (scroll_div);
+
+                if (scroll_info.scroll_down_visible &&
+                    new_scroll_info.scroll_up_visible && ! new_scroll_info.scroll_down_visible)
                 {
-                  if (next_link && next_link.length > 0)
+                  // scroll the window up to hide the scroll-up if necessary/possible.
+                  var scroll_amount = scroll_div.get (0).scrollHeight - scroll_div.innerHeight ();
+                  if (scroll_amount > new_scroll_info.scroll_up_height)
+                    scroll_amount = new_scroll_info.scroll_up_height;
+
+                  scroll_div.scrollTop (scroll_amount);
+
+                  new_scroll_info = scroll_class.should_scroll (scroll_div);
+                }
+
+                if (new_scroll_info.scroll_down || new_scroll_info.scroll_up)
+                {
+                  if (new_scroll_info.scroll_link && new_scroll_info.scroll_link.length > 0)
                   {
                     scroll_class.fire_scroll ();
-                    // scroll_class.list_scrolling (true);
-                  }
-                }
-                else
-                {
-                  if (next_link && next_link.length > 0)
-                  {
-                    next_link.removeClass ("scrolling-fetching");
                   }
                 }
               }
               else
               {
+                // one or more links on this page are already on the page
                 // set the next page and scroll...
-                next_link = $ (".scrolling-list .scrolling-next a");
-                new_next_link = $ ('<div/>').html (additional_content).find (".scrolling-next");
-                scroll_div.find (".scrolling-next").remove ();
-                scroll_div.find ("ul").append (new_next_link);
+                var next_scroll_link = $ (".scrolling-list " + scroll_down_class + " a");
+                var new_next_scroll_link = add_content.find (scroll_down_class);
+
+                scroll_div.find (scroll_down_class).remove ();
+                scroll_div.find ("ul").append (new_next_scroll_link);
 
                 scroll_class.fire_scroll ();
               }
@@ -119,27 +201,31 @@ Recipes.ScrollingList.prototype =
             .always (
             function ()
             {
+              var search_url;
+
               // It is possible for the user to press the forward and back button too fast
               // for the scrolling to keep up with it, so we have to set the selection here sometimes...
               $ (".scrolling-list .active").removeClass ("active");
-              var new_active_item = $ (".scrolling-list a[href=\"" + window.location.pathname + "\"]");
+              search_url = scroll_class.build_find_link (window.location.pathname);
+              var new_active_item = $ (".scrolling-list a[href=\"" + search_url + "\"]");
+              if (! new_active_item || new_active_item.length <= 0)
+                new_active_item = $ (".scrolling-list a[href^=\"" + search_url + "?\"]");
               if (new_active_item && new_active_item.length > 0)
                 new_active_item.closest ("li").addClass ("active");
 
-              if (! is_recursive && next_link)
-              {
-                next_link.removeClass ("scrolling-fetching");
-              }
+              scroll_div.removeClass ("scrolling-fetching");
             }
         );
       }
       else
       {
-        if (! is_recursive)
-        {
-          next_link.removeClass ("scrolling-fetching");
-        }
+        scroll_div.removeClass ("scrolling-fetching");
       }
+    }
+    else
+    {
+      // a scroll is processing, try again later...
+      scroll_class.fire_scroll ();
     }
   },
 
@@ -149,7 +235,7 @@ Recipes.ScrollingList.prototype =
 
     setTimeout (function ()
                 {
-                  scroll_class.list_scrolling (false);
+                  scroll_class.list_scrolling ();
                 },
                 5
     );
@@ -204,7 +290,7 @@ Recipes.ScrollingList.prototype =
                         (max_height - new_link.height () - recipesApp.container_margin).toString () + "px");
     $ (".scrolling-content").css ("min-height", min_height.toString () + "px");
 
-    this.list_scrolling (false);
+    this.list_scrolling ();
   },
 
   /*
@@ -226,11 +312,25 @@ Recipes.ScrollingList.prototype =
   },
 
   /*
+   A helper function to be used multiple places.
+   Given a full URL link, what is the call for a new item.
+   */
+  build_find_link     : function (clicked_href)
+  {
+    var query_pos = clicked_href.indexOf ("?");
+
+    if (query_pos >= 0)
+      clicked_href = clicked_href.substr (0, query_pos);
+
+    return clicked_href;
+  },
+
+  /*
    A helper function for fetching the ID of an item link.
    */
   get_item_link_id    : function (link_url)
   {
-    var get_id = link_url.match (/\/(\d+)$/);
+    var get_id = link_url.match (/\/(\d+)(?:\?.*)?$/);
 
     if (get_id)
       return get_id [1];
@@ -271,7 +371,10 @@ Recipes.ScrollingList.prototype =
 
     // switch the active item in the list.
     $ (".scrolling-list .active").removeClass ("active");
-    var new_active_item = $ (".scrolling-list a[href=\"" + clicked_item_url + "\"]");
+    var search_url = this.build_find_link (clicked_item_url);
+    var new_active_item = $ (".scrolling-list a[href=\"" + search_url + "\"]");
+    if (! new_active_item || new_active_item.length <= 0)
+      new_active_item = $ (".scrolling-list a[href^=\"" + search_url + "?\"]");
     if (new_active_item && new_active_item.length > 0)
       new_active_item.closest ("li").addClass ("active");
 
@@ -461,25 +564,19 @@ Recipes.ScrollingList.prototype =
       this.window_history = window.History;
       $ (window).bind ("statechange", {bind_object: this}, this.history_changed);
     }
-  }
-};
+  },
 
-//// The event bindngs for the scrolling class:
+  document_ready: function ()
+  {
+    var scroll_class = this;
+    var scrolling_list = $ (".scrolling-list");
 
-$ (".scrolling-list").scroll (
-    function ()
+    if (scrolling_list && scrolling_list.length > 0)
     {
-      if (! scrollingList)
-        scrollingList = new Recipes.ScrollingList ();
+      scroll_class.test_for_history ();
+      scroll_class.adjust_size ();
+      scroll_class.bind_scroll_links ();
 
-      scrollingList.list_scrolling (false);
-    }
-);
-
-$ (".scrolling-list").ready (
-    function ()
-    {
-      var scrolling_list = $ (".scrolling-list");
       var scroll_next = $ (".scrolling-list .scrolling-next");
 
       if (scroll_next && scroll_next.length > 0)
@@ -489,9 +586,6 @@ $ (".scrolling-list").ready (
 
       if (scrolling_list && scrolling_list.length > 0)
       {
-        if (! scrollingList)
-          scrollingList = new Recipes.ScrollingList ();
-
         scroll_div = $ (".scrolling-list");
         if ((scroll_div.get (0).scrollHeight - scroll_next) <= scroll_div.innerHeight ())
         {
@@ -499,34 +593,35 @@ $ (".scrolling-list").ready (
         }
       }
     }
-);
+
+    //// The event bindngs for the scrolling class:
+    $ (window).resize (
+        function ()
+        {
+          var scrolling_list = $ (".scrolling-list");
+          if (scrolling_list && scrolling_list.length > 0)
+          {
+            scroll_class.adjust_size ();
+          }
+        }
+    );
+
+    $ (".scrolling-list").scroll (
+        function ()
+        {
+          scroll_class.list_scrolling ();
+        }
+    );
+  }
+}
+;
 
 $ (document).ready (
     function ()
     {
-      var scrolling_list = $ (".scrolling-list");
-      if (scrolling_list && scrolling_list.length > 0)
-      {
-        if (! scrollingList)
-          scrollingList = new Recipes.ScrollingList ();
+      if (! scrollingList)
+        scrollingList = new Recipes.ScrollingList ();
 
-        scrollingList.adjust_size ();
-        scrollingList.bind_scroll_links ();
-        scrollingList.test_for_history ();
-      }
-    }
-);
-
-$ (window).resize (
-    function ()
-    {
-      var scrolling_list = $ (".scrolling-list");
-      if (scrolling_list && scrolling_list.length > 0)
-      {
-        if (! scrollingList)
-          scrollingList = new Recipes.ScrollingList ();
-
-        scrollingList.adjust_size ();
-      }
+      scrollingList.document_ready ();
     }
 );
