@@ -2,45 +2,59 @@
 #
 # Table name: measuring_units
 #
-#  id          :integer(4)      not null, primary key
-#  name        :string(255)
-#  abreviation :string(255)
-#  search_name :string(255)
-#  created_at  :datetime        not null
-#  updated_at  :datetime        not null
+#  id           :integer(4)      not null, primary key
+#  name         :string(255)
+#  abbreviation :string(255)
+#  search_name  :string(255)
+#  created_at   :datetime        not null
+#  updated_at   :datetime        not null
 #
 
 class MeasuringUnit < ActiveRecord::Base
-  attr_accessible :name, :abreviation
-  has_many :measurement_aliases
+  attr_accessible :name, :abbreviation
+  attr_protected :can_delete
+
+  has_many :measurement_aliases, dependent: :delete_all
 
   default_scope order("name")
-  paginates_per 4
+  paginates_per 2
 
   validates :name,
-            length:     { maximum: 255, minimum: 1 },
-            presence:   true
+            length:   { maximum: 255, minimum: 1 },
+            presence: true
 
   validates :search_name,
             length:     { maximum: 255, minimum: 1 },
             presence:   true,
             uniqueness: { case_sensitive: false }
 
-  validates :abreviation,
-            length:     { maximum: 255 }
+  validates :abbreviation,
+            length: { maximum: 255 }
 
   after_save do
-    # I want all measuring units to have their own name and abreviation as aliases.
+    # I want all measuring units to have their own name and abbreviation as aliases.
     self.add_alias(self.name).save!()
     self.add_alias(self.name.pluralize()).save!()
 
-    unless self.abreviation == nil
-      self.add_alias(self.abreviation).save!()
+    unless self.abbreviation == nil
+      self.add_alias(self.abbreviation).save!()
+    end
+  end
+
+  before_destroy do
+    self[:can_delete]
+  end
+
+  after_initialize do
+    if (self[:can_delete] == false || self[:can_delete] == 0)
+      self[:can_delete] = false
+    else
+      self[:can_delete] = true
     end
   end
 
   def name=(name)
-    self[:name] = name
+    self[:name]        = name
     self[:search_name] = name.downcase()
   end
 
@@ -48,22 +62,32 @@ class MeasuringUnit < ActiveRecord::Base
     self[:name]
   end
 
-  def has_abreviation?
-    self[:abreviation] != nil
+  def has_abbreviation= unit_has_abbreviation
+    unless unit_has_abbreviation
+      self[:abbreviation] = nil
+    end
   end
 
-  def abreviation
-    if (self[:abreviation] == nil)
+  def has_abbreviation
+    return self.has_abbreviation?
+  end
+
+  def has_abbreviation?
+    self[:abbreviation] != nil
+  end
+
+  def abbreviation
+    if (self[:abbreviation] == nil)
       self[:name]
     else
-      self[:abreviation]
+      self[:abbreviation]
     end
   end
 
   def list_name
     return_name=self.name
-    unless (self.abreviation.blank? || self.name == self.abreviation)
-      return_name += " (#{self.abreviation})"
+    unless (self.abbreviation.blank? || self.name == self.abbreviation)
+      return_name += " (#{self.abbreviation})"
     end
     return_name
   end
@@ -81,7 +105,7 @@ class MeasuringUnit < ActiveRecord::Base
 
   def add_alias(alias_name)
     alias_name = alias_name.downcase()
-    alias_list = self.measurement_aliases.select do | measurement_alias |
+    alias_list = self.measurement_aliases.select do |measurement_alias|
       measurement_alias.alias == alias_name
     end
 

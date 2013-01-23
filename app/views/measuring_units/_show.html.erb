@@ -17,21 +17,40 @@
   <div class="tab-content measuring-unit-tab-content">
     <div class="tab-pane active" id="measuring_unit">
       <div class="recipe-tab-content">
-        <%= form_for @measuring_unit do | form_object |  %>
-          <%= form_object.hidden_field(:title, value: "Recipes | Measuring Units - #{@measuring_unit.name}") %>
+        <%= form_for @measuring_unit do |form_object| %>
+          <input type="hidden" id="measuring_unit-title" value="Recipes | Measuring Units - <%= @measuring_unit.name %>" />
 
           <%= form_object.label :name %>
           <%= form_object.text_field :name %>
 
           <label class="checkbox">
-            <input type="checkbox" value="<%= @measuring_unit.abreviation %>"<%= " checked" if (@measuring_unit.has_abreviation?) %>>
+            <%= form_object.check_box(:has_abbreviation, value: @measuring_unit.has_abbreviation, class: "measuring-unit-has-abbreviation") %>
             Show a default abbreviation
           </label>
-          <%= form_object.label :abreviation %>
-          <%= form_object.text_field(:abreviation, disabled: !@measuring_unit.has_abreviation?) %>
+          <%= form_object.label :abbreviation %>
+          <%= form_object.text_field(:abbreviation, disabled: !@measuring_unit.has_abbreviation?, class: "measuring-unit-abbreviation") %>
 
           <br />
-          <%= form_object.submit("Save") %>
+          <%= form_object.submit("Save", class: "btn btn-primary") %>
+          <% unless (@measuring_unit.id == nil || !@measuring_unit.can_delete) %>
+            <%= link_to("Delete", @measuring_unit, class: "btn btn-danger", method: :delete, id: "delete-recipe") %>
+
+            <div id="confirm-delete-dialog" class="modal hide fade" tabindex="-1" role="dialog" aria-labeledby="confirm-delete-title" aria-hidden="true">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                <h3 id="confirm-delete-title">Delete Measuring Unit <%= @measuring_unit.name %></h3>
+              </div>
+              <div class="modal-body">
+                <p>
+                  Are you sure that you want to delete the Measuring Unit <%= @measuring_unit.name %>?
+                </p>
+              </div>
+              <div class="modal-footer">
+                <button id="confirm-delete" class="btn btn-danger" aria-hidden="true">Yes</button>
+                <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
+              </div>
+            </div>
+          <% end %>
         <% end %>
       </div>
     </div>
