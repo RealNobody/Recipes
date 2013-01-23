@@ -1,5 +1,13 @@
+IsScrollable with
+  routing helper function
+paging rspec tests
+Put testing pagination size back to reasonable defaults.
+Set pagination defaults for whole application (see kaminari documenation for how)
 Scroll only holds so many pages
-AJAXify the crud actions so that on failure, only the failure page shows.
+AJAXify the crud actions so that on failure, only the failure page shows, but redirect to page on success
+Genericify scroll so can have multiple scrolls on page
+  add specific scroll for primary list as we have now
 Update the flash notifications so that they are shown appropriately.  (Green/yellow/red for notice, warning, error, etc.)
 Update AJAX responses so that they show flashes.
 Make Tabs AJAXy?
+Look into can-can?

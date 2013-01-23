@@ -1,22 +1,22 @@
 module ScrollingListHelper
-  def scrolling_list_next_link(link_item, selected_item)
-    per_default    = eval ("#{link_item.first().class.name}.default_per_page")
+  def scrolling_list_next_link()
+    per_default    = @model_per_page
     items_per_page = per_default
 
     if (@_controller.params[:per_page] != nil)
       items_per_page = @_controller.params[:per_page].to_i()
     end
 
-    if @measuring_units.length >= items_per_page
-      link_value = link_to_next_page(link_item, 'Next Page')
+    if @current_page.length >= items_per_page
+      link_value = link_to_next_page(@current_page, 'Next Page')
       if (link_value)
         link_value   = link_value.gsub(/\/new\/?/, "")
         link_value   = link_value.gsub(/(\/\d+\/?)?\?page=/, "/page/")
         append_value = ""
-        if (selected_item == nil || selected_item.id == nil)
+        if (@selected_item == nil || @selected_item.id == nil)
           append_value = "?id=new"
         else
-          append_value = "?id=#{selected_item.id}"
+          append_value = "?id=#{@selected_item.id}"
         end
         unless (items_per_page == per_default)
           if (append_value.blank?)
@@ -37,8 +37,8 @@ module ScrollingListHelper
     return nil
   end
 
-  def scrolling_list_previous_link(link_item, selected_item)
-    per_default    = eval ("#{link_item.first().class.name}.default_per_page")
+  def scrolling_list_previous_link()
+    per_default    = @model_per_page
     items_per_page = per_default
 
     if (@_controller.params[:per_page] != nil)
@@ -46,15 +46,15 @@ module ScrollingListHelper
     end
 
     if @_controller.params[:page] && @_controller.params[:page].to_i() > 1
-      link_value = link_to_previous_page(link_item, 'Previous Page')
+      link_value = link_to_previous_page(@current_page, 'Previous Page')
       if (link_value)
         link_value   = link_value.gsub(/\/new\/?/, "")
         link_value   = link_value.gsub(/(\/\d+\/?)?\?page=/, "/page/")
         append_value = ""
-        if (selected_item == nil || selected_item.id == nil)
+        if (@selected_item == nil || @selected_item.id == nil)
           append_value = "?id=new"
         else
-          append_value = "?id=#{selected_item.id}"
+          append_value = "?id=#{@selected_item.id}"
         end
         unless (items_per_page == per_default)
           if (append_value.blank?)
@@ -75,10 +75,10 @@ module ScrollingListHelper
     return nil
   end
 
-  def scrolling_list_link_to_item(description, link_item, selected_item)
+  def scrolling_list_link_to_item(description, link_item)
     item_class = ""
-    unless (selected_item == nil)
-      if (link_item.id === selected_item.id)
+    unless (@selected_item == nil)
+      if (link_item.id === @selected_item.id)
         item_class = " class=\"active\""
       end
     end

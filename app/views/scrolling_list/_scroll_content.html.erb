@@ -1,8 +1,5 @@
 <%
-   paged_list = eval("@#{@_controller.controller_name}")
-   selected_item = eval("@#{@_controller.controller_name.singularize()}")
-
-   prev_element = scrolling_list_previous_link(paged_list, selected_item)
+   prev_element = scrolling_list_previous_link()
    unless prev_element.blank?
 %>
   <div class="scrolling-previous">
@@ -10,12 +7,12 @@
   </div>
 <% end %>
 
-<% paged_list.each do | page_item | %>
-  <%= scrolling_list_link_to_item("#{page_item.list_name}", page_item, selected_item) %>
+<% @current_page.each do | page_item | %>
+  <%= scrolling_list_link_to_item("#{page_item.list_name}", page_item) %>
 <% end %>
 
 <%
-   next_element = scrolling_list_next_link(paged_list, selected_item)
+   next_element = scrolling_list_next_link()
    unless next_element.blank?
 %>
   <div class="scrolling-next">

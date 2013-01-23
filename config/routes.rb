@@ -5,7 +5,7 @@ Recipes::Application.routes.draw do
 
   resources :users
 
-  # match :controller/page/:page, action: :page
+  #match ":controller/page/:page", action: :page, via: :get
 
   resources :measuring_units do
     get 'page/:page', action: :page, on: :collection
