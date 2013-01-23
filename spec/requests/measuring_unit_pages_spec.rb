@@ -9,17 +9,22 @@ describe "MeasuringUnit pages" do
 
   describe "list measuring units" do
     before do
-      visit_page(measuring_units_path, @user)
+      visit_page("#{measuring_units_path}?per_page=4", @user)
     end
 
     describe "should have a list" do
-      it { should have_selector("h1", text: "Measuring Units")}
+      it { should have_selector("h1", text: "Measuring Units") }
+      it { should have_selector(".scrolling-list") }
     end
 
-    # it "works! (now write some real specs)" do
-    #   # # Run the generator again with the --webrat flag if you want to use webrat methods/matchers
-    #   # get measuring_units_index_path
-    #   # response.status.should be(200)
-    # end
+    describe "should self paginate" do
+      it do
+        scroll_link = Capybara.page.find(".scrolling-next a").native.get_attribute("href")
+        scroll_link.should(match(/\/page\/2\?/))
+        visit_page(scroll_link, @user)
+        scroll_link = Capybara.page.find(".scrolling-next a").native.get_attribute("href")
+        scroll_link.should(match(/\/page\/3\?/))
+      end
+    end
   end
 end

@@ -3752,7 +3752,6 @@ function test_project
   if [ "${test_project_single_success}" = "false" ]; then
     test_project_test_success="false"
   fi
-echo "test_project_test_success = \"${test_project_test_success}\""
 
   cd ${build_base_directory}
 
@@ -3770,7 +3769,6 @@ echo "test_project_test_success = \"${test_project_test_success}\""
       fi
     done <<< "${smoke_project_list}"
   fi
-echo "2 test_project_test_success = \"${test_project_test_success}\""
 
   set_param_value "${test_project_test_success_var}" "${test_project_test_success}"
 }
@@ -7169,4 +7167,4 @@ update_build_project
 
 exit 0
 
-# version=0.0.48
+# version=0.0.49

@@ -1,60 +1,24 @@
 require "measuring_unit"
 require "scrolling_list_helper"
+require "scrollable_list_controller"
 
-class MeasuringUnitsController < ApplicationController
+class MeasuringUnitsController < ScrollableListController
   include ScrollingListHelper
 
-  before_filter :authenticate_user!
+  def create
+    has_abbreviation = params[:measuring_unit].delete(:has_abbreviation)
+    @measuring_unit = MeasuringUnit.new(params[:measuring_unit])
+    @measuring_unit.has_abbreviation = has_abbreviation
 
-  # GET /users
-  # GET /users.json
-  def index
-    setup_instance_variables()
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @measuring_units }
-    end
+    super
   end
 
-  def page
-    setup_instance_variables()
+  def update
+    @measuring_unit = MeasuringUnit.find(params[:id])
+    has_abbreviation = params[:measuring_unit].delete(:has_abbreviation)
+    @measuring_unit.assign_attributes (params[:measuring_unit])
+    @measuring_unit.has_abbreviation = has_abbreviation
 
-    respond_to do |format|
-      format.html { render(partial: "scrolling_list/scroll_content", layout: false) }
-      format.json { render json: @measuring_units }
-    end
+    super
   end
-
-  def item
-    setup_instance_variables()
-
-    respond_to do | format |
-      format.html { render(partial: "show", layout: false) }
-      format.json { render json: @measuring_units }
-    end
-  end
-
-  def show
-    setup_instance_variables()
-
-    respond_to do |format|
-      format.html { render action: :index }
-      format.json { render json: @user }
-    end
-  end
-
-  private
-    def setup_instance_variables()
-      if (params[:page] == nil)
-        @measuring_units = MeasuringUnit.page(params[:page])
-      else
-        @measuring_units = MeasuringUnit.page(params[:page])
-      end
-      if (params[:id] == nil)
-        @measuring_unit = MeasuringUnit.first()
-      else
-        @measuring_unit = MeasuringUnit.find(params[:id])
-      end
-    end
 end

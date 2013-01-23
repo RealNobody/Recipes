@@ -2,8 +2,8 @@ source 'https://rubygems.org'
 
 gem 'rails'
 gem "bcrypt-ruby"
-gem 'devise'
-gem 'kaminari'
+gem 'devise'        # Login gem
+gem 'kaminari'      # Paging Gem
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'

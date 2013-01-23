@@ -29,11 +29,23 @@ describe MeasurementAlias do
 
   describe "should be unique case insensetive" do
     before do
-      dup_measuring_unit = FactoryGirl.create(:measuring_unit);
-      dup_alias = dup_measuring_unit.add_alias(@measurement_alias.alias.upcase());
+      dup_measuring_unit = FactoryGirl.create(:measuring_unit)
+      dup_alias = dup_measuring_unit.add_alias(@measurement_alias.alias.upcase())
       dup_alias.save!()
     end
 
     it { should_not be_valid }
+  end
+
+  describe "should be deleted when the parent is deleted" do
+    before do
+      @measurement_alias.save!()
+    end
+
+    it do
+      measuring_unit.destroy()
+      found_alias = MeasurementAlias.where(id: @measurement_alias.id)
+      found_alias.length.should(equal(0))
+    end
   end
 end
