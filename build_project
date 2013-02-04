@@ -647,13 +647,20 @@ function update_origin_branch
   #   merge = refs/heads/master
   #
   # PARAMETERS:
-  #   ${1}  - update_local_name   - The local branch name
-  #   ${2}  - update_remote_name  - The remote branch name
+  #   ${1}  - update_local_name       - The local branch name
+  #   ${2}  - update_remote_name      - The remote branch name
+  #   ${3}  - orig_remote_branch_name - The name of the branch that this branch was created from.
 
   cd ${build_base_directory}
 
   update_local_name="${1}"
   update_remote_name="${2}"
+  orig_remote_branch_name="${3}"
+
+  if [ -z "${orig_remote_branch_name}" ]; then
+    orig_remote_branch_name="master"
+  fi
+  orig_remote_branch_name="refs/heads/${orig_remote_branch_name}"
 
   record_branch update_origin_branch_name
 
@@ -668,7 +675,7 @@ function update_origin_branch
   merge_config="$(git config branch.${update_local_name}.merge)"
   set -e
 
-  if [ "${merge_config}" = "refs/heads/master" -o -z "${merge_config}" ]; then
+  if [ "${merge_config}" = "${orig_remote_branch_name}" -o -z "${merge_config}" ]; then
     execute_command "git config branch.${update_local_name}.merge \"refs/heads/${update_remote_name}\"" "" "" ""
   fi
 }
@@ -2096,7 +2103,7 @@ function pull_project_source
 
   echo "${return_line}Pulling source..." 2>&1 | tee -a ${build_log_directory}/git_pull.txt
   execute_command "git pull origin ${remote_branch_name}" ${build_log_directory}/git_pull.txt pull_success pull_text
-  update_origin_branch "${recorded_name}" "${remote_branch_name}"
+  update_origin_branch "${recorded_name}" "${remote_branch_name}" ""
 
   pull_has_updates="true"
   if [ "${pull_text}" = "Already up-to-date." ]; then
@@ -4374,7 +4381,7 @@ function checkout_branch
   execute_command "git checkout -b ${new_branch_name} ${new_branch_remote_source}" "" "" ""
   if [ ${#new_branch_remote_source} -gt 7 ]; then
     if [ ${new_branch_remote_source:0:7} = "origin/" ]; then
-      update_origin_branch "${new_branch_name}" "${new_branch_name}"
+      update_origin_branch "${new_branch_name}" "${new_branch_name}" "${new_branch_remote_source:7}"
     fi
   fi
 }
@@ -4586,7 +4593,7 @@ function push_source
         # push
         record_history "  # Pushing ${remote_branch_name}"
         execute_command "git push origin ${remote_branch_name}" "" "" ""
-        update_origin_branch "${selected_branch_name}" "${remote_branch_name}"
+        update_origin_branch "${selected_branch_name}" "${remote_branch_name}" ""
       fi
     fi
   else
@@ -7226,4 +7233,4 @@ update_build_project
 
 exit 0
 
-# version=0.0.49
+# version=0.0.50
