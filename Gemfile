@@ -2,14 +2,16 @@ source 'https://rubygems.org'
 
 gem 'rails'
 gem "bcrypt-ruby"
-gem 'devise'        # Login gem
-gem 'kaminari'      # Paging Gem
+gem 'devise'                # Login gem
+gem 'kaminari'              # Paging Gem
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 group :development do
   gem 'annotate'
+  gem "better_errors"       # a prettier error page.
+  gem "binding_of_caller"   # used by better_errors for a better view.
 end
 
 group :development, :test do

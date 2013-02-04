@@ -1,8 +1,8 @@
-<div class="container-fluid recipe-simple-container">
+<div class="container-fluid recipe-simple-container scrolling-list-container">
   <div class="row-fluid">
     <div class="span3">
       <div class="well">
-        <div id="scroll-<%= @_controller.controller_name %>" class="scrolling-list">
+        <div id="scroll-<%= @_controller.controller_name %>" class="scrolling-list scrolling-list-primary" data-content-id="scroll-content-<%= @_controller.controller_name %>">
           <ul class="scrolling-list-content nav nav-list">
             <%= content_for :scroll_list %>
           </ul>
