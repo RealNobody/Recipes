@@ -94,7 +94,7 @@ class MeasuringUnit < ActiveRecord::Base
 
   # This is a helper function for seeding, but may be helpful
   # later for user defined units.
-  def self.find_or_intialize(alias_name)
+  def self.find_or_initialize(alias_name)
     found_unit = MeasuringUnit.find_by_alias(alias_name)
     if found_unit == nil
       found_unit = MeasuringUnit.new(name: alias_name)

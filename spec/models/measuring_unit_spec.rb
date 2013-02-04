@@ -15,7 +15,7 @@ require 'faker'
 
 describe MeasuringUnit do
   before do
-    @measuring_unit = MeasuringUnit.new(name: "Test Cup")
+    @measuring_unit = FactoryGirl.build(:measuring_unit)
   end
 
   subject { @measuring_unit }
@@ -111,5 +111,31 @@ describe MeasuringUnit do
     base_unit = MeasuringUnit.where(search_name: "cup").first()
     unit_destroyed = base_unit.destroy()
     unit_destroyed.should == false
+  end
+
+  describe "has abbreviation" do
+    it "should nil the abbreviation if set to false" do
+      @measuring_unit.has_abbreviation = false
+      @measuring_unit[:abbreviation].should be_blank
+    end
+
+    it "should not alter the abbreviation if set to true" do
+      orig_abbreviation = @measuring_unit[:abbreviation]
+      @measuring_unit.has_abbreviation = true
+      @measuring_unit[:abbreviation].should eq(orig_abbreviation)
+    end
+  end
+
+  describe "find_or_initialize" do
+    it "should create a new record if it doesn't exist" do
+      new_unit = MeasuringUnit.find_or_initialize(Faker::Name.name)
+      new_unit.id.should be_blank
+    end
+
+    it "should find an existing record if it does exist" do
+      @measuring_unit.save()
+      new_unit = MeasuringUnit.find_or_initialize(@measuring_unit.name)
+      new_unit.id.should_not be_blank
+    end
   end
 end

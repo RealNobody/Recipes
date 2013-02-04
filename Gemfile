@@ -30,6 +30,7 @@ end
 
 # Test gems on Macintosh OS X
 group :test do
+  gem 'simplecov', :require => false
   gem 'capybara'
   # gem 'rb-fsevent', '0.9.1', require: false
   gem 'growl'
