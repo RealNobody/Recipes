@@ -16,3 +16,7 @@ en:
     update:
       success: "%{resource_name} was successfully updated."
       failure: "Could not save %{resource_name}."
+    delete:
+      failure: "Could not delete %{resource_name}."
+    create:
+      failure: "Could not create %{resource_name}."
