@@ -5,3 +5,14 @@ en:
   activerecord:
     models:
       measuring_unit: "Measuring Unit"
+  user:
+    create:
+      success: "User was successfully created."
+    update:
+      success: "User was successfully updated."
+    delete:
+      self: "You may not delete yourself."
+  scrolling_list_controller:
+    update:
+      success: "%{resource_name} was successfully updated."
+      failure: "Could not save %{resource_name}."

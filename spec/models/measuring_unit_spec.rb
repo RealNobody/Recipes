@@ -11,7 +11,6 @@
 #
 
 require 'spec_helper'
-require 'faker'
 
 describe MeasuringUnit do
   before do
@@ -53,8 +52,11 @@ describe MeasuringUnit do
 
   describe "should create default aliases on save" do
     it do
+      # FactoryGirl may or may not create an abbreviation...
+      @measuring_unit.abbreviation = Faker::Name.name
       @measuring_unit.save!()
-      @measuring_unit.measurement_aliases.length.should == 2
+
+      @measuring_unit.measurement_aliases.length.should == 3
     end
   end
 
@@ -108,7 +110,7 @@ describe MeasuringUnit do
   end
 
   describe "seeds should not be deletable" do
-    base_unit = MeasuringUnit.where(search_name: "cup").first()
+    base_unit      = MeasuringUnit.where(search_name: "cup").first()
     unit_destroyed = base_unit.destroy()
     unit_destroyed.should == false
   end
@@ -120,7 +122,7 @@ describe MeasuringUnit do
     end
 
     it "should not alter the abbreviation if set to true" do
-      orig_abbreviation = @measuring_unit[:abbreviation]
+      orig_abbreviation                = @measuring_unit[:abbreviation]
       @measuring_unit.has_abbreviation = true
       @measuring_unit[:abbreviation].should eq(orig_abbreviation)
     end

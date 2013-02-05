@@ -137,13 +137,13 @@ class ScrollableListController < ApplicationController
 
     respond_to do |format|
       if @selected_item.save()
-        format.html { render action: :index, notice: "#{self.controller_name.singularize.humanize} was successfully updated." }
+        format.html { render action: :index, notice: t("scrolling_list_controller.update.success", resource_name: self.controller_name.singularize.humanize) }
         format.json { render json: @selected_item }
       else
         if (@selected_item.errors.full_messages && @selected_item.errors.full_messages.length > 0)
           flash[:error] = @selected_item.errors.full_messages.to_sentence
         else
-          flash[:error] = "Could not save #{self.controller_name.singularize.humanize}."
+          flash[:error] = t("scrolling_list_controller.update.failure", resource_name: self.controller_name.singularize.humanize)
         end
         format.html { render action: :index }
         format.json { render json: @selected_items.errors, status: :unprocessable_entity }
