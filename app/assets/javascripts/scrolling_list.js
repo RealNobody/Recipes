@@ -13,7 +13,7 @@ Recipes.ScrollingList.prototype =
   history_supported : false,
   window_history    : null,
 
-  should_scroll : function (scroll_div)
+  should_scroll: function (scroll_div)
   {
     var scroll_info = { scroll_down: false, scroll_up: false, scroll_down_visible: false, scroll_up_visible: false,
       scroll_up_height             : 0, scroll_link: null};
@@ -76,11 +76,59 @@ Recipes.ScrollingList.prototype =
     return scroll_info;
   },
 
+  scrub_unseen_pages: function (scroll_div)
+  {
+    var cache_pages = scroll_div.attr ("data-cache-pages");
+
+    // $($(".scroll-page-break")[2]).offset().top + $($(".scroll-page-break")[2]).height() - $(".scrolling-list").offset().top
+    if (! cache_pages)
+      cache_pages = 0;
+    else
+      cache_pages = parseInt (cache_pages);
+
+    var page_markers = scroll_div.find (".scroll-page-break");
+
+    if (page_markers.length > cache_pages)
+    {
+      var top_page_index = cache_pages;
+      var div_offset = scroll_div.offset ().top;
+      var delete_item;
+      var page_item;
+      var delete_height;
+
+      while ($ (page_markers [top_page_index]).offset ().top + $ (page_markers [top_page_index]).height () - div_offset <= 0)
+      {
+        top_page_index += 1;
+      }
+      top_page_index -= 1;
+
+      if (top_page_index >= cache_pages)
+      {
+        page_item = $ (page_markers [top_page_index]).attr ("data-page");
+        delete_item = $ (scroll_div.find ("li:first"));
+        while (delete_item.attr ("data-page") != page_item)
+        {
+          delete_height = delete_item.height ();
+          delete_item.remove ();
+          scroll_div.scrollTop (scroll_div.scrollTop () - delete_height);
+          delete_item = $ (scroll_div.find ("li:first"));
+        }
+        delete_height = delete_item.height ();
+        var prev_link = delete_item.attr ("data-prev_link");
+        delete_item.remove ();
+        scroll_div.scrollTop (scroll_div.scrollTop () - delete_height);
+        prev_link = $("<div class=\"scrolling-previous\"><a href=\"" + prev_link + "\">prev</a></div>");
+        delete_height = prev_link.height ();
+        $(scroll_div.find(ul))
+      }
+    }
+  },
+
   /*
    We don't do the full list when we load the page.
    So, when the list scrolls, if there is more data, load it...
    */
-  list_scrolling: function (scroll_div)
+  list_scrolling    : function (scroll_div)
   {
     var scroll_class = this;
 
