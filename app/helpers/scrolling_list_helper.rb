@@ -100,16 +100,16 @@ module ScrollingListHelper
     "<li#{item_class}>#{link_to(description, link_item, class: "scroll-item-link")}</li>".html_safe
   end
 
-  def scrolling_list_page_break prev_link, next_link
-    per_page = nil
-    page_num = 1
-    if (@_controller.params[:page])
-      page_num = @_controller.params[:page]
-    end
-    if (@_controller.params[:per_page])
-      per_page = " data-per_page=\"#{@_controller.params[:per_page]}\""
-    end
-
-    "<li class=\"scroll-page-break\" data-page=\"#{page_num}\"#{per_page} data-prev_link=\"#{prev_link}\" data-next_link=\"#{next_link}\" />".html_safe
-  end
+  #def scrolling_list_page_break prev_link, next_link
+  #  per_page = nil
+  #  page_num = 1
+  #  if (@_controller.params[:page])
+  #    page_num = @_controller.params[:page]
+  #  end
+  #  if (@_controller.params[:per_page])
+  #    per_page = " data-per_page=\"#{@_controller.params[:per_page]}\""
+  #  end
+  #
+  #  "<li class=\"scroll-page-break\" data-page=\"#{page_num}\"#{per_page} data-prev_link=\"#{prev_link}\" data-next_link=\"#{next_link}\" />".html_safe
+  #end
 end

@@ -1,10 +1,14 @@
-Scroll only holds so many pages
+Standard conversions
+Standard conversions admin
+* Scroll only holds so many pages
 * IsScrollable with
 *   routing helper function
 * paging rspec tests
+* Scrollbar shows relative position (li with set height for blank space of pages above/below?)
 Put testing pagination size back to reasonable defaults.
 Set pagination defaults for whole application (see kaminari documenation for how)
 AJAXify the crud actions so that on failure, only the failure page shows, but redirect to page on success
+AJAXify crud so that the success only reloads the success piece, and the section of the list that is affected.s
 Genericify scroll so can have multiple scrolls on page
   add specific scroll for primary list as we have now
 Update the flash notifications so that they are shown appropriately.  (Green/yellow/red for notice, warning, error, etc.)

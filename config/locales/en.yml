@@ -5,6 +5,9 @@ en:
   activerecord:
     models:
       measuring_unit: "Measuring Unit"
+    measurement_conversion:
+      error:
+        already_exists: "The measurement conversion already exists"
   user:
     create:
       success: "User was successfully created."
