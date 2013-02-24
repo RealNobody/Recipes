@@ -10,9 +10,9 @@
 
   <br />
   <%= form_object.submit("Save", class: "btn btn-primary") %>
-  <%= link_to("Delete", @measurement_conversion, class: "btn btn-danger", method: :delete, id: "delete-recipe") %>
 
   <% if (@measurement_conversion.id) %>
+    <%= link_to("Delete", @measurement_conversion, class: "btn btn-danger", method: :delete, id: "delete-recipe") %>
     <div id="confirm-delete-dialog" class="modal hide fade" tabindex="-1" role="dialog"
          aria-labeledby="confirm-delete-title" aria-hidden="true">
       <div class="modal-header">

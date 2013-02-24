@@ -10,7 +10,7 @@ Recipes.MeasuringUnitPage.prototype =
 {
   adjust_size: function ()
   {
-    if (scrollingList)
+    if (adminScrollingList)
     {
       var recipe_tab = $ (".recipe-tab-content");
       var size_parent = recipe_tab.closest (".scrolling-content");
@@ -21,7 +21,7 @@ Recipes.MeasuringUnitPage.prototype =
       {
         var tab_list = size_parent.find ("ul");
         var tab_list_height = tab_list.height () + recipesApp.container_margin + 2;
-        var min_size = scrollingList.calculate_min_height () - tab_list_height;
+        var min_size = adminScrollingList.calculate_min_height () - tab_list_height;
         var calc_min = this.calculate_tabs_min_height ();
         var new_link_height = new_link.height () + recipesApp.container_margin;
 
@@ -45,7 +45,7 @@ Recipes.MeasuringUnitPage.prototype =
           scrolling_list.removeClass ("scroll-list-do-not_adjust-height");
         }
         $ (scrolling_list.closest (".well")).css ("min-height",
-                                                  (scrollingList.calculate_min_height () - recipesApp.container_margin - new_link_height).toString () + "px");
+                                                  (adminScrollingList.calculate_min_height () - recipesApp.container_margin - new_link_height).toString () + "px");
       }
     }
     // alert ("adjusting the size now");

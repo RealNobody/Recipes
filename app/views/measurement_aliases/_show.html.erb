@@ -43,6 +43,7 @@
 </p>
 
 <%
+   is_new = @measurement_alias.id == nil
    can_edit = (@measurement_alias.measuring_unit && @measurement_alias.id != nil &&
        @measurement_alias.alias != @measurement_alias.measuring_unit.name.singularize().downcase() &&
        @measurement_alias.alias != @measurement_alias.measuring_unit.name.pluralize().downcase() &&
@@ -53,16 +54,18 @@
   <%= link_to(@measurement_alias.measuring_unit.name, @measurement_alias.measuring_unit) if @measurement_alias.measuring_unit %>
 
   <%= form_object.label(:alias) %>
-  <% if (can_edit) %>
+  <% if (can_edit || is_new) %>
     <%= form_object.text_field(:alias) %>
   <% else %>
-    <%= form_object.label(@measurement_alias.alias) %>
+    <%= form_object.label(:alias, @measurement_alias.alias) %>
   <% end %>
 
   <br />
 
-  <% if (can_edit) %>
+  <% if (can_edit || is_new) %>
     <%= form_object.submit("Save", class: "btn btn-primary") %>
+  <% end %>
+  <% if (can_edit) %>
     <%= link_to("Delete", @measurement_alias, class: "btn btn-danger", method: :delete, id: "delete-recipe") %>
 
     <div id="confirm-delete-dialog" class="modal hide fade" tabindex="-1" role="dialog"
