@@ -1,4 +1,8 @@
+require "scrolling_list_helper"
+
 class ScrollableListController < ApplicationController
+  include ScrollingListHelper
+
   before_filter do
     authenticate_user!
 
@@ -64,14 +68,14 @@ class ScrollableListController < ApplicationController
     end
   end
 
-  #def new_item
-  #  scroll_list_setup_instance_variables(MeasuringUnit.new())
-  #
-  #  respond_to do |format|
-  #    format.html { render(partial: "show", layout: "../scrolling_list/scroll_list_partial") }
-  #    format.json { render json: @measuring_units }
-  #  end
-  #end
+  def new_item
+    scroll_list_setup_instance_variables(eval("#{@model_class_name}.new()"))
+
+    respond_to do |format|
+      format.html { render(partial: "show", layout: "../scrolling_list/scroll_list_partial") }
+      format.json { render json: @measuring_units }
+    end
+  end
 
   def destroy
     @selected_item = eval("#{@model_class_name}.where(id: params[:id]).first")
