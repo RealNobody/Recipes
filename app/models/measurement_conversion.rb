@@ -4,7 +4,7 @@ class MeasurementConversion < ActiveRecord::Base
   belongs_to :smaller_measuring_unit, class_name: "MeasuringUnit", foreign_key: :smaller_measuring_unit_id
   belongs_to :larger_measuring_unit, class_name: "MeasuringUnit", foreign_key: :larger_measuring_unit_id
 
-  default_scope order("multiplier")
+  default_scope order("smaller_measuring_unit_id, multiplier")
 
   validates :smaller_measuring_unit_id, presence: true
   validates :larger_measuring_unit_id, presence: true
@@ -16,5 +16,9 @@ class MeasurementConversion < ActiveRecord::Base
                                         " AND larger_measuring_unit_id = #{smaller_measuring_unit_id}").first != nil)
       errors.add(:smaller_measuring_unit_id, I18n.t("activerecord.measurement_conversion.error.already_exists"))
     end
+  end
+
+  def list_name
+    return "#{self.smaller_measuring_unit.abbreviation} to #{self.larger_measuring_unit.abbreviation}"
   end
 end

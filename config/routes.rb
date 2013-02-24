@@ -9,10 +9,17 @@ Recipes::Application.routes.draw do
 
   resources :measuring_units do
     get 'page/:page', action: :page, on: :collection
-    #get 'item/new', action: :new_item, on: :collection
+    get 'item/new', action: :new_item, on: :collection
     get 'item/:id', action: :item, on: :collection
   end
   resources :measuring_units
+
+  resources :measurement_conversions do
+    get 'page/:page', action: :page, on: :collection
+    get 'item/new', action: :new_item, on: :collection
+    get 'item/:id', action: :item, on: :collection
+  end
+  resources :measurement_conversions
 
   root to: 'static#index'
 

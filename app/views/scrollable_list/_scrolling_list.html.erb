@@ -9,7 +9,7 @@
         </div>
       </div>
       <div class="scrolling-list-new-link">
-        <%= link_to("New #{@_controller.controller_name.humanize()}", eval("new_#{@_controller.controller_name.singularize()}_path")) %>
+        <%= link_to("New #{@_controller.controller_name.humanize().singularize().titleize()}", eval("new_#{@_controller.controller_name.singularize()}_path")) %>
       </div>
     </div>
     <div id="scroll-content-<%= @_controller.controller_name %>" class="span9 scrolling-content">

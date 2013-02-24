@@ -1,10 +1,7 @@
 require "measuring_unit"
-require "scrolling_list_helper"
 require "scrollable_list_controller"
 
 class MeasuringUnitsController < ScrollableListController
-  include ScrollingListHelper
-
   def create
     has_abbreviation = params[:measuring_unit].delete(:has_abbreviation)
     @measuring_unit  = MeasuringUnit.new(params[:measuring_unit])
