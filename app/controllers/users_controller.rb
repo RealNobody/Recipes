@@ -42,11 +42,16 @@ class UsersController < ApplicationController
   # POST /users
   # POST /users.json
   def create
-    @user = User.new(params[:user])
+    @user = User.new
+
+    @user.name                  = params[:user][:name]
+    @user.email                 = params[:user][:email]
+    @user.password              = params[:user][:password]
+    @user.password_confirmation = params[:user][:password_confirmation]
 
     respond_to do |format|
       if @user.save
-        format.html { redirect_to @user, notice: 'User was successfully created.' }
+        format.html { redirect_to @user, notice: t("user.create.success") }
         format.json { render json: @user, status: :created, location: @user }
       else
         format.html { render action: "new" }
@@ -60,10 +65,15 @@ class UsersController < ApplicationController
   def update
     @user = User.find(params[:id])
 
+    @user.name                  = params[:user][:name]
+    @user.email                 = params[:user][:email]
+    @user.password              = params[:user][:password]
+    @user.password_confirmation = params[:user][:password_confirmation]
+
     respond_to do |format|
-      if @user.update_attributes(params[:user])
-        format.html { redirect_to @user, notice: 'User was successfully updated.' }
+      if @user.save()
         format.json { head :no_content }
+        format.html { redirect_to @user, notice: t("user.update.success") }
       else
         format.html { render action: "edit" }
         format.json { render json: @user.errors, status: :unprocessable_entity }
@@ -74,12 +84,19 @@ class UsersController < ApplicationController
   # DELETE /users/1
   # DELETE /users/1.json
   def destroy
-    @user = User.find(params[:id])
-    @user.destroy
+    if (params[:id].to_s != current_user.id.to_s)
+      @user = User.find(params[:id])
+      @user.destroy
 
-    respond_to do |format|
-      format.html { redirect_to users_url }
-      format.json { head :no_content }
+      respond_to do |format|
+        format.html { redirect_to users_url }
+        format.json { head :no_content }
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to users_url, notice: t("user.delete.self") }
+        format.json { head :no_content }
+      end
     end
   end
 end
