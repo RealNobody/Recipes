@@ -1,5 +1,5 @@
 <% content_for :scroll_list do %>
-  <%= render(partial: "scrolling_list/scroll_content", layout: false) %>
+  <%= render(partial: "scroll_content", layout: false) %>
 <% end %>
 <% content_for :first_item do %>
   <%= render(partial: "#{@_controller.controller_name}/show", layout: false) %>
