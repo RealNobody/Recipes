@@ -36,4 +36,5 @@ describe MeasurementConversion do
   it { should respond_to(:smaller_measuring_unit_id) }
   it { should respond_to(:larger_measuring_unit_id) }
   it { should respond_to(:multiplier) }
+  it { should respond_to(:list_name) }
 end

@@ -1,0 +1,33 @@
+<%= form_for @measurement_conversion do |form_object| %>
+  <%= form_object.label(:smaller_measuring_unit_id) %>
+  <%= form_object.text_field(:smaller_measuring_unit_id) %>
+
+  <%= form_object.label(:larger_measuring_unit_id) %>
+  <%= form_object.text_field(:larger_measuring_unit_id) %>
+
+  <%= form_object.label(:multiplier) %>
+  <%= form_object.text_field(:multiplier) %>
+
+  <br />
+  <%= form_object.submit("Save", class: "btn btn-primary") %>
+  <%= link_to("Delete", @measurement_conversion, class: "btn btn-danger", method: :delete, id: "delete-recipe") %>
+
+  <div id="confirm-delete-dialog" class="modal hide fade" tabindex="-1" role="dialog"
+       aria-labeledby="confirm-delete-title" aria-hidden="true">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+      <h3 id="confirm-delete-title">Delete Conversion <%= @measurement_conversion.list_name %></h3>
+    </div>
+    <div class="modal-body">
+      <p>
+        Are you sure that you want to delete the Conversion
+        of <%= @measurement_conversion.smaller_measuring_unit.name %>
+        to <%= @measurement_conversion.larger_measuring_unit.name %>?
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button id="confirm-delete" class="btn btn-danger" aria-hidden="true">Yes</button>
+      <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
+    </div>
+  </div>
+<% end %>

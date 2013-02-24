@@ -1,11 +1,15 @@
+require "scrolling_list_helper"
+
 class ScrollableListController < ApplicationController
+  include ScrollingListHelper
+
   before_filter do
     authenticate_user!
 
     @model_class_name = eval("#{self.controller_name.classify}")
-    @model_per_page = eval("#{@model_class_name}.default_per_page")
-    @selected_item = nil
-    @current_page = nil
+    @model_per_page   = eval("#{@model_class_name}.default_per_page")
+    @selected_item    = nil
+    @current_page     = nil
   end
 
   # GET /users
@@ -14,7 +18,7 @@ class ScrollableListController < ApplicationController
     scroll_list_setup_instance_variables(nil)
 
     respond_to do |format|
-      format.html # index.html.erb
+      format.html
       format.json { render json: @current_page }
     end
   end
@@ -23,7 +27,7 @@ class ScrollableListController < ApplicationController
     scroll_list_setup_instance_variables(nil)
 
     respond_to do |format|
-      format.html { render(partial: "scrolling_list/scroll_content", layout: false) }
+      format.html { render(partial: "scroll_content", layout: false) }
       format.json { render json: @current_page }
     end
   end
@@ -37,7 +41,7 @@ class ScrollableListController < ApplicationController
     end
 
     respond_to do |format|
-      format.html { render(partial: "show", layout: "../scrolling_list/scroll_list_partial", status: item_status) }
+      format.html { render(partial: "show", layout: "../scrollable_list/scroll_list_partial", status: item_status) }
       format.json { render json: @current_page }
     end
   end
@@ -64,14 +68,14 @@ class ScrollableListController < ApplicationController
     end
   end
 
-  #def new_item
-  #  scroll_list_setup_instance_variables(MeasuringUnit.new())
-  #
-  #  respond_to do |format|
-  #    format.html { render(partial: "show", layout: "../scrolling_list/scroll_list_partial") }
-  #    format.json { render json: @measuring_units }
-  #  end
-  #end
+  def new_item
+    scroll_list_setup_instance_variables(eval("#{@model_class_name}.new()"))
+
+    respond_to do |format|
+      format.html { render(partial: "show", layout: "../scrollable_list/scroll_list_partial") }
+      format.json { render json: @measuring_units }
+    end
+  end
 
   def destroy
     @selected_item = eval("#{@model_class_name}.where(id: params[:id]).first")

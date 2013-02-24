@@ -117,9 +117,9 @@ Recipes.ScrollingList.prototype =
         var prev_link = delete_item.attr ("data-prev_link");
         delete_item.remove ();
         scroll_div.scrollTop (scroll_div.scrollTop () - delete_height);
-        prev_link = $("<div class=\"scrolling-previous\"><a href=\"" + prev_link + "\">prev</a></div>");
+        prev_link = $ ("<div class=\"scrolling-previous\"><a href=\"" + prev_link + "\">prev</a></div>");
         delete_height = prev_link.height ();
-        $(scroll_div.find(ul))
+        $ (scroll_div.find (ul))
       }
     }
   },
@@ -421,7 +421,7 @@ Recipes.ScrollingList.prototype =
   {
     var scroll_class = eventData.data.scroll_class;
     var clicked_item = $ (event.currentTarget);
-    var scrolling_div = clicked_item.closest ("scrolling-list-container");
+    var scrolling_div = clicked_item.closest (".scrolling-list-container");
 
     scrolling_div = scrolling_div.find (".scrolling-list");
     clicked_item = clicked_item.find ("a");
@@ -429,7 +429,7 @@ Recipes.ScrollingList.prototype =
     scroll_class.show_item (scrolling_div, clicked_item.attr ("href"));
   },
 
-  display_content_on_page: function (scroll_div, display_content, item_url, clicked_item_url, replaceURL)
+  display_content_on_page: function (scroll_div, display_content, item_url, clicked_item_url, item_id, replaceURL)
   {
     var scroll_content = this.content_object (scroll_div);
 
@@ -503,7 +503,7 @@ Recipes.ScrollingList.prototype =
           .done (
           function (display_content)
           {
-            scroll_class.display_content_on_page (scroll_div, display_content, item_url, clicked_item_url, false);
+            scroll_class.display_content_on_page (scroll_div, display_content, item_url, clicked_item_url, item_id, false);
           }
       )
           .fail (
@@ -514,7 +514,8 @@ Recipes.ScrollingList.prototype =
             {
               var new_url = scroll_class.build_new_link (clicked_item_url);
               item_url = scroll_class.build_click_link (new_url);
-              scroll_class.display_content_on_page (scroll_div, xHeader.responseText, item_url, new_url, true);
+              item_id = "new"
+              scroll_class.display_content_on_page (scroll_div, xHeader.responseText, item_url, new_url, item_id, true);
             }
             else
             {
@@ -598,7 +599,7 @@ Recipes.ScrollingList.prototype =
         }
       }
 
-      if (selected_item_id !== window_id || window_id === "new")
+      if (selected_item_id !== window_id)
       {
         // The history has changed to something other than what we're displaying now.
         // update it!
