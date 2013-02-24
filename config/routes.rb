@@ -21,6 +21,13 @@ Recipes::Application.routes.draw do
   end
   resources :measurement_conversions
 
+  resources :measurement_aliases do
+    get 'page/:page', action: :page, on: :collection
+    get 'item/new', action: :new_item, on: :collection
+    get 'item/:id', action: :item, on: :collection
+  end
+  resources :measurement_aliases
+
   root to: 'static#index'
 
   # The priority is based upon order of creation:

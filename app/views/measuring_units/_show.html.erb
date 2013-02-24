@@ -32,7 +32,7 @@
 
           <br />
           <%= form_object.submit("Save", class: "btn btn-primary") %>
-          <% unless (@measuring_unit.id == nil || !@measuring_unit.can_delete) %>
+          <% if (@measuring_unit.id && @measuring_unit.can_delete) %>
             <%= link_to("Delete", @measuring_unit, class: "btn btn-danger", method: :delete, id: "delete-recipe") %>
 
             <div id="confirm-delete-dialog" class="modal hide fade" tabindex="-1" role="dialog" aria-labeledby="confirm-delete-title" aria-hidden="true">

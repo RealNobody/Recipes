@@ -1,0 +1,87 @@
+<p>
+  Yesterday I went to neuclear dodgeball at my Tae-Kwon-Do academy. Neuclear Dodgeball is where they play dodgeball and
+  have blacklights and colored balls that glow in the black lights.
+
+  We were split into 7 teams total. My team had 5 people. Most of us were medium sized. I was the biggest one of our
+  team.
+
+  After we did some games we all had pizza. After pizza I didn't have awhile lot of fun because our team didn't go out
+  on the
+  field a lot. We didn't go out a lot because we lost the champion califiers. The "Hammer heads" fought the instructors
+  first
+  because they won the championships. After multiple games we were on the field against the instructors. We got a couple
+  of instructors
+  then we won by catching their balls. Dad picked me and Liam up 10 minutes late.
+</p>
+
+<p>
+  On February 23, the year of our lord 2013, I did set out on a quest to conquer all who stood in my way for the total
+  domination in the world of Dodgeball. We met on the darkened field of the realm "Tae-Kwon-Do". Verily it was a strange
+  field lit not by the natual light of our lord, but instead the demonic "black" lights of doom. The lights cast our
+  clothes
+  of white in strange glowing colors which did cause great excitement amongst the most vile hord we would face in
+  battle.
+  Our team of 5 intrepid warriors did face off in mock battles with the challengers many times before we had to call a
+  temporary
+  truce for sustinance. We feasted upon the great food know as "pizza". It was a most wonderous food which provided
+  breads
+  meats, cheeses and vegetables in a single yummy easy to eat "slice". After slaking our hunger and thurst we did again
+  do
+  battle with our enemies who were numbered 6. Alas, lady luck was not with us that night as we were slaughtered most
+  visciously
+  early in the battles and did not get the opportunities we wanted to demonstrate our mighty battle techniques. The
+  final victor
+  was a great and mighty team of bloodthirsty warriors who called themselves the "Hammerheads". Once victory was
+  obtained,
+  we did face off in battle with the mighty masters and did aquit ourselves well by catching their most viscious and
+  fast balls
+  which did lead them unto defeat most foul. Flush with victory and tired from our exersions, we were forced into a
+  final humilation
+  as we did wait alone and cold until very late for the most tardy "daddy" to arrive and take us back to our messy bunks
+  to rest until
+  a new more glorious battle.
+</p>
+
+<%
+   can_edit = (@measurement_alias.measuring_unit && @measurement_alias.id != nil &&
+       @measurement_alias.alias != @measurement_alias.measuring_unit.name.singularize().downcase() &&
+       @measurement_alias.alias != @measurement_alias.measuring_unit.name.pluralize().downcase() &&
+       @measurement_alias.alias != @measurement_alias.measuring_unit.abbreviation.downcase())
+%>
+<%= form_for @measurement_alias do |form_object| %>
+  <%= form_object.label("Measuring unit") %>
+  <%= link_to(@measurement_alias.measuring_unit.name, @measurement_alias.measuring_unit) if @measurement_alias.measuring_unit %>
+
+  <%= form_object.label(:alias) %>
+  <% if (can_edit) %>
+    <%= form_object.text_field(:alias) %>
+  <% else %>
+    <%= form_object.label(@measurement_alias.alias) %>
+  <% end %>
+
+  <br />
+
+  <% if (can_edit) %>
+    <%= form_object.submit("Save", class: "btn btn-primary") %>
+    <%= link_to("Delete", @measurement_alias, class: "btn btn-danger", method: :delete, id: "delete-recipe") %>
+
+    <div id="confirm-delete-dialog" class="modal hide fade" tabindex="-1" role="dialog"
+         aria-labeledby="confirm-delete-title" aria-hidden="true">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+        <h3 id="confirm-delete-title">Delete Conversion <%= @measurement_alias.list_name %></h3>
+      </div>
+      <div class="modal-body">
+        <p>
+          Are you sure that you want to delete the alias
+          of &quot;<%= @measurement_alias.alias %>&quot;
+          for <%= @measurement_alias.measuring_unit.name %>?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="confirm-delete" class="btn btn-danger" aria-hidden="true">Yes</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
+      </div>
+    </div>
+  <% end %>
+<% end %>

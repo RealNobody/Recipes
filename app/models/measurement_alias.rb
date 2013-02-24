@@ -11,7 +11,10 @@
 
 class MeasurementAlias < ActiveRecord::Base
   attr_accessible :alias
+
   belongs_to :measuring_unit
+
+  default_scope joins(:measuring_unit).order("measuring_units.name, alias")
 
   validates :alias,
             length:     { maximum: 255 },
@@ -23,5 +26,9 @@ class MeasurementAlias < ActiveRecord::Base
 
   def alias=(alias_name)
     self[:alias] = alias_name.downcase()
+  end
+
+  def list_name
+    "#{self.alias} (#{self.measuring_unit.name})"
   end
 end
