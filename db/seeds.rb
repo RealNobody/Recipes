@@ -18,7 +18,7 @@ end
 
 # Measuring Units
 puts("Seeding Measuring Units and aliases...")
-MeasuringUnit.find_or_intialize("Cup").tap do |unit|
+MeasuringUnit.find_or_initialize("Cup").tap do |unit|
   unit.abbreviation = "C."
   unit.can_delete   = false
   unit.save!()
@@ -26,7 +26,7 @@ MeasuringUnit.find_or_intialize("Cup").tap do |unit|
   unit.add_alias("c").save!()
 end
 
-MeasuringUnit.find_or_intialize("Teaspoon").tap do |unit|
+MeasuringUnit.find_or_initialize("Teaspoon").tap do |unit|
   unit.abbreviation = "tsp."
   unit.can_delete   = false
   unit.save!()
@@ -34,7 +34,7 @@ MeasuringUnit.find_or_intialize("Teaspoon").tap do |unit|
   unit.add_alias("tsp").save!()
 end
 
-MeasuringUnit.find_or_intialize("Tablespoon").tap do |unit|
+MeasuringUnit.find_or_initialize("Tablespoon").tap do |unit|
   unit.abbreviation = "Tbs."
   unit.can_delete   = false
   unit.save!()
@@ -42,9 +42,9 @@ MeasuringUnit.find_or_intialize("Tablespoon").tap do |unit|
   unit.add_alias("tbs").save!()
 end
 
-MeasuringUnit.find_or_intialize("Fluid-Ounce").tap do |unit|
+MeasuringUnit.find_or_initialize("Fluid-Ounce").tap do |unit|
   unit.abbreviation = "fl. oz."
-  unit.can_delete = false
+  unit.can_delete   = false
   unit.save!()
 
   unit.add_alias("fl. oz").save!()
@@ -56,17 +56,17 @@ MeasuringUnit.find_or_intialize("Fluid-Ounce").tap do |unit|
   unit.add_alias("lo").save!()
 end
 
-MeasuringUnit.find_or_intialize("Ounce").tap do |unit|
+MeasuringUnit.find_or_initialize("Ounce").tap do |unit|
   unit.abbreviation = "oz."
-  unit.can_delete = false
+  unit.can_delete   = false
   unit.save!()
 
   unit.add_alias("oz").save!()
 end
 
-MeasuringUnit.find_or_intialize("Pound").tap do |unit|
+MeasuringUnit.find_or_initialize("Pound").tap do |unit|
   unit.abbreviation = "lbs."
-  unit.can_delete = false
+  unit.can_delete   = false
   unit.save!()
 
   unit.add_alias("lbs").save!()
@@ -74,20 +74,20 @@ MeasuringUnit.find_or_intialize("Pound").tap do |unit|
   unit.add_alias("lb").save!()
 end
 
-MeasuringUnit.find_or_intialize("Unit").tap do |unit|
+MeasuringUnit.find_or_initialize("Unit").tap do |unit|
   unit.abbreviation = ""
+  unit.can_delete   = false
+  unit.save!()
+end
+
+MeasuringUnit.find_or_initialize("Bunch").tap do |unit|
   unit.can_delete = false
   unit.save!()
 end
 
-MeasuringUnit.find_or_intialize("Bunch").tap do |unit|
-  unit.can_delete = false
-  unit.save!()
-end
-
-MeasuringUnit.find_or_intialize("Package").tap do |unit|
+MeasuringUnit.find_or_initialize("Package").tap do |unit|
   unit.abbreviation = "pkgs."
-  unit.can_delete = false
+  unit.can_delete   = false
   unit.save!()
 
   unit.add_alias("pkg.").save!()
@@ -95,9 +95,9 @@ MeasuringUnit.find_or_intialize("Package").tap do |unit|
   unit.add_alias("pkgs").save!()
 end
 
-MeasuringUnit.find_or_intialize("Pint").tap do |unit|
+MeasuringUnit.find_or_initialize("Pint").tap do |unit|
   unit.abbreviation = "pt."
-  unit.can_delete = false
+  unit.can_delete   = false
   unit.save!()
 
   unit.add_alias("pt").save!()
@@ -105,9 +105,9 @@ MeasuringUnit.find_or_intialize("Pint").tap do |unit|
   unit.add_alias("pts").save!()
 end
 
-MeasuringUnit.find_or_intialize("Quart").tap do |unit|
+MeasuringUnit.find_or_initialize("Quart").tap do |unit|
   unit.abbreviation = "qt."
-  unit.can_delete = false
+  unit.can_delete   = false
   unit.save!()
 
   unit.add_alias("qt").save!()
@@ -115,9 +115,9 @@ MeasuringUnit.find_or_intialize("Quart").tap do |unit|
   unit.add_alias("qts").save!()
 end
 
-MeasuringUnit.find_or_intialize("Gallon").tap do |unit|
+MeasuringUnit.find_or_initialize("Gallon").tap do |unit|
   unit.abbreviation = "gal."
-  unit.can_delete = false
+  unit.can_delete   = false
   unit.save!()
 
   unit.add_alias("gal").save!()
@@ -125,43 +125,43 @@ MeasuringUnit.find_or_intialize("Gallon").tap do |unit|
   unit.add_alias("gals").save!()
 end
 
-MeasuringUnit.find_or_intialize("Strip").tap do |unit|
+MeasuringUnit.find_or_initialize("Strip").tap do |unit|
   unit.can_delete = false
   unit.save!()
 end
 
-MeasuringUnit.find_or_intialize("Clove").tap do |unit|
+MeasuringUnit.find_or_initialize("Clove").tap do |unit|
   unit.can_delete = false
   unit.save!()
 end
 
-MeasuringUnit.find_or_intialize("Loaf").tap do |unit|
+MeasuringUnit.find_or_initialize("Loaf").tap do |unit|
   unit.can_delete = false
   unit.save!()
 
   unit.add_alias("loaves").save!()
 end
 
-MeasuringUnit.find_or_intialize("Can").tap do |unit|
+MeasuringUnit.find_or_initialize("Can").tap do |unit|
   unit.can_delete = false
   unit.save!()
 end
 
-MeasuringUnit.find_or_intialize("Jar").tap do |unit|
+MeasuringUnit.find_or_initialize("Jar").tap do |unit|
   unit.can_delete = false
   unit.save!()
 end
 
-MeasuringUnit.find_or_intialize("Slice").tap do |unit|
+MeasuringUnit.find_or_initialize("Slice").tap do |unit|
   unit.can_delete = false
   unit.save!()
 
   unit.add_alias("Slices").save!()
 end
 
-MeasuringUnit.find_or_intialize("Heaping-Teaspoon").tap do |unit|
+MeasuringUnit.find_or_initialize("Heaping-Teaspoon").tap do |unit|
   unit.abbreviation = "h tsp."
-  unit.can_delete = false
+  unit.can_delete   = false
   unit.save!()
 
   unit.add_alias("h tsp").save!()
@@ -170,5 +170,98 @@ MeasuringUnit.find_or_intialize("Heaping-Teaspoon").tap do |unit|
   unit.add_alias("ht.").save!()
   unit.add_alias("ht").save!()
 end
+
+MeasuringUnit.find_or_initialize("Gram").tap do |unit|
+  unit.abbreviation = "g."
+  unit.can_delete   = false
+  unit.save!()
+
+  unit.add_alias("g").save!()
+end
+
+MeasuringUnit.find_or_initialize("Kilogram").tap do |unit|
+  unit.abbreviation = "kg."
+  unit.can_delete   = false
+  unit.save!()
+
+  unit.add_alias("kg").save!()
+end
+
+MeasuringUnit.find_or_initialize("Milliliter").tap do |unit|
+  unit.abbreviation = "ml."
+  unit.can_delete   = false
+  unit.save!()
+
+  unit.add_alias("ml").save!()
+end
+
+MeasuringUnit.find_or_initialize("Liter").tap do |unit|
+  unit.abbreviation = "l."
+  unit.can_delete   = false
+  unit.save!()
+
+  unit.add_alias("l").save!()
+end
+
+# Code while debugging conversions to clear seeds in between times.
+
+#puts("Removing default seeds")
+#
+#MeasurementConversion.all.each do | conversion_obj |
+#  if (!conversion_obj.larger_measuring_unit.can_delete?() && !conversion_obj.smaller_measuring_unit.can_delete?())
+#    conversion_obj.destroy()
+#  end
+#end
+
+puts("Seed standard conversions")
+
+from_unit = MeasuringUnit.find_or_initialize("Milliliter")
+to_unit   = MeasuringUnit.find_or_initialize("Liter")
+from_unit.add_conversion(to_unit, 1000)
+
+from_unit = MeasuringUnit.find_or_initialize("Milliliter")
+to_unit   = MeasuringUnit.find_or_initialize("Teaspoon")
+from_unit.add_conversion(to_unit, 4.92892)
+
+from_unit = MeasuringUnit.find_or_initialize("Teaspoon")
+to_unit   = MeasuringUnit.find_or_initialize("Tablespoon")
+from_unit.add_conversion(to_unit, 3)
+
+# An approximate conversion to simplify life/conversions...
+from_unit = MeasuringUnit.find_or_initialize("Teaspoon")
+to_unit   = MeasuringUnit.find_or_initialize("Heaping-Teaspoon")
+from_unit.add_conversion(to_unit, 1.5)
+
+from_unit = MeasuringUnit.find_or_initialize("Tablespoon")
+to_unit   = MeasuringUnit.find_or_initialize("Fluid-Ounce")
+from_unit.add_conversion(to_unit, 2)
+
+from_unit = MeasuringUnit.find_or_initialize("Tablespoon")
+to_unit   = MeasuringUnit.find_or_initialize("Cup")
+from_unit.add_conversion(to_unit, 16)
+
+from_unit = MeasuringUnit.find_or_initialize("Cup")
+to_unit   = MeasuringUnit.find_or_initialize("Pint")
+from_unit.add_conversion(to_unit, 2)
+
+from_unit = MeasuringUnit.find_or_initialize("Pint")
+to_unit   = MeasuringUnit.find_or_initialize("Quart")
+from_unit.add_conversion(to_unit, 2)
+
+from_unit = MeasuringUnit.find_or_initialize("Quart")
+to_unit   = MeasuringUnit.find_or_initialize("Gallon")
+from_unit.add_conversion(to_unit, 4)
+
+from_unit = MeasuringUnit.find_or_initialize("Gram")
+to_unit   = MeasuringUnit.find_or_initialize("Kilogram")
+from_unit.add_conversion(to_unit, 1000)
+
+from_unit = MeasuringUnit.find_or_initialize("Gram")
+to_unit   = MeasuringUnit.find_or_initialize("Ounce")
+from_unit.add_conversion(to_unit, 28.3495)
+
+from_unit = MeasuringUnit.find_or_initialize("Ounce")
+to_unit   = MeasuringUnit.find_or_initialize("Pound")
+from_unit.add_conversion(to_unit, 16)
 
 puts("Finished Seeding.")

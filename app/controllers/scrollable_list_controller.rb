@@ -74,7 +74,7 @@ class ScrollableListController < ApplicationController
   #end
 
   def destroy
-    @selected_item = eval("#{@model_class_name}.find(params[:id])")
+    @selected_item = eval("#{@model_class_name}.where(id: params[:id]).first")
     if (@selected_item && @selected_item.destroy())
       params.delete(:id)
       scroll_list_setup_instance_variables(nil)
@@ -84,10 +84,10 @@ class ScrollableListController < ApplicationController
         format.json { render json: @selected_item }
       end
     else
-      if (@selected_item.errors.full_messages && @selected_item.errors.full_messages.length > 0)
+      if (@selected_item && @selected_item.errors.full_messages && @selected_item.errors.full_messages.length > 0)
         flash[:error] = @selected_item.errors.full_messages.to_sentence
       else
-        flash[:error] = "Could not delete #{@model_class_name.humanize}."
+        flash[:error] = t("scrolling_list_controller.delete.failure", resource_name: self.controller_name.singularize.humanize)
       end
       scroll_list_setup_instance_variables(nil)
       respond_to do |format|
@@ -115,7 +115,7 @@ class ScrollableListController < ApplicationController
       if (@selected_item.errors.full_messages && @selected_item.errors.full_messages.length > 0)
         flash[:error] = @selected_item.errors.full_messages.to_sentence
       else
-        flash[:error] = "Could not create #{self.controller_name.singularize.humanize}."
+        flash[:error] = t("scrolling_list_controller.create.failure", resource_name: self.controller_name.singularize.humanize)
       end
       respond_to do |format|
         format.html { render action: :index }
@@ -137,13 +137,13 @@ class ScrollableListController < ApplicationController
 
     respond_to do |format|
       if @selected_item.save()
-        format.html { render action: :index, notice: "#{self.controller_name.singularize.humanize} was successfully updated." }
+        format.html { render action: :index, notice: t("scrolling_list_controller.update.success", resource_name: self.controller_name.singularize.humanize) }
         format.json { render json: @selected_item }
       else
         if (@selected_item.errors.full_messages && @selected_item.errors.full_messages.length > 0)
           flash[:error] = @selected_item.errors.full_messages.to_sentence
         else
-          flash[:error] = "Could not save #{self.controller_name.singularize.humanize}."
+          flash[:error] = t("scrolling_list_controller.update.failure", resource_name: self.controller_name.singularize.humanize)
         end
         format.html { render action: :index }
         format.json { render json: @selected_items.errors, status: :unprocessable_entity }

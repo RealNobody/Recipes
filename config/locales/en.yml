@@ -5,3 +5,21 @@ en:
   activerecord:
     models:
       measuring_unit: "Measuring Unit"
+    measurement_conversion:
+      error:
+        already_exists: "The measurement conversion already exists"
+  user:
+    create:
+      success: "User was successfully created."
+    update:
+      success: "User was successfully updated."
+    delete:
+      self: "You may not delete yourself."
+  scrolling_list_controller:
+    update:
+      success: "%{resource_name} was successfully updated."
+      failure: "Could not save %{resource_name}."
+    delete:
+      failure: "Could not delete %{resource_name}."
+    create:
+      failure: "Could not create %{resource_name}."

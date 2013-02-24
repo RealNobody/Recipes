@@ -14,7 +14,7 @@ Recipes.MeasuringUnitPage.prototype =
     {
       var recipe_tab = $ (".recipe-tab-content");
       var size_parent = recipe_tab.closest (".scrolling-content");
-      var scrolling_list = $ (".scrolling-list");
+      var scrolling_list = $ (".scrolling-list-primary");
       var new_link = $ (".scrolling-list-new-link")
 
       if (size_parent && size_parent.length > 0)
@@ -36,8 +36,13 @@ Recipes.MeasuringUnitPage.prototype =
         var scroll_list_min = parseInt (scrolling_list.css ("max-height").replace (/px/, ""));
         if (scroll_list_min < (min_size + tab_list_height - recipesApp.container_margin - new_link_height))
         {
+          scrolling_list.addClass ("scroll-list-do-not_adjust-height");
           scrolling_list.css ("max-height",
                               (min_size + tab_list_height - recipesApp.container_margin - new_link_height).toString () + "px");
+        }
+        else
+        {
+          scrolling_list.removeClass ("scroll-list-do-not_adjust-height");
         }
         $ (scrolling_list.closest (".well")).css ("min-height",
                                                   (scrollingList.calculate_min_height () - recipesApp.container_margin - new_link_height).toString () + "px");

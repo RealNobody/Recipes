@@ -8,6 +8,31 @@ debug_mode="false"
 #               db_reset
 #               deploy?
 
+
+# Reinstall all gems...
+# uninstall() {
+#   list=`gem list --no-versions`
+#   for gem in $list; do
+#     gem uninstall $gem -aIx
+#   done
+#   gem list
+#   gem install bundler
+# }
+#
+# #rbenv versions --bare
+# RBENVPATH=`rbenv root`
+# echo $RBENVPATH
+# RUBIES=`ls $RBENVPATH/versions`
+# for ruby in $RUBIES; do
+#   echo '---------------------------------------'
+#   echo $ruby
+#   rbenv local $ruby
+#   uninstall
+# done
+
+
+
+
 function load_project_settings
 {
   exe_name="${1}"
@@ -622,13 +647,20 @@ function update_origin_branch
   #   merge = refs/heads/master
   #
   # PARAMETERS:
-  #   ${1}  - update_local_name   - The local branch name
-  #   ${2}  - update_remote_name  - The remote branch name
+  #   ${1}  - update_local_name       - The local branch name
+  #   ${2}  - update_remote_name      - The remote branch name
+  #   ${3}  - orig_remote_branch_name - The name of the branch that this branch was created from.
 
   cd ${build_base_directory}
 
   update_local_name="${1}"
   update_remote_name="${2}"
+  orig_remote_branch_name="${3}"
+
+  if [ -z "${orig_remote_branch_name}" ]; then
+    orig_remote_branch_name="master"
+  fi
+  orig_remote_branch_name="refs/heads/${orig_remote_branch_name}"
 
   record_branch update_origin_branch_name
 
@@ -643,7 +675,7 @@ function update_origin_branch
   merge_config="$(git config branch.${update_local_name}.merge)"
   set -e
 
-  if [ "${merge_config}" = "refs/heads/master" -o -z "${merge_config}" ]; then
+  if [ "${merge_config}" = "${orig_remote_branch_name}" -o -z "${merge_config}" ]; then
     execute_command "git config branch.${update_local_name}.merge \"refs/heads/${update_remote_name}\"" "" "" ""
   fi
 }
@@ -2071,7 +2103,7 @@ function pull_project_source
 
   echo "${return_line}Pulling source..." 2>&1 | tee -a ${build_log_directory}/git_pull.txt
   execute_command "git pull origin ${remote_branch_name}" ${build_log_directory}/git_pull.txt pull_success pull_text
-  update_origin_branch "${recorded_name}" "${remote_branch_name}"
+  update_origin_branch "${recorded_name}" "${remote_branch_name}" ""
 
   pull_has_updates="true"
   if [ "${pull_text}" = "Already up-to-date." ]; then
@@ -2103,7 +2135,12 @@ function reset_databases
       create_db_users "$(pwd)" "${build_environment}" "${trace_file}"
 
       echo "${return_line}Dropping the database..." 2>&1 | tee -a ${trace_file}
-      execute_command "RAILS_ENV=${build_environment} bundle exec rake db:drop" ${trace_file} "" ""
+      if [ -f config/database.yml ]; then
+        execute_command "RAILS_ENV=${build_environment} bundle exec rake db:drop" ${trace_file} "" ""
+      fi
+      if [ -f config/mongoid.yml ]; then
+        execute_command "RAILS_ENV=${build_environment} bundle exec rake db:mongoid:drop" ${trace_file} "" ""
+      fi
     fi
   done <<< "${reset_database_directories}"
 }
@@ -2164,9 +2201,14 @@ function extract_db_configurations
   extract_orig_ifs="${IFS}"
   IFS="##***&&&^^^&&&##"
 
+  default_adapter=""
   extract_yml_file=""
   if [ -f ${extract_engine_path}/config/database.yml ]; then
     extract_yml_file="$(cat ${extract_engine_path}/config/database.yml)"
+  fi
+  if [ -f ${extract_engine_path}/config/mongoid.yml ]; then
+    default_adapter="mongo"
+    extract_yml_file="$(cat ${extract_engine_path}/config/mongoid.yml)"
   fi
 
   extract_adapter_val=""
@@ -2185,6 +2227,9 @@ function extract_db_configurations
             append_array_value "${databases_var}" "${extract_database_val}"
             append_array_value "${usernames_var}" "${extract_username_val}"
             append_array_value "${passwords_var}" "${extract_password_val}"
+            if [ -z "${extract_adapter_val}" ]; then
+              extract_adapter_val="${default_adapter}"
+            fi
             append_array_value "${adapters_var}" "${extract_adapter_val}"
           fi
 
@@ -2291,6 +2336,9 @@ function extract_db_configurations
     append_array_value "${databases_var}" "${extract_database_val}"
     append_array_value "${usernames_var}" "${extract_username_val}"
     append_array_value "${passwords_var}" "${extract_password_val}"
+    if [ -z "${extract_adapter_val}" ]; then
+      extract_adapter_val="${default_adapter}"
+    fi
     append_array_value "${adapters_var}" "${extract_adapter_val}"
   fi
 
@@ -2515,6 +2563,7 @@ function build_sub_folder
     # We don't do the "db stuff" in s parrow_crm because the spec_dummy folder in s parrow_crm
     # is really an alias to s parrow_host, so we do/will do it there...
     # if [ "${build_folder}" != "s parrow_crm" ]; then
+      build_full_path="$(pwd)"
       is_dummy="false"
       if [ -d "spec/dummy" ]; then
         is_dummy="true"
@@ -2534,10 +2583,16 @@ function build_sub_folder
 #         fi
 #       fi
 
-      set +e
-      db_version="$(RAILS_ENV=${build_environment} bundle exec rake db:version 2>&1)"
-      version_error="${?}"
-      set -e
+      if [ -f ${build_full_path}/config/database.yml ]; then
+        set +e
+        db_version="$(RAILS_ENV=${build_environment} bundle exec rake db:version 2>&1)"
+        version_error="${?}"
+        set -e
+      else
+        version_error="0"
+        db_version="Current version: 1"
+      fi
+
       if [ "${version_error}" != "0" ]; then
         if echo "${db_version}" | grep -q "Unknown database"; then
           db_version="Current version: 0"
@@ -2573,9 +2628,15 @@ function build_sub_folder
         # Rake the DB.
         # echo "Raking the DB in $(pwd)" 2>&1 | tee -a ${trace_file}
         echo "${return_line}Raking the db migration..." 2>&1 | tee -a ${trace_file}
-        execute_command "RAILS_ENV=${build_environment} bundle exec rake db:migrate" ${trace_file} migrate_success migrate_results
-        if [ "${migrate_success}" = "0" ]; then
-          test_migration "${migrate_results}" migrate_success
+        if [ -f ${build_full_path}/config/database.yml ]; then
+          execute_command "RAILS_ENV=${build_environment} bundle exec rake db:migrate" ${trace_file} migrate_success migrate_results
+
+          if [ "${migrate_success}" = "0" ]; then
+            test_migration "${migrate_results}" migrate_success
+          fi
+        fi
+        if [ -f ${build_full_path}/config/mongoid.yml ]; then
+          execute_command "RAILS_ENV=${build_environment} bundle exec rake db:create_indexes" ${trace_file} migrate_success migrate_results
         fi
 
         if [ "${migrate_success}" != "0" ]; then
@@ -4320,7 +4381,7 @@ function checkout_branch
   execute_command "git checkout -b ${new_branch_name} ${new_branch_remote_source}" "" "" ""
   if [ ${#new_branch_remote_source} -gt 7 ]; then
     if [ ${new_branch_remote_source:0:7} = "origin/" ]; then
-      update_origin_branch "${new_branch_name}" "${new_branch_name}"
+      update_origin_branch "${new_branch_name}" "${new_branch_name}" "${new_branch_remote_source:7}"
     fi
   fi
 }
@@ -4532,7 +4593,7 @@ function push_source
         # push
         record_history "  # Pushing ${remote_branch_name}"
         execute_command "git push origin ${remote_branch_name}" "" "" ""
-        update_origin_branch "${selected_branch_name}" "${remote_branch_name}"
+        update_origin_branch "${selected_branch_name}" "${remote_branch_name}" ""
       fi
     fi
   else
@@ -5044,7 +5105,12 @@ function deploy_heroku
     fi
 
     execute_command "git push heroku master" "${build_log_directory}/heroku_deploy.txt" "" ""
-    heroku_run "rake db:migrate" "${build_log_directory}/heroku_deploy.txt"
+    if [ -f config/database.yml ]; then
+      heroku_run "rake db:migrate" "${build_log_directory}/heroku_deploy.txt"
+    fi
+    if [ -f config/mongoid.yml ]; then
+      heroku_run "rake db:create_indexes" "${build_log_directory}/heroku_deploy.txt"
+    fi
     heroku_run "rake db:seed" "${build_log_directory}/heroku_deploy.txt"
 
     echo "Switching back to branch: \"${deploy_orig_branch_name}\""
@@ -7167,4 +7233,4 @@ update_build_project
 
 exit 0
 
-# version=0.0.49
+# version=0.0.50

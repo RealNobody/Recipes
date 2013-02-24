@@ -1,5 +1,12 @@
 <%
    prev_element = scrolling_list_previous_link()
+   unless (prev_element.blank?)
+     prev_link = prev_element.match(/href=\"(.*?)\"/)[1];
+   end
+   next_element = scrolling_list_next_link()
+   unless (next_element.blank?)
+     next_link = next_element.match(/href=\"(.*?)\"/)[1];
+   end
    unless prev_element.blank?
 %>
   <div class="scrolling-previous">
@@ -7,9 +14,13 @@
   </div>
 <% end %>
 
-<% @current_page.each do | page_item | %>
+<% @current_page.each do |page_item| %>
   <%= scrolling_list_link_to_item("#{page_item.list_name}", page_item) %>
 <% end %>
+
+<%
+   #= scrolling_list_page_break prev_link, next_link
+%>
 
 <%
    next_element = scrolling_list_next_link()
