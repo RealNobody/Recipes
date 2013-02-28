@@ -75,6 +75,18 @@ module ScrollingListHelper
     return nil
   end
 
+  def scroll_list_name(current_item)
+    if (current_item.respond_to?("list_name"))
+      current_item.list_name
+    else
+      if (current_item.respond_to?("name"))
+        current_item.name
+      else
+        current_item.to_s()
+      end
+    end
+  end
+
   def scrolling_list_link_to_item(description, link_item)
     item_class = ""
     unless (@selected_item == nil)
