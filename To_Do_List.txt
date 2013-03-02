@@ -1,5 +1,11 @@
 Unit picker
 Generic picker
+Generic "find page"
+Picker scrolls to selected item
+Type ahead on picker
+Generic routing
+Generic rspec tests for paging
+
 * Scroll only holds so many pages
 * IsScrollable with
 *   routing helper function
@@ -15,3 +21,6 @@ Update the flash notifications so that they are shown appropriately.  (Green/yel
 Update AJAX responses so that they show flashes.
 Make Tabs AJAXy?
 Look into can-can?
+Look into pretty forms
+
+/Users/elittell/.rbenv/versions/1.9.3-p0/lib/ruby/gems/1.9.1/gems/actionpack-3.2.11/lib/action_dispatch/routing/mapper.rb
