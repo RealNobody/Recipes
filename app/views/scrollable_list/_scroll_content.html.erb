@@ -1,9 +1,23 @@
 <%
-   prev_element = scrolling_list_previous_link()
+   if (local_variables.include?(:list_object))
+     page_items     = list_object.class.page(1)
+     current_item   = list_object
+     param_page     = 1
+     per_page_model = list_object.class.default_per_page
+     param_per_page = nil
+   else
+     page_items     = @current_page
+     current_item   = @selected_item
+     param_page     = @_controller.params[:page]
+     param_per_page = @_controller.params[:per_page]
+     per_page_model = @model_per_page
+   end
+
+   prev_element = scrolling_list_previous_link(page_items, current_item, param_page, param_per_page, per_page_model)
    unless (prev_element.blank?)
      prev_link = prev_element.match(/href=\"(.*?)\"/)[1];
    end
-   next_element = scrolling_list_next_link()
+   next_element = scrolling_list_next_link(page_items, current_item, param_page, param_per_page, per_page_model)
    unless (next_element.blank?)
      next_link = next_element.match(/href=\"(.*?)\"/)[1];
    end
@@ -14,8 +28,9 @@
   </div>
 <% end %>
 
-<% @current_page.each do |page_item| %>
-  <%= scrolling_list_link_to_item("#{page_item.list_name}", page_item) %>
+<% page_items.each do |page_item| %>
+  <%= scrolling_list_link_to_item("#{page_item.list_name}", page_item, page_items, current_item, param_page,
+                                  param_per_page, per_page_model) %>
 <% end %>
 
 <%
@@ -23,7 +38,6 @@
 %>
 
 <%
-   next_element = scrolling_list_next_link()
    unless next_element.blank?
 %>
   <div class="scrolling-next">

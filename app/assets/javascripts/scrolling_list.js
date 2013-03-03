@@ -326,7 +326,7 @@ Recipes.ScrollingList.prototype =
           else
             scroll_next = 0;
 
-          if ((scroll_div.get (0).scrollHeight - scroll_next) <= scroll_div.innerHeight ())
+          if (scroll_div.get (0).scrollHeight > scroll_next && (scroll_div.get (0).scrollHeight - scroll_next) <= scroll_div.innerHeight ())
           {
             scroll_class.fire_scroll (scroll_div);
           }

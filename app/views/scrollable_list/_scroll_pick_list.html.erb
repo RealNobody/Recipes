@@ -1,0 +1,19 @@
+<div id="pick-<%= local_assigns[:related_object].class.name.underscore %>-dialog" class="modal hide fade" tabindex="-1"
+     role="dialog" aria-labeledby="confirm-delete-title" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+    <h4 id="confirm-delete-title"><%= I18n.t("scrolling_list.picker.dialog_title",
+                                             resource_name: local_assigns[:related_object].class.name.underscore.humanize.singularize.titleize) %></h4>
+  </div>
+  <div class="modal-body">
+    <div class="well">
+      <div id="pick-scroll-<%= local_assigns[:related_object].class.name.underscore %>"
+           class="scrolling-list scrolling-list-picker"
+           data-content-id="scroll-content-<%= local_assigns[:related_object].class.name.underscore %>">
+        <ul class="scrolling-list-content nav nav-list">
+          <%= render(partial: "scroll_content", template: false, locals: { list_object: related_object }) %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
