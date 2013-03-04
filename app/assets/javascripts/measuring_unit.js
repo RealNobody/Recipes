@@ -83,7 +83,7 @@ Recipes.MeasuringUnitPage.prototype =
   // {
   //   var bindObject = eventData.data.bind_object;
 
-  //   event.preventDefault ();
+  //   eventData.preventDefault ();
 
   //   var unit_form = $ ("#measuring_unit form");
   //   var submit_method = unit_form.attr ("method");
@@ -97,7 +97,7 @@ Recipes.MeasuringUnitPage.prototype =
   delete_item: function (eventData)
   {
     var bindObject = eventData.data.bind_object;
-    event.preventDefault ();
+    eventData.preventDefault ();
 
     $ ("#confirm-delete-dialog").modal ();
   },
@@ -105,7 +105,7 @@ Recipes.MeasuringUnitPage.prototype =
   delete_confirmed: function (eventData)
   {
     var bindObject = eventData.data.bind_object;
-    event.preventDefault ();
+    eventData.preventDefault ();
 
     $ ("#confirm-delete-dialog").modal ('hide');
 

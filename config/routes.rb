@@ -1,3 +1,5 @@
+require "scroll_list_mapper"
+
 Recipes::Application.routes.draw do
   get "measuring_unit/new"
 
@@ -5,28 +7,9 @@ Recipes::Application.routes.draw do
 
   resources :users
 
-  #match ":controller/page/:page", action: :page, via: :get
-
-  resources :measuring_units do
-    get 'page/:page', action: :page, on: :collection
-    get 'item/new', action: :new_item, on: :collection
-    get 'item/:id', action: :item, on: :collection
-  end
-  resources :measuring_units
-
-  resources :measurement_conversions do
-    get 'page/:page', action: :page, on: :collection
-    get 'item/new', action: :new_item, on: :collection
-    get 'item/:id', action: :item, on: :collection
-  end
-  resources :measurement_conversions
-
-  resources :measurement_aliases do
-    get 'page/:page', action: :page, on: :collection
-    get 'item/new', action: :new_item, on: :collection
-    get 'item/:id', action: :item, on: :collection
-  end
-  resources :measurement_aliases
+  scroll_resources :measuring_units
+  scroll_resources :measurement_conversions
+  scroll_resources :measurement_aliases
 
   root to: 'static#index'
 

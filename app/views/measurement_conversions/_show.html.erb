@@ -1,9 +1,11 @@
+<% require "scrolling_list_form_helper" %>
+
 <%= form_for @measurement_conversion do |form_object| %>
   <%= form_object.label(:smaller_measuring_unit_id) %>
-  <%= form_object.text_field(:smaller_measuring_unit_id) %>
+  <%= form_object.scroll_picker(self, :smaller_measuring_unit, :smaller_measuring_unit_id) %>
 
   <%= form_object.label(:larger_measuring_unit_id) %>
-  <%= form_object.text_field(:larger_measuring_unit_id) %>
+  <%= form_object.scroll_picker(self, :larger_measuring_unit, :larger_measuring_unit_id) %>
 
   <%= form_object.label(:multiplier) %>
   <%= form_object.text_field(:multiplier) %>

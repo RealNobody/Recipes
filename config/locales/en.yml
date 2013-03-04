@@ -23,3 +23,7 @@ en:
       failure: "Could not delete %{resource_name}."
     create:
       failure: "Could not create %{resource_name}."
+  scrolling_list:
+    picker:
+      change_button: "Change"
+      dialog_title: "Select %{resource_name}"
