@@ -237,7 +237,9 @@ class MeasuringUnit < ActiveRecord::Base
     found_unit ||= MeasurementConversion.create(smaller_measuring_unit_id: smaller_id,
                                                 larger_measuring_unit_id:  larger_id, multiplier: multiplier)
 
-    found_unit.multiplier = multiplier
-    found_unit.save!()
+    unless (found_unit.readonly?())
+      found_unit.multiplier = multiplier
+      found_unit.save!()
+    end
   end
 end

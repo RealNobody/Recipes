@@ -1,9 +1,10 @@
 Unit picker
-Generic picker
-Generic "find page"
+  Select item updates current item info
+  support new page
+Generic "find page" for models
 Picker scrolls to selected item
 Type ahead on picker
-Generic routing
+
 Generic rspec tests for paging
 
 * Scroll only holds so many pages

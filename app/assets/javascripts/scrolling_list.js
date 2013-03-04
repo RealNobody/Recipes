@@ -38,7 +38,7 @@ Recipes.ScrollingList.prototype =
           scroll_div.scrollTop () - scroll_div.innerHeight () - scroll_next < 0;
 
       // There is a next link
-      if ((scroll_div.get (0).scrollHeight - scroll_next) <= scroll_div.innerHeight () ||     // There is less than can be seen
+      if ((scroll_div.get (0).scrollHeight - scroll_next) <= scroll_div.innerHeight () || // There is less than can be seen
           scroll_info.scroll_down_visible)                                                    // The wait can be seen
       {
         scroll_info.scroll_down = true;
@@ -65,7 +65,7 @@ Recipes.ScrollingList.prototype =
         scroll_info.scroll_up_height = scroll_next;
         scroll_info.scroll_up_visible = scroll_div.scrollTop () < scroll_next;
 
-        if (scroll_div.get (0).scrollHeight - scroll_next <= scroll_div.innerHeight () ||   // There is less than can be seen
+        if (scroll_div.get (0).scrollHeight - scroll_next <= scroll_div.innerHeight () || // There is less than can be seen
             scroll_info.scroll_up_visible)                                                  // The wait can be seen
         {
           scroll_info.scroll_up = true;
@@ -202,7 +202,7 @@ Recipes.ScrollingList.prototype =
                 else
                   scroll_div.find ("ul").append (add_content.html ());
 
-                scroll_div.trigger("scroll_items_changed")
+                scroll_div.trigger ("scroll_items_changed")
 
                 var new_scroll_info = scroll_class.should_scroll (scroll_div);
 
@@ -249,17 +249,7 @@ Recipes.ScrollingList.prototype =
             .always (
             function ()
             {
-              var search_url;
-
-              // It is possible for the user to press the forward and back button too fast
-              // for the scrolling to keep up with it, so we have to set the selection here sometimes...
-              scroll_div.find (".active").removeClass ("active");
-              search_url = scroll_class.build_find_link (window.location.pathname);
-              var new_active_item = scroll_div.find ("a[href=\"" + search_url + "\"]");
-              if (! new_active_item || new_active_item.length <= 0)
-                new_active_item = scroll_div.find ("a[href^=\"" + search_url + "?\"]");
-              if (new_active_item && new_active_item.length > 0)
-                new_active_item.closest ("li").addClass ("active");
+              scroll_div.trigger ("scroll_load_finished")
 
               scroll_div.removeClass ("scrolling-fetching");
             }
@@ -283,7 +273,7 @@ Recipes.ScrollingList.prototype =
 
     setTimeout (function ()
                 {
-                  scroll_class.list_scrolling (scroll_div);
+                  $ (scroll_div).trigger ("scroll");
                 },
                 5
     );
@@ -301,6 +291,19 @@ Recipes.ScrollingList.prototype =
       clicked_href = clicked_href.substr (0, query_pos);
 
     return clicked_href;
+  },
+
+  scroll_event: function (eventData)
+  {
+    var scroll_class = eventData.data.scroll_class;
+
+    scroll_class.list_scrolling ($ (eventData.currentTarget));
+  },
+
+  bind_elements: function ()
+  {
+    $ (".scrolling-list").unbind ("scroll", this.scroll_event);
+    $ (".scrolling-list").bind ("scroll", { scroll_class: this }, this.scroll_event);
   },
 
   document_ready: function ()
@@ -334,15 +337,9 @@ Recipes.ScrollingList.prototype =
       }
     }
 
-    $ (".scrolling-list").scroll (
-        function ()
-        {
-          scroll_class.list_scrolling ($ (event.currentTarget));
-        }
-    );
+    this.bind_elements ();
   }
-}
-;
+};
 
 $ (document).ready (
     function ()
