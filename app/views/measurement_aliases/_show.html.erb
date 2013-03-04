@@ -1,3 +1,5 @@
+<% require "scrolling_list_form_helper" %>
+
 <p>
   Yesterday I went to neuclear dodgeball at my Tae-Kwon-Do academy. Neuclear Dodgeball is where they play dodgeball and
   have blacklights and colored balls that glow in the black lights.
@@ -51,7 +53,11 @@
 %>
 <%= form_for @measurement_alias do |form_object| %>
   <%= form_object.label("Measuring unit") %>
-  <%= link_to(@measurement_alias.measuring_unit.name, @measurement_alias.measuring_unit) if @measurement_alias.measuring_unit %>
+  <% if (can_edit || is_new) %>
+    <%= form_object.scroll_picker(self, :measuring_unit, :measuring_unit_id) %>
+  <% else %>
+    <%= link_to(@measurement_alias.measuring_unit.name, @measurement_alias.measuring_unit) %>
+  <% end %>
 
   <%= form_object.label(:alias) %>
   <% if (can_edit || is_new) %>
@@ -72,7 +78,7 @@
          aria-labeledby="confirm-delete-title" aria-hidden="true">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-        <h3 id="confirm-delete-title">Delete Conversion <%= @measurement_alias.list_name %></h3>
+        <h3 id="confirm-delete-title">Delete Conversion <%= scroll_list_name(@measurement_alias) %></h3>
       </div>
       <div class="modal-body">
         <p>
