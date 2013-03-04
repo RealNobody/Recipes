@@ -3,7 +3,7 @@ require "scrolling_list_helper"
 module ActionView
   module Helpers
     class FormBuilder
-      def scroll_picker(form_object, related_object_name, method, options = {})
+      def scroll_picker(form_object, related_object_name, method, options = { })
         @scroll_list_hash ||= Hash.new()
 
         related_object = @object.send(related_object_name)
@@ -25,21 +25,23 @@ module ActionView
     end
 
     class InstanceTag
-      def to_scroll_picker(related_object, options = {})
+      def to_scroll_picker(related_object, options = { })
         full_output = @template_object.hidden_field(@method_name, options)
 
         # Path helpers aren't available here, so we build it manually ourselves, but this is a simple path, so we'll just build it ourselves.
         #full_output += link_to(ScrollingListHelper.scroll_list_name(related_object), eval("#{related_object.class.name.pluralize.underscore}_path related_object"), target: "_blank")
 
-        full_output = "/#{related_object.class.name.pluralize.underscore}"
-        full_output += "/#{related_object.id}" if (related_object)
-        full_output = link_to(ScrollingListHelper.scroll_list_name(related_object),
-                               full_output,
-                               target: "_blank")
+        output_link = "/#{related_object.class.name.pluralize.underscore}"
+        output_link += "/#{related_object.id}" if (related_object)
+        full_output += link_to(ScrollingListHelper.scroll_list_name(related_object),
+                               output_link,
+                               target: "_blank",
+                               id:     "link_#{sanitized_object_name}_#{sanitized_method_name}")
         full_output += " "
         full_output += link_to(I18n.t("scrolling_list.picker.change_button"), "#",
-                               class: "btn scroll_picker_change_btn",
-                               id:    "pick_#{sanitized_object_name}_#{sanitized_method_name}")
+                               class:            "btn scroll_picker_change_btn",
+                               id:               "pick_#{sanitized_object_name}_#{sanitized_method_name}",
+                               "data-class-name" => "#{related_object.class.name.singularize.underscore}")
       end
     end
   end

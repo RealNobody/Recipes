@@ -117,22 +117,22 @@ Recipes.ScrollingList.Admin.prototype =
   click_item      : function (eventData)
   {
     var scroll_class = eventData.data.scroll_class;
-    var clicked_item = $ (event.currentTarget);
+    var clicked_item = $ (eventData.currentTarget);
     var scroll_div = clicked_item.closest (".scrolling-list-primary");
 
-    scroll_class.show_item (scroll_div, clicked_item.attr ("href"));
+    scroll_class.show_item (eventData, scroll_div, clicked_item.attr ("href"));
   },
 
   click_new_item: function (eventData)
   {
     var scroll_class = eventData.data.scroll_class;
-    var clicked_item = $ (event.currentTarget);
+    var clicked_item = $ (eventData.currentTarget);
     var scrolling_div = clicked_item.closest (".scrolling-list-container");
 
     scrolling_div = scrolling_div.find (".scrolling-list-primary");
     clicked_item = clicked_item.find ("a");
 
-    scroll_class.show_item (scrolling_div, clicked_item.attr ("href"));
+    scroll_class.show_item (eventData, scrolling_div, clicked_item.attr ("href"));
   },
 
   display_content_on_page: function (scroll_div, display_content, item_url, clicked_item_url, item_id, replaceURL)
@@ -155,7 +155,18 @@ Recipes.ScrollingList.Admin.prototype =
     // to set the value of the selected item, so if we refresh the page,
     // or if we scroll and the item isn't currently visible, it will be
     // selected appropriately.
-    next_link = scroll_div.find (".scrolling-next a");
+    var next_link = scroll_div.find (".scrolling-next a");
+    var next_link_url;
+
+    if (next_link && next_link.length > 0)
+    {
+      next_link_url = next_link.attr ("href");
+      next_link_url = next_link_url.replace (/([\?&])id=\d+/, "$1id=" + item_id);
+      next_link.attr ("href", next_link_url);
+    }
+
+    next_link = scroll_div.find (".scrolling-previous a");
+
     if (next_link && next_link.length > 0)
     {
       next_link_url = next_link.attr ("href");
@@ -190,13 +201,13 @@ Recipes.ScrollingList.Admin.prototype =
    A helper function for showing a specific item that can be used
    by both the history and the click event.
    */
-  show_item              : function (scroll_div, clicked_item_url)
+  show_item              : function (eventData, scroll_div, clicked_item_url)
   {
     var scroll_class = this;
     var item_url = scroll_class.build_click_link (clicked_item_url);
     var item_id = scroll_class.get_item_link_id (item_url);
 
-    event.preventDefault ();
+    eventData.preventDefault ();
 
     if (item_id)
     {
@@ -257,8 +268,8 @@ Recipes.ScrollingList.Admin.prototype =
    */
   bind_scroll_links      : function ()
   {
-    $ (".scroll-item-link").unbind ("click", this.click_item);
-    $ (".scroll-item-link").click ({ scroll_class: this }, this.click_item);
+    $ (".scrolling-list-primary .scroll-item-link").unbind ("click", this.click_item);
+    $ (".scrolling-list-primary .scroll-item-link").click ({ scroll_class: this }, this.click_item);
     $ (".scrolling-list-new-link").unbind ("click", this.click_new_item);
     $ (".scrolling-list-new-link").click ({ scroll_class: this }, this.click_new_item);
   },
@@ -281,7 +292,7 @@ Recipes.ScrollingList.Admin.prototype =
       var next_item;
       var scroll_div = $ ("#" + history_state.data.scroll_id);
 
-      active_link = $ (".scrolling-list-content .active a");
+      var active_link = $ (".scrolling-list-content .active a");
       if (active_link && active_link.length > 0)
       {
         selected_item_id = scroll_class.get_item_link_id (active_link.attr ("href"));
@@ -301,6 +312,14 @@ Recipes.ScrollingList.Admin.prototype =
             if (selected_item_id)
               selected_item_id = selected_item_id [1];
           }
+
+          next_item = scroll_div.find (".scrolling-previous a");
+          if (next_item && next_item.length > 0)
+          {
+            selected_item_id = next_item.attr ("href").match (/\?id=(\d+)/);
+            if (selected_item_id)
+              selected_item_id = selected_item_id [1];
+          }
         }
       }
 
@@ -308,7 +327,7 @@ Recipes.ScrollingList.Admin.prototype =
       {
         // The history has changed to something other than what we're displaying now.
         // update it!
-        scroll_class.show_item ($ ("#" + history_state.data.scroll_id), history_state.data.link_url);
+        scroll_class.show_item (eventData, $ ("#" + history_state.data.scroll_id), history_state.data.link_url);
       }
     }
   },
@@ -352,12 +371,29 @@ Recipes.ScrollingList.Admin.prototype =
     scroll_class.bind_scroll_links ();
   },
 
+  scroll_finished: function (eventData)
+  {
+    var scroll_div = $(eventData.currentTarget);
+    var search_url;
+
+    // It is possible for the user to press the forward and back button too fast
+    // for the scrolling to keep up with it, so we have to set the selection here sometimes...
+    scroll_div.find (".active").removeClass ("active");
+    search_url = scrollingList.build_find_link (window.location.pathname);
+    var new_active_item = scroll_div.find ("a[href=\"" + search_url + "\"]");
+    if (! new_active_item || new_active_item.length <= 0)
+      new_active_item = scroll_div.find ("a[href^=\"" + search_url + "?\"]");
+    if (new_active_item && new_active_item.length > 0)
+      new_active_item.closest ("li").addClass ("active");
+  },
+
   document_ready: function ()
   {
     var scroll_class = this;
     var scrolling_list = $ (".scrolling-list-primary");
 
     scrolling_list.bind ("scroll_items_changed", { admin_scroll_class: this }, this.scroll_items_added)
+    scrolling_list.bind ("scroll_load_finished", { admin_scroll_class: this }, this.scroll_finished)
 
     if (scrolling_list && scrolling_list.length > 0)
     {
@@ -369,7 +405,7 @@ Recipes.ScrollingList.Admin.prototype =
       scroll_class.bind_scroll_links ();
     }
 
-    //// The event bindngs for the scrolling class:
+    //// The event bindings for the scrolling class:
     $ (window).resize (
         function ()
         {

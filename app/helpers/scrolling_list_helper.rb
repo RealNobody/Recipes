@@ -13,7 +13,6 @@ module ScrollingListHelper
       else
         unless (page_items.last_page?)
           link_value = "#{eval("#{page_items.klass.name.pluralize.underscore}_url")}/page/#{page_items.current_page + 1}"
-          link_value += "?id=" + current_item.id.to_s() if current_item
           link_value = link_to("Next Page", link_value)
         end
       end
