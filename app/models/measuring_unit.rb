@@ -39,15 +39,7 @@ class MeasuringUnit < ActiveRecord::Base
   validates :abbreviation,
             length: { maximum: 255 }
 
-  after_save do
-    # I want all measuring units to have their own name and abbreviation as aliases.
-    self.add_alias(self.name.singularize()).save!()
-    self.add_alias(self.name.pluralize()).save!()
-
-    unless self.abbreviation == nil
-      self.add_alias(self.abbreviation).save!()
-    end
-  end
+  after_save :create_default_aliases
 
   before_destroy do
     self[:can_delete]
@@ -219,6 +211,17 @@ class MeasuringUnit < ActiveRecord::Base
     return 1
   end
 
+  protected
+  def create_default_aliases
+    # I want all measuring units to have their own name and abbreviation as aliases.
+    self.add_alias(self.name.singularize()).save!()
+    self.add_alias(self.name.pluralize()).save!()
+
+    unless self.abbreviation == nil
+      self.add_alias(self.abbreviation).save!()
+    end
+  end
+
   private
   def self.basic_conversion_add (from_id, to_id, multiplier)
     if (multiplier < 1)
@@ -237,9 +240,7 @@ class MeasuringUnit < ActiveRecord::Base
     found_unit ||= MeasurementConversion.create(smaller_measuring_unit_id: smaller_id,
                                                 larger_measuring_unit_id:  larger_id, multiplier: multiplier)
 
-    unless (found_unit.readonly?())
-      found_unit.multiplier = multiplier
-      found_unit.save!()
-    end
+    found_unit.multiplier = multiplier
+    found_unit.save!()
   end
 end
