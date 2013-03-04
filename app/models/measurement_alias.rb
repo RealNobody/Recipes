@@ -14,7 +14,7 @@ class MeasurementAlias < ActiveRecord::Base
 
   belongs_to :measuring_unit
 
-  default_scope joins(:measuring_unit).order("measuring_units.name, alias")
+  default_scope joins(:measuring_unit).readonly(false).order("measuring_units.name, alias")
 
   validates :alias,
             length:     { maximum: 255 },
