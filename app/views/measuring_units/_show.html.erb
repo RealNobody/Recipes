@@ -33,7 +33,7 @@
           <br />
           <%= form_object.submit("Save", class: "btn btn-primary") %>
           <% if (@measuring_unit.id && @measuring_unit.can_delete) %>
-            <%= link_to("Delete", @measuring_unit, class: "btn btn-danger", method: :delete, id: "delete-recipe") %>
+            <%= link_to("Delete", @measuring_unit, class: "btn btn-danger", method: :delete, id: "delete-admin-item") %>
 
             <div id="confirm-delete-dialog" class="modal hide fade" tabindex="-1" role="dialog" aria-labeledby="confirm-delete-title" aria-hidden="true">
               <div class="modal-header">

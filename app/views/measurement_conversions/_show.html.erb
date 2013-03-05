@@ -2,10 +2,10 @@
 
 <%= form_for @measurement_conversion do |form_object| %>
   <%= form_object.label(:smaller_measuring_unit_id) %>
-  <%= form_object.scroll_picker(self, :smaller_measuring_unit, :smaller_measuring_unit_id) %>
+  <%= form_object.scroll_picker(self, :measuring_unit, :smaller_measuring_unit_id) %>
 
   <%= form_object.label(:larger_measuring_unit_id) %>
-  <%= form_object.scroll_picker(self, :larger_measuring_unit, :larger_measuring_unit_id) %>
+  <%= form_object.scroll_picker(self, :measuring_unit, :larger_measuring_unit_id) %>
 
   <%= form_object.label(:multiplier) %>
   <%= form_object.text_field(:multiplier) %>
@@ -14,7 +14,7 @@
   <%= form_object.submit("Save", class: "btn btn-primary") %>
 
   <% if (@measurement_conversion.id) %>
-    <%= link_to("Delete", @measurement_conversion, class: "btn btn-danger", method: :delete, id: "delete-recipe") %>
+    <%= link_to("Delete", @measurement_conversion, class: "btn btn-danger", method: :delete, id: "delete-admin-item") %>
     <div id="confirm-delete-dialog" class="modal hide fade" tabindex="-1" role="dialog"
          aria-labeledby="confirm-delete-title" aria-hidden="true">
       <div class="modal-header">

@@ -1,11 +1,10 @@
-Unit picker
-  Select item updates current item info
-  support new page
 Generic "find page" for models
 Picker scrolls to selected item
 Type ahead on picker
 
 Generic rspec tests for paging
+
+save validate data client side.
 
 * Scroll only holds so many pages
 * IsScrollable with

@@ -373,7 +373,7 @@ Recipes.ScrollingList.Admin.prototype =
 
   scroll_finished: function (eventData)
   {
-    var scroll_div = $(eventData.currentTarget);
+    var scroll_div = $ (eventData.currentTarget);
     var search_url;
 
     // It is possible for the user to press the forward and back button too fast

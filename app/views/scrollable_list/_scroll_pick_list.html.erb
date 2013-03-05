@@ -1,17 +1,17 @@
-<div id="pick-<%= local_assigns[:related_object].class.name.underscore %>-dialog" class="scrolling-picker-dialog modal hide fade" tabindex="-1"
+<div id="pick-<%= local_assigns[:related_object_class_name] %>-dialog" class="scrolling-picker-dialog modal hide fade" tabindex="-1"
      role="dialog" aria-labeledby="confirm-delete-title" aria-hidden="true">
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
     <h4 id="confirm-delete-title"><%= I18n.t("scrolling_list.picker.dialog_title",
-                                             resource_name: local_assigns[:related_object].class.name.underscore.humanize.singularize.titleize) %></h4>
+                                             resource_name: local_assigns[:related_object_class_name].to_s.humanize.singularize.titleize) %></h4>
   </div>
   <div class="modal-body">
     <div class="well">
-      <div id="pick-scroll-<%= local_assigns[:related_object].class.name.underscore %>"
+      <div id="pick-scroll-<%= local_assigns[:related_object_class_name] %>"
            class="scrolling-list scrolling-list-picker"
-           data-content-id="scroll-content-<%= local_assigns[:related_object].class.name.underscore %>">
+           data-content-id="scroll-content-<%= local_assigns[:related_object_class_name] %>">
         <ul class="scrolling-list-content nav nav-list">
-          <%= render(partial: "scroll_content", template: false, locals: { list_object: related_object }) %>
+          <%= render(partial: "scroll_content", template: false, locals: { list_object: related_object, list_object_class_name: related_object_class_name }) %>
         </ul>
       </div>
     </div>

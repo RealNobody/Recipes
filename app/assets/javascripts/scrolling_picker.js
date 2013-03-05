@@ -14,13 +14,11 @@ Recipes.ScrollingList.PickList.prototype =
   {
     var pick_scroll_class = eventData.data.pick_scroll_class;
     var clicked_item = $ (eventData.currentTarget);
-    var id_value = clicked_item.attr ("id");
-    var linked_item = $ ("#" + id_value.substring (5));
-    var selected_id = linked_item.attr ("value");
-    var class_name = clicked_item.attr ("data-class-name");
-    var dialog_item = $ ("#pick-" + class_name + "-dialog");
+    var id_value = clicked_item.attr ("id").substring (5);
+    var selected_id = $ ("#" + id_value).attr ("value");
+    var dialog_item = $ ("#pick-" + clicked_item.attr ("data-class-name") + "-dialog");
     var scroll_div = dialog_item.find (".scrolling-list-picker");
-    var href_item = $ ("#link_" + id_value.substring (5));
+    var href_item = $ ("#link_" + id_value);
 
     // switch the active item in the list.
     scroll_div.find (".active").removeClass ("active");
@@ -51,6 +49,8 @@ Recipes.ScrollingList.PickList.prototype =
       next_link_url = next_link_url.replace (/([\?&])id=\d+/, "$1id=" + selected_id);
       next_link.attr ("href", next_link_url);
     }
+
+    dialog_item.attr ("data-caller-hidden-id", id_value);
 
     dialog_item.modal ();
   },
@@ -84,10 +84,18 @@ Recipes.ScrollingList.PickList.prototype =
   {
     var pick_scroll_class = eventData.data.pick_scroll_class;
     var clicked_item = $ (eventData.currentTarget);
+    var dialog_item = clicked_item.closest (".modal");
+    var edit_item_id = dialog_item.attr ("data-caller-hidden-id");
+    var edit_item = $ ("#" + edit_item_id);
+    var link_item = $ ("#link_" + edit_item_id);
 
     eventData.preventDefault ();
 
-    clicked_item.closest (".modal").modal ("hide");
+    edit_item.attr ("value", adminScrollingList.get_item_link_id (clicked_item.attr ("href")))
+    link_item.attr ("href", clicked_item.attr ("href"));
+    link_item.text (clicked_item.text ());
+
+    dialog_item.modal ("hide");
   },
 
   scroll_items_added: function (eventData)
@@ -101,7 +109,7 @@ Recipes.ScrollingList.PickList.prototype =
   {
     var pick_scroll_class = eventData.data.pick_scroll_class;
 
-    pick_scroll_class.bind_elements();
+    pick_scroll_class.bind_elements ();
     scrollingList.bind_elements ();
   },
 
