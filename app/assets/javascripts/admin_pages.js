@@ -90,7 +90,10 @@ Recipes.AdminPage.prototype =
         .done (
         function ()
         {
-          window.location.replace ("/measuring_units");
+          var new_location = window.location.pathname;
+
+          new_location = new_location.replace (/(\/\d+(?:\?.*)?)$/, "");
+          window.location.replace (new_location);
         }
     )
         .fail (
@@ -149,11 +152,11 @@ $ (document).ready (
       if (main_scroll && main_scroll.length > 0)
       {
         $ (window).bind ("resize", { admin_page: adminPage },
-            function (eventData)
-            {
-              var admin_page = eventData.data.admin_page;
-              admin_page.adjust_size ();
-            }
+                         function (eventData)
+                         {
+                           var admin_page = eventData.data.admin_page;
+                           admin_page.adjust_size ();
+                         }
         );
       }
     }

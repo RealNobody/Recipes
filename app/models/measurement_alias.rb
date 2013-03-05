@@ -10,7 +10,7 @@
 #
 
 class MeasurementAlias < ActiveRecord::Base
-  attr_accessible :alias
+  attr_accessible :alias, :measuring_unit_id
 
   belongs_to :measuring_unit
 
