@@ -24,6 +24,48 @@ en:
     create:
       failure: "Could not create %{resource_name}."
   scrolling_list:
+    save: "Save"
+    new: "New %{unit_type}"
     picker:
       change_button: "Change"
       dialog_title: "Select %{resource_name}"
+      next_page: "Next Page"
+      previous_page: "Previous Page"
+    delete_dialog:
+      header: "Delete %{resource_type} %{resource_name}"
+      confirmation_text: "Are you sure that you want to delete the %{resource_type} %{resource_name}?"
+  main_layout:
+    side_menu:
+      menus: "Menus"
+      recipes: "Recipes"
+      admin_functions: "Administrative Functions"
+      measuring_units: "Measuring Units"
+      measurement_aliases: "Measurement Aliases"
+      conversions: "Simple Conversions"
+      categories: "Ingredient Categories"
+  footer:
+    site_name: "Once-A-Month Meal planning"
+    copyright: "&copy; Erik Littell 2012"
+    version: "Site version 0.0.1 BETA"
+  header:
+    site_name: "Recipes"
+    not_logged_in: "Not Logged In"
+    logged_in: "Logged in as %{login_name}"
+    home: "Home"
+    menu_planner: "Menu Planner"
+    administration: "Administration"
+  admin:
+    measuring_unit:
+      title: "Recipes | %{unit_type} - %{unit_name}"
+      tabs:
+        measuring_unit: "Measuring Unit"
+        aliases: "Aliases"
+        conversions: "Conversions"
+        ingredients: "Ingredients"
+      has_abbreviation: "Show a default abbreviation"
+    ingredient_category:
+      title: "Recipes | %{unit_type} - %{unit_name}"
+    measurement_conversion:
+      title: "Recipes | %{unit_type} - %{unit_name}"
+    measurement_alias:
+      title: "Recipes | %{unit_type} - %{unit_name}"

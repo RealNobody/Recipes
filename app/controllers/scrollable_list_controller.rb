@@ -173,8 +173,9 @@ class ScrollableListController < ApplicationController
         @selected_item = eval("#{@model_class_name}.first()")
       else
         @selected_item = eval("#{@model_class_name}.where(id: params[:id]).first()")
-        @selected_item ||= eval("#{@model_class_name}.new()")
       end
+
+      @selected_item ||= eval("#{@model_class_name}.new()")
     else
       @selected_item = new_unit
     end

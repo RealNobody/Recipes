@@ -24,12 +24,13 @@
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
               <li class="nav-header">Standard Functions</li>
-              <li><%= link_to("Menus", root_path) %></li>
-              <li><%= link_to("Recipes", root_path) %></li>
-              <li class="nav-header">Administrative Functions</li>
-              <li><%= link_to("Measuring Units", measuring_units_path) %></li>
-              <li><%= link_to("Measurement Aliases", measurement_aliases_path) %></li>
-              <li><%= link_to("Simple Conversions", measurement_conversions_path) %></li>
+              <li><%= link_to(I18n.t("main_layout.side_menu.menus"), root_path) %></li>
+              <li><%= link_to(I18n.t("main_layout.side_menu.recipes"), root_path) %></li>
+              <li class="nav-header"><%= I18n.t("main_layout.side_menu.admin_functions") %></li>
+              <li><%= link_to(I18n.t("main_layout.side_menu.measuring_units"), measuring_units_path) %></li>
+              <li><%= link_to(I18n.t("main_layout.side_menu.measurement_aliases"), measurement_aliases_path) %></li>
+              <li><%= link_to(I18n.t("main_layout.side_menu.conversions"), measurement_conversions_path) %></li>
+              <li><%= link_to(I18n.t("main_layout.side_menu.categories"), ingredient_categories_path) %></li>
             </ul>
           </div>
         </div>
