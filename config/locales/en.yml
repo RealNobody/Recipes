@@ -6,8 +6,11 @@ en:
     models:
       measuring_unit: "Measuring Unit"
     measurement_conversion:
+      list_name: "%{smaller_unit} to %{larger_unit}"
       error:
         already_exists: "The measurement conversion already exists"
+    measurement_alias:
+      list_name: "%{alias} (%{measuring_unit})"
   user:
     create:
       success: "User was successfully created."

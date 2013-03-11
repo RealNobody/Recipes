@@ -24,6 +24,8 @@ class MeasuringUnit < ActiveRecord::Base
   has_many :larger_measuring_units, through: :larger_measurement_conversions
   has_many :smaller_measuring_units, through: :smaller_measurement_conversions
 
+  has_many :ingredients
+
   default_scope order("name")
   paginates_per 2
 

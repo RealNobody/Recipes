@@ -52,7 +52,10 @@
        @measurement_alias.alias != @measurement_alias.measuring_unit.abbreviation.downcase())
 %>
 <%= form_for @measurement_alias do |form_object| %>
-  <input type="hidden" id="<%= @model_class_name.to_s.singularize.underscore %>-title" value="<%= I18n.t("admin.#{@model_class_name.to_s.singularize.underscore}.title", unit_type: @model_class_name.to_s.singularize.underscore.humanize.titleize, unit_name: @selected_item.alias) %>" />
+  <input type="hidden" id="<%= @model_class_name.to_s.singularize.underscore %>-title"
+         value="<%= I18n.t("admin.#{@model_class_name.to_s.singularize.underscore}.title",
+                           unit_type: @model_class_name.to_s.singularize.underscore.humanize.titleize,
+                           unit_name: @selected_item.alias) %>" />
 
   <%= form_object.label("Measuring unit") %>
   <% if (can_edit || is_new) %>

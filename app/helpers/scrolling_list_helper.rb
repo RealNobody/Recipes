@@ -52,7 +52,7 @@ module ScrollingListHelper
       items_per_page = param_per_page.to_i()
     end
 
-    if param_page && param_page.to_i() > 1
+    if page_items && page_items.current_page > 1
       if page_items == @current_page
         link_value = link_to_previous_page(page_items, I18n.t("scrolling_list.picker.previous_page"))
       else

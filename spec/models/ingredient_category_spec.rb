@@ -9,6 +9,7 @@ describe IngredientCategory do
 
   it { should respond_to(:name) }
   it { should respond_to(:order) }
+  it { should respond_to(:ingredients) }
 
   describe "validation" do
     it "should be valid" do
