@@ -5,12 +5,20 @@ en:
   activerecord:
     models:
       measuring_unit: "Measuring Unit"
+      error:
+        already_exists: "An measuring unit with the name \"%{name}\" already exists."
     measurement_conversion:
       list_name: "%{smaller_unit} to %{larger_unit}"
       error:
         already_exists: "The measurement conversion already exists"
     measurement_alias:
       list_name: "%{alias} (%{measuring_unit})"
+      error:
+        cannot_be_nil: "Measurement aliases cannot be nil."
+    ingredient_alias:
+      list_name: "%{alias} (%{ingredient})"
+      error:
+        already_exists: "An ingredient with the name \"%{name}\" already exists."
   user:
     create:
       success: "User was successfully created."

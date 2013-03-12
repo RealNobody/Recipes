@@ -55,6 +55,16 @@ class MeasuringUnit < ActiveRecord::Base
     end
   end
 
+  validate do
+    # alias_name = alias and id is not null
+    # alias_name = alias and id != id
+    find_alias = MeasuringUnit.find_by_alias(self.name)
+
+    unless (find_alias == nil || find_alias.id == self.id)
+      errors.add(:name, I18n.t("activerecord.measuring_unit.error.already_exists", name: self.name))
+    end
+  end
+
   def name=(name)
     self[:name]        = name
     self[:search_name] = name.downcase()
@@ -107,14 +117,20 @@ class MeasuringUnit < ActiveRecord::Base
 
   def add_alias(alias_name)
     alias_name = alias_name.downcase()
-    alias_list = self.measurement_aliases.select do |measurement_alias|
-      measurement_alias.alias == alias_name
-    end
+    found_unit = MeasuringUnit.find_by_alias(alias_name)
 
-    if (alias_list == nil || alias_list.length == 0)
-      new_alias = self.measurement_aliases.build(alias: alias_name)
+    if (found_unit != nil && found_unit.id != self.id)
+      nil
     else
-      alias_list[0]
+      alias_list = self.measurement_aliases.select do |measurement_alias|
+        measurement_alias.alias == alias_name
+      end
+
+      if (alias_list == nil || alias_list.length == 0)
+        new_alias = self.measurement_aliases.build(alias: alias_name)
+      else
+        alias_list[0]
+      end
     end
   end
 

@@ -20,9 +20,14 @@ class MeasurementAlias < ActiveRecord::Base
   validates_presence_of :measuring_unit
 
   validates :alias,
-            presence:   true,
-            length:     { minimum: 1, maximum: 255 },
+            length:     { maximum: 255 },
             uniqueness: { case_sensitive: false }
+
+  validate do
+    if (self.alias == nil)
+      errors.add(:name, I18n.t("activerecord.measurement_alias.error.cannot_be_nil"))
+    end
+  end
 
   def alias
     self[:alias]
