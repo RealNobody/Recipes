@@ -11,6 +11,8 @@ Recipes::Application.routes.draw do
   scroll_resources :measurement_conversions
   scroll_resources :measurement_aliases
   scroll_resources :ingredient_categories
+  scroll_resources :ingredient_aliases
+  scroll_resources :ingredients
 
   root to: 'static#index'
 

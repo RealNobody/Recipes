@@ -6,7 +6,7 @@ en:
     models:
       measuring_unit: "Measuring Unit"
       error:
-        already_exists: "An measuring unit with the name \"%{name}\" already exists."
+        already_exists: "An measuring unit with the name \"%{name}\" already exists which uses this name as an alias."
     measurement_conversion:
       list_name: "%{smaller_unit} to %{larger_unit}"
       error:
@@ -19,6 +19,9 @@ en:
       list_name: "%{alias} (%{ingredient})"
       error:
         already_exists: "An ingredient with the name \"%{name}\" already exists."
+    ingredient:
+      error:
+        already_exists: "An ingredient with the name \"%{name}\" already exists which uses this name as an alias."
   user:
     create:
       success: "User was successfully created."
@@ -54,6 +57,8 @@ en:
       measurement_aliases: "Measurement Aliases"
       conversions: "Simple Conversions"
       categories: "Ingredient Categories"
+      ingredient_aliases: "Ingredient Aliases"
+      ingredients: "Ingredients"
   footer:
     site_name: "Once-A-Month Meal planning"
     copyright: "&copy; Erik Littell 2012"
@@ -80,3 +85,7 @@ en:
       title: "Recipes | %{unit_type} - %{unit_name}"
     measurement_alias:
       title: "Recipes | %{unit_type} - %{unit_name}"
+    ingredient_alias:
+      title: "Ingredient Alias | ${unit_type} %{unit_name}"
+    ingredient:
+      title: "Ingredient | ${unit_type} %{unit_name}"

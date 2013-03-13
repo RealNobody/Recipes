@@ -29,7 +29,7 @@ class Ingredient < ActiveRecord::Base
     find_alias = Ingredient.find_by_alias(self.name)
 
     unless (find_alias == nil || find_alias.id == self.id)
-      errors.add(:name, I18n.t("activerecord.ingredient.error.already_exists", name: self.name))
+      errors.add(:name, I18n.t("activerecord.ingredient.error.already_exists", name: find_alias.name))
     end
   end
 
