@@ -9,7 +9,7 @@ module ScrollingListHelper
 
     if page_items.length >= items_per_page
       if page_items == @current_page
-        link_value = link_to_next_page(page_items, "Next Page")
+        link_value = link_to_next_page(page_items, I18n.t("scrolling_list.picker.next_page"))
       else
         unless (page_items.last_page?)
           link_value = "#{eval("#{page_items.klass.name.pluralize.underscore}_url")}/page/#{page_items.current_page + 1}"
@@ -52,9 +52,9 @@ module ScrollingListHelper
       items_per_page = param_per_page.to_i()
     end
 
-    if param_page && param_page.to_i() > 1
+    if page_items && page_items.current_page > 1
       if page_items == @current_page
-        link_value = link_to_previous_page(page_items, 'Previous Page')
+        link_value = link_to_previous_page(page_items, I18n.t("scrolling_list.picker.previous_page"))
       else
         unless (page_items.first_page?)
           link_value = "#{eval("#{page_items.klass.name.pluralize.underscore}_url")}/page/#{page_items.current_page - 1}"

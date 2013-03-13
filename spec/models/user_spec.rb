@@ -91,7 +91,7 @@ describe User do
     it { should_not be_valid }
   end
 
-  describe "when email case insensetive is already in use" do
+  describe "when email case insensitive is already in use" do
     before do
       duplicate_user = @user.dup
       duplicate_user.name += " test"

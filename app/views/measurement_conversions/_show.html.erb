@@ -1,6 +1,11 @@
 <% require "scrolling_list_form_helper" %>
 
 <%= form_for @measurement_conversion do |form_object| %>
+  <input type="hidden" id="<%= @model_class_name.to_s.singularize.underscore %>-title"
+         value="<%= I18n.t("admin.#{@model_class_name.to_s.singularize.underscore}.title",
+                           unit_type: @model_class_name.to_s.singularize.underscore.humanize.titleize,
+                           unit_name: scroll_list_name(@selected_item)) %>" />
+
   <%= form_object.label(:smaller_measuring_unit_id) %>
   <%= form_object.scroll_picker(self, :measuring_unit, :smaller_measuring_unit_id) %>
 
@@ -11,27 +16,9 @@
   <%= form_object.text_field(:multiplier) %>
 
   <br />
-  <%= form_object.submit("Save", class: "btn btn-primary") %>
+  <%= form_object.submit(I18n.t("scrolling_list.save"), class: "btn btn-primary") %>
 
   <% if (@measurement_conversion.id) %>
-    <%= link_to("Delete", @measurement_conversion, class: "btn btn-danger", method: :delete, id: "delete-admin-item") %>
-    <div id="confirm-delete-dialog" class="modal hide fade" tabindex="-1" role="dialog"
-         aria-labeledby="confirm-delete-title" aria-hidden="true">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-        <h3 id="confirm-delete-title">Delete Conversion <%= @measurement_conversion.list_name %></h3>
-      </div>
-      <div class="modal-body">
-        <p>
-          Are you sure that you want to delete the Conversion
-          of <%= @measurement_conversion.smaller_measuring_unit.name %>
-          to <%= @measurement_conversion.larger_measuring_unit.name %>?
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button id="confirm-delete" class="btn btn-danger" aria-hidden="true">Yes</button>
-        <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
-      </div>
-    </div>
+    <%= render partial: "scrollable_list/delete_confirmation_dialog", layout: false %>
   <% end %>
 <% end %>

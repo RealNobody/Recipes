@@ -2,14 +2,16 @@
   <div class="row-fluid">
     <div class="span3">
       <div class="well">
-        <div id="scroll-<%= @_controller.controller_name %>" class="scrolling-list scrolling-list-primary" data-content-id="scroll-content-<%= @_controller.controller_name %>">
+        <div id="scroll-<%= @_controller.controller_name %>" class="scrolling-list scrolling-list-primary"
+             data-content-id="scroll-content-<%= @_controller.controller_name %>">
           <ul class="scrolling-list-content nav nav-list">
             <%= content_for :scroll_list %>
           </ul>
         </div>
       </div>
       <div class="scrolling-list-new-link">
-        <%= link_to("New #{@_controller.controller_name.humanize().singularize().titleize()}", eval("new_#{@_controller.controller_name.singularize()}_path")) %>
+        <%= link_to(I18n.t("scrolling_list.new", unit_type: @_controller.controller_name.humanize().singularize().titleize()),
+                    eval("new_#{@_controller.controller_name.singularize()}_path")) %>
       </div>
     </div>
     <div id="scroll-content-<%= @_controller.controller_name %>" class="span9 scrolling-content">

@@ -1,3 +1,7 @@
+Ingredient model
+Ingredient aliases
+Ingredient crud
+
 Measuring Unit tabs
   Aliases
   Conversions

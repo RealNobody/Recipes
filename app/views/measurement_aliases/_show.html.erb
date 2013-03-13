@@ -52,6 +52,11 @@
        @measurement_alias.alias != @measurement_alias.measuring_unit.abbreviation.downcase())
 %>
 <%= form_for @measurement_alias do |form_object| %>
+  <input type="hidden" id="<%= @model_class_name.to_s.singularize.underscore %>-title"
+         value="<%= I18n.t("admin.#{@model_class_name.to_s.singularize.underscore}.title",
+                           unit_type: @model_class_name.to_s.singularize.underscore.humanize.titleize,
+                           unit_name: @selected_item.alias) %>" />
+
   <%= form_object.label("Measuring unit") %>
   <% if (can_edit || is_new) %>
     <%= form_object.scroll_picker(self, :measuring_unit, :measuring_unit_id) %>
@@ -69,28 +74,9 @@
   <br />
 
   <% if (can_edit || is_new) %>
-    <%= form_object.submit("Save", class: "btn btn-primary") %>
+    <%= form_object.submit(I18n.t("scrolling_list.save"), class: "btn btn-primary") %>
   <% end %>
   <% if (can_edit) %>
-    <%= link_to("Delete", @measurement_alias, class: "btn btn-danger", method: :delete, id: "delete-admin-item") %>
-
-    <div id="confirm-delete-dialog" class="modal hide fade" tabindex="-1" role="dialog"
-         aria-labeledby="confirm-delete-title" aria-hidden="true">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-        <h3 id="confirm-delete-title">Delete Conversion <%= scroll_list_name(@measurement_alias) %></h3>
-      </div>
-      <div class="modal-body">
-        <p>
-          Are you sure that you want to delete the alias
-          of &quot;<%= @measurement_alias.alias %>&quot;
-          for <%= @measurement_alias.measuring_unit.name %>?
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button id="confirm-delete" class="btn btn-danger" aria-hidden="true">Yes</button>
-        <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
-      </div>
-    </div>
+    <%= render partial: "scrollable_list/delete_confirmation_dialog", layout: false %>
   <% end %>
 <% end %>
