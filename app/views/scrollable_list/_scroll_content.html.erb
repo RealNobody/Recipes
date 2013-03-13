@@ -29,7 +29,7 @@
 <% end %>
 
 <% page_items.each do |page_item| %>
-  <%= scrolling_list_link_to_item("#{page_item.list_name}", page_item, page_items, current_item, param_page,
+  <%= scrolling_list_link_to_item("#{scroll_list_name(page_item)}", page_item, page_items, current_item, param_page,
                                   param_per_page, per_page_model) %>
 <% end %>
 

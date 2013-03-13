@@ -9,17 +9,26 @@ class MeasurementConversion < ActiveRecord::Base
 
   validates :smaller_measuring_unit_id, presence: true
   validates :larger_measuring_unit_id, presence: true
+  validates_presence_of :smaller_measuring_unit
+  validates_presence_of :larger_measuring_unit
 
   validates :multiplier, numericality: { greater_than_or_equal_to: 1.0 }
 
   validate do
-    if (MeasurementConversion.where("smaller_measuring_unit_id = #{larger_measuring_unit_id}" +
-                                        " AND larger_measuring_unit_id = #{smaller_measuring_unit_id}").first != nil)
-      errors.add(:smaller_measuring_unit_id, I18n.t("activerecord.measurement_conversion.error.already_exists"))
+    if (larger_measuring_unit_id && smaller_measuring_unit_id)
+      if (MeasurementConversion.where("smaller_measuring_unit_id = #{larger_measuring_unit_id}" +
+                                          " AND larger_measuring_unit_id = #{smaller_measuring_unit_id}").first != nil)
+        errors.add(:smaller_measuring_unit_id, I18n.t("activerecord.measurement_conversion.error.already_exists"))
+      end
     end
   end
 
   def list_name
-    return "#{self.smaller_measuring_unit.abbreviation} to #{self.larger_measuring_unit.abbreviation}"
+    if (self.smaller_measuring_unit && self.larger_measuring_unit)
+      return I18n.t("activerecord.measurement_conversion.list_name", smaller_unit: self.smaller_measuring_unit.abbreviation,
+                    larger_unit:                                                   self.larger_measuring_unit.abbreviation)
+    end
+
+    nil
   end
 end

@@ -1,19 +1,19 @@
 require 'spec_helper'
 
-describe "MeasuringUnit pages" do
+describe "MeasurementAlias pages" do
   before do
     @user = FactoryGirl.create(:user)
   end
 
   subject { Capybara.page }
 
-  describe "list measuring units" do
+  describe "list measurement alias" do
     before do
-      visit_page("#{measuring_units_path}?per_page=4", @user)
+      visit_page("#{measurement_aliases_path}?per_page=4", @user)
     end
 
     describe "should have a list" do
-      it { should have_selector("h1", text: "Measuring Units") }
+      it { should have_selector("h1", text: "Measurement Aliases") }
       it { should have_selector(".scrolling-list") }
     end
 

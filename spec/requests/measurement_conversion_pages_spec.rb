@@ -1,19 +1,19 @@
 require 'spec_helper'
 
-describe "MeasuringUnit pages" do
+describe "MeasurementConversion pages" do
   before do
     @user = FactoryGirl.create(:user)
   end
 
   subject { Capybara.page }
 
-  describe "list measuring units" do
+  describe "list measurement conversion list" do
     before do
-      visit_page("#{measuring_units_path}?per_page=4", @user)
+      visit_page("#{measurement_conversions_path}?per_page=4", @user)
     end
 
     describe "should have a list" do
-      it { should have_selector("h1", text: "Measuring Units") }
+      it { should have_selector("h1", text: "Measurement Conversions") }
       it { should have_selector(".scrolling-list") }
     end
 
@@ -42,6 +42,24 @@ describe "MeasuringUnit pages" do
       end
     end
   end
+
+  describe "list measurement conversion list" do
+    it "should gracefully handle an invalid id" do
+      visit_page("#{measurement_conversions_path}/999999?per_page=4", @user)
+      Capybara.page.should have_selector("h1", text: "Measurement Conversions")
+      Capybara.page.should have_selector(".scrolling-list")
+    end
+  end
+
+  # Trying to get code coverage, and this should do it, but the stub isn't working as expected.
+  # Moving on for now, but want to keep this in mind...
+  #it "should be able to visit the middle of the measuring_unit page" do
+  #  ActiveRecord::Relation.any_instance.stub(:first_page?).and_return(true)
+  #  ActiveRecord::Relation.any_instance.stub(:last_page?).and_return(true)
+  #  ActiveRecord::Relation.any_instance.stub(:current_page).and_return(2)
+  #  visit_page("#{measurement_conversions_path}?per_page=4", @user)
+  #  Capybara.page.should have_selector("h1", text: "Measurement Conversions")
+  #end
 
   def get_scroll_link(which_link)
     scroll_link = nil

@@ -6,22 +6,22 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </a>
-      <a class="brand" href="#">Recipes</a>
+      <a class="brand" href="#"><%= I18n.t("header.site_name") %></a>
       <div id="recipe-button-menu" class="nav-collapse collapse">
         <p class="navbar-text pull-right">
           <% if current_user == nil %>
-            Not Logged In
+            <%= I18n.t("header.not_logged_in") %>
           <% else %>
-            Logged in as <%= current_user.name %>
+            <%= I18n.t("header.logged_in", login_name: current_user.name) %>
             <%
               # <a href="#" class="navbar-link">Username</a>
             %>
           <% end %>
         </p>
         <ul class="nav">
-          <li class="active"><%= link_to("Home", root_path) %></li>
-          <li><%= link_to("Menu Planner", root_path) %></li>
-          <li><%= link_to("Administration", root_path) %></li>
+          <li class="active"><%= link_to(I18n.t("header.home"), root_path) %></li>
+          <li><%= link_to(I18n.t("header.menu_planner"), root_path) %></li>
+          <li><%= link_to(I18n.t("header.administration"), root_path) %></li>
         </ul>
       </div>
     </div>

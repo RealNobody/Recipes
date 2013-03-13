@@ -13,7 +13,8 @@ class MeasuringUnitsController < ScrollableListController
   end
 
   def update
-    @measuring_unit  = MeasuringUnit.find(params[:id])
+    @measuring_unit  = MeasuringUnit.where(id: params[:id]).first()
+    @measuring_unit ||= MeasuringUnit.new()
     has_abbreviation = params[:measuring_unit].delete(:has_abbreviation)
     @measuring_unit.assign_attributes (params[:measuring_unit])
     if (has_abbreviation != nil)

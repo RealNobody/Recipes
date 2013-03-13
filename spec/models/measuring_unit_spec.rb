@@ -25,8 +25,9 @@ describe MeasuringUnit do
   it { should respond_to(:measurement_aliases) }
   it { should respond_to(:can_delete) }
   #it { should respond_to(:larger_measurement_conversions) }
+  it { should respond_to(:ingredients) }
 
-  describe "names should be unique and not case sensetive" do
+  describe "names should be unique and not case sensitive" do
     before do
       @dup_unit      = @measuring_unit.dup()
       @dup_unit.name = @dup_unit.name.upcase()
@@ -86,6 +87,19 @@ describe MeasuringUnit do
     it do
       found_unit = MeasuringUnit.find_by_alias("tC")
       should == found_unit
+    end
+
+    it "should not allow an alias to be added for two measuring units" do
+      alias_text = Faker::Lorem.sentence
+      alt_measuring_unit = FactoryGirl.create(:measuring_unit)
+      alt_measuring_unit.add_alias(alias_text).save!
+
+      @measuring_unit.add_alias(alias_text).should eq(nil)
+    end
+
+    it "should not allow a measuring unit to be added by alias name" do
+      new_unit = FactoryGirl.build(:measuring_unit, name: "TC.")
+      new_unit.should_not be_valid
     end
   end
 

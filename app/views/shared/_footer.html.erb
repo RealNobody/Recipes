@@ -1,7 +1,9 @@
 <div class="recipe-footer recipe-footer-float">
   <div class="recipe-footer-divider">
-    <p>Once-A-Month Meal planning</p>
-    <!-- <p>&copy; Erik Littell 2012</p> -->
-    <p>Site version 0.0.1 BETA</p>
+    <p>
+      <%= I18n.t("footer.site_name") %><br />
+      <%= I18n.t("footer.copyright").html_safe %><br />
+      <%= I18n.t("footer.version") %>
+    </p>
   </div>
 </div>

@@ -1,16 +1,16 @@
 <div class="tabbable measuring-unit-tabs">
   <ul class="nav nav-tabs">
     <li class="active">
-      <a href="#measuring_unit" data-toggle="tab">Measuring Unit</a>
+      <a href="#measuring_unit" data-toggle="tab"><%= I18n.t("admin.measuring_unit.tabs.measuring_unit") %></a>
     </li>
     <li>
-      <a href="#aliases" data-toggle="tab">Aliases</a>
+      <a href="#aliases" data-toggle="tab"><%= I18n.t("admin.measuring_unit.tabs.aliases") %></a>
     </li>
     <li>
-      <a href="#conversions" data-toggle="tab">Conversions</a>
+      <a href="#conversions" data-toggle="tab"><%= I18n.t("admin.measuring_unit.tabs.conversions") %></a>
     </li>
     <li>
-      <a href="#ingredients" data-toggle="tab">Ingredients</a>
+      <a href="#ingredients" data-toggle="tab"><%= I18n.t("admin.measuring_unit.tabs.ingredients") %></a>
     </li>
   </ul>
 
@@ -18,38 +18,22 @@
     <div class="tab-pane active" id="measuring_unit">
       <div class="recipe-tab-content">
         <%= form_for @measuring_unit do |form_object| %>
-          <input type="hidden" id="measuring_unit-title" value="Recipes | Measuring Units - <%= @measuring_unit.name %>" />
+          <input type="hidden" id="<%= @model_class_name.to_s.singularize.underscore %>-title" value="<%= I18n.t("admin.#{@model_class_name.to_s.singularize.underscore}.title", unit_type: @model_class_name.to_s.singularize.underscore.humanize.titleize, unit_name: @selected_item.name) %>" />
 
           <%= form_object.label :name %>
           <%= form_object.text_field :name %>
 
           <label class="checkbox">
             <%= form_object.check_box(:has_abbreviation, value: @measuring_unit.has_abbreviation, class: "measuring-unit-has-abbreviation") %>
-            Show a default abbreviation
+            <%= I18n.t("admin.measuring_unit.has_abbreviation") %>
           </label>
           <%= form_object.label :abbreviation %>
           <%= form_object.text_field(:abbreviation, disabled: !@measuring_unit.has_abbreviation?, class: "measuring-unit-abbreviation") %>
 
           <br />
-          <%= form_object.submit("Save", class: "btn btn-primary") %>
+          <%= form_object.submit(I18n.t("scrolling_list.save"), class: "btn btn-primary") %>
           <% if (@measuring_unit.id && @measuring_unit.can_delete) %>
-            <%= link_to("Delete", @measuring_unit, class: "btn btn-danger", method: :delete, id: "delete-admin-item") %>
-
-            <div id="confirm-delete-dialog" class="modal hide fade" tabindex="-1" role="dialog" aria-labeledby="confirm-delete-title" aria-hidden="true">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-                <h3 id="confirm-delete-title">Delete Measuring Unit <%= @measuring_unit.name %></h3>
-              </div>
-              <div class="modal-body">
-                <p>
-                  Are you sure that you want to delete the Measuring Unit <%= @measuring_unit.name %>?
-                </p>
-              </div>
-              <div class="modal-footer">
-                <button id="confirm-delete" class="btn btn-danger" aria-hidden="true">Yes</button>
-                <button class="btn" data-dismiss="modal" aria-hidden="true">No</button>
-              </div>
-            </div>
+            <%= render partial: "scrollable_list/delete_confirmation_dialog", layout: false %>
           <% end %>
         <% end %>
       </div>

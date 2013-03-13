@@ -11,7 +11,36 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130223004555) do
+ActiveRecord::Schema.define(:version => 20130311012701) do
+
+  create_table "ingredient_aliases", :force => true do |t|
+    t.integer  "ingredient_id"
+    t.string   "alias"
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+  end
+
+  add_index "ingredient_aliases", ["alias"], :name => "index_ingredient_aliases_on_alias", :unique => true
+  add_index "ingredient_aliases", ["ingredient_id"], :name => "index_ingredient_aliases_on_ingredient_id"
+
+  create_table "ingredient_categories", :force => true do |t|
+    t.string   "name"
+    t.integer  "order"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "ingredient_categories", ["order", "name"], :name => "index_ingredient_categories_on_order_and_name"
+
+  create_table "ingredients", :force => true do |t|
+    t.string   "name"
+    t.integer  "measuring_unit_id"
+    t.integer  "ingredient_category_id"
+    t.text     "prep_instructions"
+    t.text     "day_before_prep_instructions"
+    t.datetime "created_at",                   :null => false
+    t.datetime "updated_at",                   :null => false
+  end
 
   create_table "measurement_aliases", :force => true do |t|
     t.string   "alias"
