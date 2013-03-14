@@ -39,3 +39,8 @@ Update AJAX responses so that they show flashes.
 Make Tabs AJAXy?
 Look into can-can?
 Look into pretty forms
+
+
+
+
+Luke Hammond

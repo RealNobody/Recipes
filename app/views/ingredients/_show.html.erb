@@ -1,26 +1,49 @@
 <% require "scrolling_list_form_helper" %>
 
-<%= form_for @ingredient do |form_object| %>
-  <input type="hidden" id="<%= @model_class_name.to_s.singularize.underscore %>-title" value="<%= I18n.t("admin.#{@model_class_name.to_s.singularize.underscore}.title", unit_type: @model_class_name.to_s.singularize.underscore.humanize.titleize, unit_name: @selected_item.name) %>" />
+<div class="tabbable recipe-admin-tabs">
+  <ul class="nav nav-tabs">
+    <li class="active">
+      <a href="#ingredient" data-toggle="tab"><%= I18n.t("admin.ingredient.tabs.ingredient") %></a>
+    </li>
+    <li>
+      <a href="#aliases" data-toggle="tab"><%= I18n.t("admin.ingredient.tabs.aliases") %></a>
+    </li>
+  </ul>
 
-  <%= form_object.label(:name) %>
-  <%= form_object.text_field :name %>
+  <div class="tab-content recipe-admin-tab-content">
+    <div class="tab-pane active" id="ingredient">
+      <div class="recipe-tab-content">
+        <%= form_for @ingredient do |form_object| %>
+          <input type="hidden" id="<%= @model_class_name.to_s.singularize.underscore %>-title" value="<%= I18n.t("admin.#{@model_class_name.to_s.singularize.underscore}.title", unit_type: @model_class_name.to_s.singularize.underscore.humanize.titleize, unit_name: @selected_item.name) %>" />
 
-  <%= form_object.label(:measuring_unit) %>
-  <%= form_object.scroll_picker(self, :measuring_unit, :measuring_unit_id) %>
+          <%= form_object.label(:name) %>
+          <%= form_object.text_field :name %>
 
-  <%= form_object.label(:ingredient_category) %>
-  <%= form_object.scroll_picker(self, :ingredient_category, :ingredient_category_id) %>
+          <%= form_object.label(:measuring_unit) %>
+          <%= form_object.scroll_picker(self, :measuring_unit, :measuring_unit_id) %>
 
-  <%= form_object.label(:prep_instructions) %>
-  <%= form_object.text_field (:prep_instructions) %>
+          <%= form_object.label(:ingredient_category) %>
+          <%= form_object.scroll_picker(self, :ingredient_category, :ingredient_category_id) %>
 
-  <%= form_object.label(:day_before_prep_instructions) %>
-  <%= form_object.text_field (:day_before_prep_instructions) %>
+          <%= form_object.label(:prep_instructions) %>
+          <%= form_object.text_area(:prep_instructions, class: "ingredient_prep") %>
 
-  <br />
-  <%= form_object.submit(I18n.t("scrolling_list.save"), class: "btn btn-primary") %>
-  <% if (@ingredient.id) %>
-    <%= render partial: "scrollable_list/delete_confirmation_dialog", layout: false %>
-  <% end %>
-<% end %>
+          <%= form_object.label(:day_before_prep_instructions) %>
+          <%= form_object.text_area(:day_before_prep_instructions, class: "ingredient_prep") %>
+
+          <br />
+          <%= form_object.submit(I18n.t("scrolling_list.save"), class: "btn btn-primary") %>
+          <% if (@ingredient.id) %>
+            <%= render partial: "scrollable_list/delete_confirmation_dialog", layout: false %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="tab-pane" id="aliases">
+      <div class="recipe-tab-content">
+        The aliases page<br>
+      </div>
+    </div>
+  </div>
+</div>

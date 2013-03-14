@@ -24,14 +24,16 @@ Recipes.AdminPage.prototype =
         var min_size = adminScrollingList.calculate_min_height () - tab_list_height;
         var calc_min = this.calculate_tabs_min_height ();
         var new_link_height = new_link.height () + recipesApp.container_margin;
+        var tab_set = $(".recipe-admin-tabs .nav-tabs li a")
+        var nIndex;
 
         if (min_size < calc_min)
           min_size = calc_min;
 
-        $ ("#measuring_unit").css ("min-height", (min_size).toString () + "px");
-        $ ("#aliases").css ("min-height", min_size.toString () + "px");
-        $ ("#conversions").css ("min-height", min_size.toString () + "px");
-        $ ("#ingredients").css ("min-height", min_size.toString () + "px");
+        for (nIndex = tab_set.length - 1; nIndex >= 0; nIndex -= 1)
+        {
+          $($ (tab_set [nIndex]).attr ("href") + " .recipe-tab-content").css ("min-height", (min_size).toString () + "px");
+        }
 
         var scroll_list_min = parseInt (scrolling_list.css ("max-height").replace (/px/, ""));
         if (scroll_list_min < (min_size + tab_list_height - recipesApp.container_margin - new_link_height))
@@ -54,19 +56,15 @@ Recipes.AdminPage.prototype =
   {
     var tab_height;
     var min_tab_height = 0;
+    var tab_set = $(".recipe-admin-tabs .nav-tabs li a")
+    var nIndex;
 
-    tab_height = $ ("#measuring_unit .recipe-tab-content").height ();
-    if (tab_height > min_tab_height)
-      min_tab_height = tab_height;
-    tab_height = $ ("#aliases .recipe-tab-content").height ();
-    if (tab_height > min_tab_height)
-      min_tab_height = tab_height;
-    tab_height = $ ("#conversions .recipe-tab-content").height ();
-    if (tab_height > min_tab_height)
-      min_tab_height = tab_height;
-    tab_height = $ ("#ingredients .recipe-tab-content").height ();
-    if (tab_height > min_tab_height)
-      min_tab_height = tab_height;
+    for (nIndex = tab_set.length - 1; nIndex >= 0; nIndex -= 1)
+    {
+      tab_height = $($ (tab_set [nIndex]).attr ("href") + " .recipe-tab-content").height ();
+      if (tab_height > min_tab_height)
+        min_tab_height = tab_height;
+    }
 
     return min_tab_height;
   },
