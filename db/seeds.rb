@@ -8,7 +8,7 @@
 
 puts("Seeding users...")
 User.where(email: "realnobody1@cox.net").first_or_initialize().tap do |admin_user|
-  admin_user.password = "Nobody12"
+  admin_user.password = "Nobody"
   admin_user.name     = "Real Nobody"
   admin_user.save!()
 end
