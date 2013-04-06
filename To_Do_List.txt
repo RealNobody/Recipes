@@ -44,3 +44,9 @@ Look into pretty forms
 
 
 Luke Hammond
+
+
+/Users/elittell/.rbenv/versions/1.9.3-p0/lib/ruby/gems/1.9.1/gems/activerecord-3.2.11/lib/active_record/connection_adapters/abstract/schema_definitions.rb
+
+  6502128286
+

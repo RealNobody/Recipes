@@ -1,8 +1,7 @@
 class CreateMeasurementAliases < ActiveRecord::Migration
   def change
     create_table :measurement_aliases do |t|
-      t.string  :alias
-      t.integer :measuring_unit_id
+      t.alias_of(:measuring_units)
 
       t.timestamps
     end

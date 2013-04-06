@@ -11,10 +11,10 @@
 #
 
 class MeasuringUnit < ActiveRecord::Base
+  aliased_by :measurement_aliases, allow_delete_default_aliases: false, default_alias_fields: [:name, :abbreviation], default_pleural_alias_fields: [:name]
+
   attr_accessible :name, :abbreviation
   attr_protected :can_delete
-
-  has_many :measurement_aliases, dependent: :delete_all
 
   has_many :larger_measurement_conversions, dependent: :delete_all, class_name: "MeasurementConversion",
            foreign_key:                                :smaller_measuring_unit_id
@@ -41,8 +41,6 @@ class MeasuringUnit < ActiveRecord::Base
   validates :abbreviation,
             length: { maximum: 255 }
 
-  after_save :create_default_aliases
-
   before_destroy do
     self[:can_delete]
   end
@@ -52,16 +50,6 @@ class MeasuringUnit < ActiveRecord::Base
       self[:can_delete] = false
     else
       self[:can_delete] = true
-    end
-  end
-
-  validate do
-    # alias_name = alias and id is not null
-    # alias_name = alias and id != id
-    find_alias = MeasuringUnit.find_by_alias(self.name)
-
-    unless (find_alias == nil || find_alias.id == self.id)
-      errors.add(:name, I18n.t("activerecord.measuring_unit.error.already_exists", name: find_alias.name))
     end
   end
 
@@ -102,44 +90,6 @@ class MeasuringUnit < ActiveRecord::Base
       return_name += " (#{self.abbreviation})"
     end
     return_name
-  end
-
-  # This is a helper function for seeding, but may be helpful
-  # later for user defined units.
-  def self.find_or_initialize(alias_name)
-    found_unit = MeasuringUnit.find_by_alias(alias_name)
-    if found_unit == nil
-      found_unit = MeasuringUnit.new(name: alias_name)
-    else
-      found_unit
-    end
-  end
-
-  def add_alias(alias_name)
-    alias_name = alias_name.downcase()
-    found_unit = MeasuringUnit.find_by_alias(alias_name)
-
-    if (found_unit != nil && found_unit.id != self.id)
-      nil
-    else
-      alias_list = self.measurement_aliases.select do |measurement_alias|
-        measurement_alias.alias == alias_name
-      end
-
-      if (alias_list == nil || alias_list.length == 0)
-        new_alias = self.measurement_aliases.build(alias: alias_name)
-      else
-        alias_list[0]
-      end
-    end
-  end
-
-  # This is a helper function to find a measurement by an alias.
-  def self.find_by_alias(alias_name)
-    find_alias = MeasurementAlias.where(alias: alias_name.downcase()).first()
-    unless find_alias == nil
-      MeasuringUnit.find(find_alias.measuring_unit_id)
-    end
   end
 
   def add_conversion(convert_to_measuring_unit, conversion_multiplier)
@@ -227,17 +177,6 @@ class MeasuringUnit < ActiveRecord::Base
     end
 
     return 1
-  end
-
-  protected
-  def create_default_aliases
-    # I want all measuring units to have their own name and abbreviation as aliases.
-    self.add_alias(self.name.singularize()).save!()
-    self.add_alias(self.name.pluralize()).save!()
-
-    unless self.abbreviation == nil
-      self.add_alias(self.abbreviation).save!()
-    end
   end
 
   private

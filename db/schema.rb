@@ -43,8 +43,8 @@ ActiveRecord::Schema.define(:version => 20130311012701) do
   end
 
   create_table "measurement_aliases", :force => true do |t|
-    t.string   "alias"
     t.integer  "measuring_unit_id"
+    t.string   "alias"
     t.datetime "created_at",        :null => false
     t.datetime "updated_at",        :null => false
   end
