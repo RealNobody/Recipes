@@ -1,0 +1,37 @@
+<% require "scrolling_list_form_helper" %>
+
+<div class="tabbable recipe-admin-tabs">
+  <ul class="nav nav-tabs">
+    <li class="active">
+      <a href="#recipe_type" data-toggle="tab"><%= I18n.t("admin.recipe_type.tabs.recipe_type") %></a>
+    </li>
+    <li>
+      <a href="#recipes" data-toggle="tab"><%= I18n.t("admin.recipe_type.tabs.recipes") %></a>
+    </li>
+  </ul>
+
+  <div class="tab-content recipe-admin-tab-content">
+    <div class="tab-pane active" id="recipe_type">
+      <div class="recipe-tab-content">
+        <%= form_for @recipe_type do |form_object| %>
+          <input type="hidden" id="<%= @model_class_name.to_s.singularize.underscore %>-title" value="<%= I18n.t("admin.#{@model_class_name.to_s.singularize.underscore}.title", unit_type: @model_class_name.to_s.singularize.underscore.humanize.titleize, unit_name: @selected_item.name) %>" />
+
+          <%= form_object.label(:name) %>
+          <%= form_object.text_field :name %>
+
+          <br />
+          <%= form_object.submit(I18n.t("scrolling_list.save"), class: "btn btn-primary") %>
+          <% if (@recipe_type.id) %>
+            <%= render partial: "scrollable_list/delete_confirmation_dialog", layout: false %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="tab-pane" id="recipes">
+      <div class="recipe-tab-content">
+        The recipes for the type<br>
+      </div>
+    </div>
+  </div>
+</div>
