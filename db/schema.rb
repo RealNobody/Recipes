@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130311012701) do
+ActiveRecord::Schema.define(:version => 20130409044333) do
 
   create_table "ingredient_aliases", :force => true do |t|
     t.integer  "ingredient_id"
@@ -72,6 +72,12 @@ ActiveRecord::Schema.define(:version => 20130311012701) do
   end
 
   add_index "measuring_units", ["search_name"], :name => "index_measuring_units_on_search_name", :unique => true
+
+  create_table "recipe_types", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
 
   create_table "users", :force => true do |t|
     t.string   "name"

@@ -66,6 +66,11 @@ Recipes.ScrollingList.PickList.prototype =
     var clicked_item = $ (eventData.currentTarget);
 
     scrollingList.fire_scroll ($ ("#" + clicked_item.attr ("id") + " .scrolling-list-picker"));
+
+    var search_area = $ ("#" + clicked_item.attr ("id") + " .pick-dialog-search-text");
+    var well_area = $ ("#" + clicked_item.attr ("id") + " .well");
+
+    search_area.width (well_area.width () + 26);
   },
 
   pick_dialog_scroll: function (eventData)
