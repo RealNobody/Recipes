@@ -13,9 +13,9 @@ User.where(email: "realnobody1@cox.net").first_or_initialize().tap do |admin_use
   admin_user.save!()
 end
 
-User.where(email: "Guest@guest.com").first_or_initialize().tap do |admin_user|
+User.where(email: "guest@guest.com").first_or_initialize().tap do |admin_user|
   admin_user.password = "password"
-  admin_user.name     = "Guest@guest.com"
+  admin_user.name     = "guest@guest.com"
   admin_user.save!()
 end
 
