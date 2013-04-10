@@ -74,4 +74,15 @@ describe MeasurementAlias do
   it "should have a list name" do
     @measurement_alias.list_name.should eq(I18n.t("activerecord.measurement_alias.list_name", alias: @measurement_alias.alias, measuring_unit: measuring_unit.name))
   end
+
+  it "should allow blank aliases" do
+    find_alias = MeasurementAlias.find_by_alias("")
+
+    unless (find_alias)
+      find_alias = MeasurementAlias.new(alias: "")
+      find_alias.measuring_unit = MeasuringUnit.first()
+    end
+
+    find_alias.should be_valid
+  end
 end

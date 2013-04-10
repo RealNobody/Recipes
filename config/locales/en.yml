@@ -59,6 +59,7 @@ en:
       categories: "Ingredient Categories"
       ingredient_aliases: "Ingredient Aliases"
       ingredients: "Ingredients"
+      recipe_types: "Recipe Types"
   footer:
     site_name: "Once-A-Month Meal planning"
     copyright: "&copy; Erik Littell 2012"
@@ -81,11 +82,29 @@ en:
       has_abbreviation: "Show a default abbreviation"
     ingredient_category:
       title: "Recipes | %{unit_type} - %{unit_name}"
+      tabs:
+        ingredient_category: "Ingredient Category"
+        ingredients: "Ingredients"
+    recipe_type:
+      title: "Recipes | %{unit_type} - %{unit_name}"
+      tabs:
+        recipe_type: "Recipe Type"
+        recipes: "Recipes"
     measurement_conversion:
       title: "Recipes | %{unit_type} - %{unit_name}"
+      tabs:
+        measurement_conversion: "Measurement Conversion"
+        conversions: "Conversions"
     measurement_alias:
       title: "Recipes | %{unit_type} - %{unit_name}"
+      tabs:
+        measurement_alias: "Measurement Alias"
     ingredient_alias:
-      title: "Ingredient Alias | ${unit_type} %{unit_name}"
+      title: "Recipes | ${unit_type} %{unit_name}"
+      tabs:
+        ingredient_alias: "Ingredient Alias"
     ingredient:
-      title: "Ingredient | ${unit_type} %{unit_name}"
+      title: "Recipes | ${unit_type} %{unit_name}"
+      tabs:
+        ingredient: "Ingredient"
+        aliases: "Aliases"

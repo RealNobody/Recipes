@@ -1,8 +1,7 @@
 class CreateIngredientAliases < ActiveRecord::Migration
   def change
     create_table :ingredient_aliases do |t|
-      t.integer :ingredient_id
-      t.string :alias
+      t.alias_of(:ingredients)
 
       t.timestamps
     end

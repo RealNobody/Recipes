@@ -15,4 +15,5 @@
 //= require recipes
 //= require_tree ../../../vendor/assets/javascripts/History
 //= require scrolling_list
+//= require admin_scroll_list
 //= require_tree .

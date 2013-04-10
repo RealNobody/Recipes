@@ -10,38 +10,5 @@
 #
 
 class MeasurementAlias < ActiveRecord::Base
-  attr_accessible :alias, :measuring_unit_id
-
-  belongs_to :measuring_unit
-
-  default_scope joins(:measuring_unit).readonly(false).order("measuring_units.name, alias")
-
-  validates :measuring_unit_id, presence: true
-  validates_presence_of :measuring_unit
-
-  validates :alias,
-            length:     { maximum: 255 },
-            uniqueness: { case_sensitive: false }
-
-  validate do
-    if (self.alias == nil)
-      errors.add(:name, I18n.t("activerecord.measurement_alias.error.cannot_be_nil"))
-    end
-  end
-
-  def alias
-    self[:alias]
-  end
-
-  def alias=(alias_name)
-    if (alias_name)
-      self[:alias] = alias_name.downcase()
-    else
-      self[:alias] = alias_name
-    end
-  end
-
-  def list_name
-    I18n.t("activerecord.measurement_alias.list_name", alias: self.alias, measuring_unit: self.measuring_unit.name)
-  end
+  aliases :measuring_unit, allow_blank: true
 end
