@@ -24,5 +24,6 @@ require File.expand_path("db/seeds/measuring_units")
 require File.expand_path("db/seeds/measurement_conversions")
 require File.expand_path("db/seeds/ingredient_categories")
 require File.expand_path("db/seeds/recipe_types")
+require File.expand_path("db/seeds/containers")
 
 puts("Finished Seeding.")
