@@ -19,6 +19,10 @@ en:
       list_name: "%{alias} (%{ingredient})"
       error:
         already_exists: "An ingredient with the name \"%{name}\" already exists."
+    container_alias:
+      list_name: "%{alias} (%{container})"
+      error:
+        already_exists: "A container with the name \"%{name}\" already exists."
     ingredient:
       error:
         already_exists: "An ingredient with the name \"%{name}\" already exists which uses this name as an alias."
@@ -61,6 +65,7 @@ en:
       ingredients: "Ingredients"
       recipe_types: "Recipe Types"
       containers: "Containers"
+      container_aliases: "Container Aliases"
       prep_orders: "Prep Orders"
   footer:
     site_name: "Once-A-Month Meal planning"
@@ -115,6 +120,10 @@ en:
       title: "Recipes | ${unit_type} %{unit_name}"
       tabs:
         ingredient_alias: "Ingredient Alias"
+    container_alias:
+      title: "Recipes | ${unit_type} %{unit_name}"
+      tabs:
+        container_alias: "Container Alias"
     ingredient:
       title: "Recipes | ${unit_type} %{unit_name}"
       tabs:

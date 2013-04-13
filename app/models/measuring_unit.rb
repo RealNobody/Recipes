@@ -5,7 +5,6 @@
 #  id           :integer(4)      not null, primary key
 #  name         :string(255)
 #  abbreviation :string(255)
-#  search_name  :string(255)
 #  created_at   :datetime        not null
 #  updated_at   :datetime        not null
 #
@@ -33,11 +32,6 @@ class MeasuringUnit < ActiveRecord::Base
             length:   { maximum: 255, minimum: 1 },
             presence: true
 
-  validates :search_name,
-            length:     { maximum: 255, minimum: 1 },
-            presence:   true,
-            uniqueness: { case_sensitive: false }
-
   validates :abbreviation,
             length: { maximum: 255 }
 
@@ -55,7 +49,6 @@ class MeasuringUnit < ActiveRecord::Base
 
   def name=(name)
     self[:name]        = name
-    self[:search_name] = name.downcase()
   end
 
   def name

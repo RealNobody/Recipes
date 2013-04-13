@@ -59,15 +59,30 @@ describe MeasurementAlias do
     it { should_not be_valid }
   end
 
-  describe "should be deleted when the parent is deleted" do
+  describe "handle deletions" do
     before do
       @measurement_alias.save!()
     end
 
-    it do
+    it "should be deleted when the parent is deleted" do
       measuring_unit.destroy()
       found_alias = MeasurementAlias.where(id: @measurement_alias.id)
       found_alias.length.should(equal(0))
+    end
+
+    it "should not allow default aliases to be deleted" do
+      delete_alias = MeasurementAlias.where(alias: measuring_unit.name.downcase()).first()
+      delete_id = delete_alias.id
+      delete_alias.destroy()
+      found_alias = MeasurementAlias.where(id: delete_id)
+      found_alias.length.should_not equal 0
+    end
+
+    it "should allow non-default aliases to be deleted" do
+      delete_id = @measurement_alias.id
+      @measurement_alias.destroy()
+      found_alias = MeasurementAlias.where(id: delete_id)
+      found_alias.length.should equal 0
     end
   end
 

@@ -6,8 +6,7 @@ class CreateIngredientAliases < ActiveRecord::Migration
       t.timestamps
     end
 
-    add_index :ingredient_aliases, [:alias], unique: true
-    add_index :ingredient_aliases, [:ingredient_id]
+    add_alias_index(:ingredient_aliases, :ingredients)
 
     add_index :ingredient_categories, [:order, :name]
   end

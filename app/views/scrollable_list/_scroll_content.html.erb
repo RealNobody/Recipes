@@ -1,9 +1,9 @@
 <%
    if (local_variables.include?(:list_object))
-     page_items     = eval("#{list_object_class_name.to_s.classify}.page(1)")
+     page_items     = eval("#{list_object_class_name.to_s.pluralize.classify}.page(1)")
      current_item   = list_object
      param_page     = 1
-     per_page_model = eval("#{list_object_class_name.to_s.classify}.default_per_page")
+     per_page_model = eval("#{list_object_class_name.to_s.pluralize.classify}.default_per_page")
      param_per_page = nil
    else
      page_items     = @current_page

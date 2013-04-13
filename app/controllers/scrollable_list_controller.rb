@@ -6,7 +6,7 @@ class ScrollableListController < ApplicationController
   before_filter do
     authenticate_user!
 
-    @model_class_name = eval("#{self.controller_name.classify}")
+    @model_class_name = eval("#{self.controller_name.pluralize.classify}")
     @model_per_page   = eval("#{@model_class_name}.default_per_page")
     @selected_item    = nil
     @current_page     = nil

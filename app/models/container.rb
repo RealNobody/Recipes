@@ -1,4 +1,6 @@
 class Container < ActiveRecord::Base
+  aliased_by :container_aliases
+
   attr_accessible :name
 
   default_scope order(:name)

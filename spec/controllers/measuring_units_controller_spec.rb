@@ -86,7 +86,7 @@ describe MeasuringUnitsController do
 
     describe "Delete" do
       it "should not be able to delete seed units" do
-        do_not_delete = MeasuringUnit.where(search_name: "cup").first()
+        do_not_delete = MeasuringUnit.find_or_initialize("cup")
 
         delete :destroy, id: do_not_delete.id, page: @paged_test_page, per_page: @paged_test_per_page
 

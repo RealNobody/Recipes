@@ -19,4 +19,10 @@ describe Container do
       @container.should_not be_valid
     end
   end
+
+  describe "supports validation" do
+    @container.save!
+
+    @container.id.should_not be_nil
+  end
 end

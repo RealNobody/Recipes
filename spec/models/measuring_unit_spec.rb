@@ -21,7 +21,7 @@ describe MeasuringUnit do
 
   it { should respond_to(:name) }
   it { should respond_to(:abbreviation) }
-  # it { should_not respond_to(:search_name) }
+  it { should_not respond_to(:search_name) }
   it { should respond_to(:measurement_aliases) }
   it { should respond_to(:can_delete) }
   #it { should respond_to(:larger_measurement_conversions) }
@@ -129,7 +129,7 @@ describe MeasuringUnit do
   end
 
   describe "seeds should not be deletable" do
-    base_unit      = MeasuringUnit.where(search_name: "cup").first()
+    base_unit      = MeasuringUnit.find_or_initialize("cup")
     unit_destroyed = base_unit.destroy()
     unit_destroyed.should == false
   end

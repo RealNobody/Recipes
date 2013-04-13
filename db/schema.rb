@@ -11,7 +11,17 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130413031117) do
+ActiveRecord::Schema.define(:version => 20130413045751) do
+
+  create_table "container_aliases", :force => true do |t|
+    t.integer  "container_id"
+    t.string   "alias"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  add_index "container_aliases", ["alias"], :name => "index_container_aliases_on_alias", :unique => true
+  add_index "container_aliases", ["container_id"], :name => "index_container_aliases_on_container_id"
 
   create_table "containers", :force => true do |t|
     t.string   "name"
@@ -71,13 +81,10 @@ ActiveRecord::Schema.define(:version => 20130413031117) do
   create_table "measuring_units", :force => true do |t|
     t.string   "name"
     t.string   "abbreviation"
-    t.string   "search_name"
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
     t.boolean  "can_delete"
   end
-
-  add_index "measuring_units", ["search_name"], :name => "index_measuring_units_on_search_name", :unique => true
 
   create_table "prep_orders", :force => true do |t|
     t.string   "name"
@@ -85,6 +92,8 @@ ActiveRecord::Schema.define(:version => 20130413031117) do
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
+
+  add_index "prep_orders", ["order", "name"], :name => "index_prep_orders_on_order_and_name"
 
   create_table "recipe_types", :force => true do |t|
     t.string   "name"
