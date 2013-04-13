@@ -61,6 +61,7 @@ en:
       ingredients: "Ingredients"
       recipe_types: "Recipe Types"
       containers: "Containers"
+      prep_orders: "Prep Orders"
   footer:
     site_name: "Once-A-Month Meal planning"
     copyright: "&copy; Erik Littell 2012"
@@ -96,6 +97,11 @@ en:
       tabs:
         container: "Container"
         recipes: "Recipes"
+    prep_order:
+      title: "Recipes | %{unit_type} - %{unit_name}"
+      tabs:
+        prep_order: "Prep Order"
+        ingredients: "Ingredients"
     measurement_conversion:
       title: "Recipes | %{unit_type} - %{unit_name}"
       tabs:
