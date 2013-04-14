@@ -5,6 +5,7 @@ en:
   activerecord:
     models:
       measuring_unit: "Measuring Unit"
+    measuring_unit:
       error:
         already_exists: "An measuring unit with the name \"%{name}\" already exists which uses this name as an alias."
     measurement_conversion:
@@ -26,6 +27,9 @@ en:
     ingredient:
       error:
         already_exists: "An ingredient with the name \"%{name}\" already exists which uses this name as an alias."
+    recipe:
+      error:
+        blank_instructions: "You must specify either preparations or cooking instructions."
   user:
     create:
       success: "User was successfully created."
@@ -124,6 +128,11 @@ en:
       title: "Recipes | ${unit_type} %{unit_name}"
       tabs:
         container_alias: "Container Alias"
+    recipe:
+      title: "Recipes | ${unit_type} %{unit_name}"
+      tabs:
+        recipe: "Recipe"
+        ingredients: "Ingredients"
     ingredient:
       title: "Recipes | ${unit_type} %{unit_name}"
       tabs:

@@ -20,7 +20,7 @@ describe Container do
     end
   end
 
-  describe "supports validation" do
+  it "supports validation" do
     @container.save!
 
     @container.id.should_not be_nil

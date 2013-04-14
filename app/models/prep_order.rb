@@ -1,6 +1,8 @@
 class PrepOrder < ActiveRecord::Base
   attr_accessible :name, :order
 
+  has_many :recipes
+
   default_scope order("prep_orders.order, name")
 
   validates :name,
