@@ -132,9 +132,20 @@ en:
       title: "Recipes | ${unit_type} %{unit_name}"
       tabs:
         recipe: "Recipe"
+        edit: "Edit"
+        free_form: "Free-Form Entry"
         ingredients: "Ingredients"
     ingredient:
       title: "Recipes | ${unit_type} %{unit_name}"
       tabs:
         ingredient: "Ingredient"
         aliases: "Aliases"
+  recipe:
+    view:
+      prep_order: "Prep order:"
+      recipe_type: "Type:"
+      meals: "Meals:"
+      servings: "Servings:"
+      instructions: "Instructions:"
+      day_before_instructions: "Day before:"
+      label_instructions: "Label text:"
