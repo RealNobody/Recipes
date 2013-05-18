@@ -4,6 +4,7 @@ gem 'rails'
 gem "bcrypt-ruby"
 gem 'devise'                # Login gem
 gem 'kaminari'              # Paging Gem
+gem 'thin'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
