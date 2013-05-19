@@ -71,6 +71,41 @@ module ActiveRecord
           end
         end
 
+        alias_metaclass.instance_eval do
+          # This is a helper function to find items by alias with a loose match.
+          define_method :search_alias do |search_string|
+            search_string     = search_string.downcase()
+            sanitize_function = eval("#{alias_table.to_s.pluralize.classify}.method(:sanitize)")
+            # Scopes...
+
+            search_results    = eval("#{alias_table.to_s.pluralize.classify}.scoped")
+            search_elements   = search_string.split(" ")
+            case_clause       = "CASE WHEN alias = #{sanitize_function.call(search_string)} THEN #{search_elements.length}"
+            where_clause      = "alias = #{sanitize_function.call(search_string)}"
+
+            if (search_elements.length > 2)
+              (search_elements.length - 2).times do |main_index|
+                bulk_element = "%"
+                (search_elements.length - main_index - 1).times do |sub_index|
+                  bulk_element += "#{search_elements[sub_index]}%"
+                end
+                case_clause  += " WHEN alias LIKE #{sanitize_function.call(bulk_element)} THEN #{search_elements.length - main_index - 1}"
+                where_clause = where_clause + " OR alias like #{sanitize_function.call(bulk_element)}"
+              end
+            end
+
+            search_elements.each do |element|
+              where_clause = where_clause + " OR alias like #{sanitize_function.call("%#{element}%")}"
+            end
+            case_clause    += " ELSE -1 END"
+            search_results = search_results.where(where_clause)
+            search_results = search_results.order("#{case_clause} DESC").order(:name)
+
+            search_results = search_results.select("name, #{case_clause} AS search_weight, id")
+            search_results.all
+          end
+        end
+
         #protected
         define_method :create_default_aliases do
           # I want all measuring units to have their own name and abbreviation as aliases.
@@ -118,7 +153,7 @@ module ActiveRecord
         # option - allow_blank: true/false - default false
         # option - allow_delete_default_aliases: true/false - default true
 
-        allow_blank = options[:allow_blank] || false
+        allow_blank                  = options[:allow_blank] || false
         allow_delete_default_aliases = options[:allow_delete_default_aliases] == nil ? true : options[:allow_delete_default_aliases]
 
         attr_accessible :alias
@@ -129,7 +164,8 @@ module ActiveRecord
 
         # option? to say if default scope is specified
         # option? to specify name field?
-        default_scope joins(aliased_table).readonly(false).order("#{aliased_table.to_s.pluralize}.name, alias")
+        #default_scope joins(aliased_table).readonly(false).order("#{aliased_table.to_s.pluralize}.name, alias")
+        scope :index_sort, includes(aliased_table).order("#{aliased_table.to_s.pluralize}.name, alias")
 
         validates "#{aliased_table}".to_sym, presence: true
         validates_presence_of aliased_table
@@ -140,8 +176,8 @@ module ActiveRecord
 
         unless (allow_blank)
           validates :alias,
-                    presence:   true,
-                    length: { minimum: 1 }
+                    presence: true,
+                    length:   { minimum: 1 }
         end
 
         validate do

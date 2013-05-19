@@ -72,7 +72,7 @@ describe MeasurementAlias do
 
     it "should not allow default aliases to be deleted" do
       delete_alias = MeasurementAlias.where(alias: measuring_unit.name.downcase()).first()
-      delete_id = delete_alias.id
+      delete_id    = delete_alias.id
       delete_alias.destroy()
       found_alias = MeasurementAlias.where(id: delete_id)
       found_alias.length.should_not equal 0
@@ -94,10 +94,30 @@ describe MeasurementAlias do
     find_alias = MeasurementAlias.find_by_alias("")
 
     unless (find_alias)
-      find_alias = MeasurementAlias.new(alias: "")
+      find_alias                = MeasurementAlias.new(alias: "")
       find_alias.measuring_unit = MeasuringUnit.first()
     end
 
     find_alias.should be_valid
   end
+
+  it "should find by alias" do
+    measuring_unit.save
+    find_measurement = MeasuringUnit.find_by_alias(@measurement_alias.alias)
+    find_measurement.should_not be_nil
+  end
+
+  #it "should search aliases" do
+  #  alias_words = ["Arizona", "Atlantis", "Wyoming", "New York", "North Dakota", "South Dakota", "Maine", "Hawaii",
+  #                 "Alaska"]
+  #
+  #  #FactoryGirl.create(:measuring_unit, name: "Arizona Atlantis Wyoming North Dakota").save
+  #  #FactoryGirl.create(:measuring_unit, name: "South Dakota New York Wyoming Atlantis").save
+  #  #FactoryGirl.create(:measuring_unit, name: "South Dakota Main Hawaii Atlantis New York").save
+  #  #FactoryGirl.create(:measuring_unit, name: "North Dakota Atlantis Main New York").save
+  #
+  #  found_measurements = MeasuringUnit.search_alias("South Dakota New York Wyoming Atlantis")
+  #  found_measurements.should_not be_nil
+  #  found_measurements.length.should >= 4
+  #end
 end

@@ -163,14 +163,14 @@ class ScrollableListController < ApplicationController
       per_page = params[:per_page]
     end
     if (params[:page] == nil)
-      @current_page = eval("#{@model_class_name}.page(params[:page]).per(per_page)")
+      @current_page = eval("#{@model_class_name}.index_sort.page(params[:page]).per(per_page)")
     else
-      @current_page = eval("#{@model_class_name}.page(params[:page]).per(per_page)")
+      @current_page = eval("#{@model_class_name}.index_sort.page(params[:page]).per(per_page)")
     end
 
     if (new_unit == nil)
       if (params[:id] == nil)
-        @selected_item = eval("#{@model_class_name}.first()")
+        @selected_item = eval("#{@model_class_name}.index_sort.first()")
       else
         @selected_item = eval("#{@model_class_name}.where(id: params[:id]).first()")
       end

@@ -3,7 +3,8 @@ class Container < ActiveRecord::Base
 
   attr_accessible :name
 
-  default_scope order(:name)
+  #default_scope order(:name)
+  scope :index_sort, order(:name)
 
   validates :name,
             length:   { maximum: 255, minimum: 1 },

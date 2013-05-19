@@ -25,7 +25,8 @@ class MeasuringUnit < ActiveRecord::Base
 
   has_many :ingredients
 
-  default_scope order("name")
+  #default_scope order("name")
+  scope :index_sort, order("name")
   paginates_per 2
 
   validates :name,
@@ -48,7 +49,7 @@ class MeasuringUnit < ActiveRecord::Base
   end
 
   def name=(name)
-    self[:name]        = name
+    self[:name] = name
   end
 
   def name

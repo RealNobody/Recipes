@@ -3,7 +3,8 @@ class PrepOrder < ActiveRecord::Base
 
   has_many :recipes
 
-  default_scope order("prep_orders.order, name")
+  #default_scope order("prep_orders.order, name")
+  scope :index_sort, order("prep_orders.order, name")
 
   validates :name,
             length:   { maximum: 255, minimum: 1 },
