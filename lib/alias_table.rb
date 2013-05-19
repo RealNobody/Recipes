@@ -74,35 +74,30 @@ module ActiveRecord
         alias_metaclass.instance_eval do
           # This is a helper function to find items by alias with a loose match.
           define_method :search_alias do |search_string|
-            search_string     = search_string.downcase()
-            sanitize_function = eval("#{alias_table.to_s.pluralize.classify}.method(:sanitize)")
+            search_string   = search_string.downcase().gsub(/[,;:\t]/, " ").gsub(/[^ \w]/, "_").gsub(/ _/, " ").gsub(/_ /,
+                                                                                                                     " ")
             # Scopes...
 
-            search_results    = eval("#{alias_table.to_s.pluralize.classify}.scoped")
-            search_elements   = search_string.split(" ")
-            case_clause       = "CASE WHEN alias = #{sanitize_function.call(search_string)} THEN #{search_elements.length}"
-            where_clause      = "alias = #{sanitize_function.call(search_string)}"
-
-            if (search_elements.length > 2)
-              (search_elements.length - 2).times do |main_index|
-                bulk_element = "%"
-                (search_elements.length - main_index - 1).times do |sub_index|
-                  bulk_element += "#{search_elements[sub_index]}%"
-                end
-                case_clause  += " WHEN alias LIKE #{sanitize_function.call(bulk_element)} THEN #{search_elements.length - main_index - 1}"
-                where_clause = where_clause + " OR alias like #{sanitize_function.call(bulk_element)}"
-              end
-            end
+            search_results  = self.scoped
+            search_elements = search_string.split(" ")
+            case_clause     = "(CASE WHEN alias = #{self.sanitize(search_string)} THEN 1 ELSE 0 END"
+            where_clause    = "alias = #{self.sanitize(search_string)}"
 
             search_elements.each do |element|
-              where_clause = where_clause + " OR alias like #{sanitize_function.call("%#{element}%")}"
+              if (search_elements.length <= 1 || element.length > 2)
+                where_clause += " OR alias like #{self.sanitize("%#{element}%")}"
+                case_clause  += " + CASE WHEN  alias like #{self.sanitize("%#{element}%")} THEN 1 ELSE 0 END"
+              end
             end
-            case_clause    += " ELSE -1 END"
+            case_clause += ")"
+
             search_results = search_results.where(where_clause)
             search_results = search_results.order("#{case_clause} DESC").order(:name)
+            search_results = search_results.joins(alias_table)
+            search_results = search_results.uniq
+            #search_results = search_results.select("name, #{case_clause} AS search_weight, measuring_units.id")
 
-            search_results = search_results.select("name, #{case_clause} AS search_weight, id")
-            search_results.all
+            search_results
           end
         end
 

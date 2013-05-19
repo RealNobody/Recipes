@@ -107,17 +107,19 @@ describe MeasurementAlias do
     find_measurement.should_not be_nil
   end
 
-  #it "should search aliases" do
-  #  alias_words = ["Arizona", "Atlantis", "Wyoming", "New York", "North Dakota", "South Dakota", "Maine", "Hawaii",
-  #                 "Alaska"]
-  #
-  #  #FactoryGirl.create(:measuring_unit, name: "Arizona Atlantis Wyoming North Dakota").save
-  #  #FactoryGirl.create(:measuring_unit, name: "South Dakota New York Wyoming Atlantis").save
-  #  #FactoryGirl.create(:measuring_unit, name: "South Dakota Main Hawaii Atlantis New York").save
-  #  #FactoryGirl.create(:measuring_unit, name: "North Dakota Atlantis Main New York").save
-  #
-  #  found_measurements = MeasuringUnit.search_alias("South Dakota New York Wyoming Atlantis")
-  #  found_measurements.should_not be_nil
-  #  found_measurements.length.should >= 4
-  #end
+  it "should search aliases" do
+    FactoryGirl.create(:measuring_unit, name: "Arizona, New Atlantis, Wyoming, North Dakota").save
+    FactoryGirl.create(:measuring_unit, name: "South Dakota, New York, Wyoming, Atlantis").save
+    FactoryGirl.create(:measuring_unit, name: "South Dakota, Main, Hawaii, Atlantis").save
+    FactoryGirl.create(:measuring_unit, name: "North Dakota, Atlantis, Main, New York").save
+
+    found_measurements = MeasuringUnit.search_alias("South Dakota, New York, Wyoming, Atlantis").all
+    found_measurements.should_not be_nil
+    found_measurements.length.should == 4
+
+    found_measurements[0].name.should eq("South Dakota, New York, Wyoming, Atlantis")
+    found_measurements[1].name.should eq("North Dakota, Atlantis, Main, New York")
+    found_measurements[2].name.should eq("Arizona, New Atlantis, Wyoming, North Dakota")
+    found_measurements[3].name.should eq("South Dakota, Main, Hawaii, Atlantis")
+  end
 end
