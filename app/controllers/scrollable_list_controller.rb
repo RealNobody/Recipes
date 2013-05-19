@@ -157,20 +157,26 @@ class ScrollableListController < ApplicationController
 
   private
   def scroll_list_setup_instance_variables(new_unit)
-    per_page = @model_per_page
+    cur_page = params[:page] || 1
+    per_page = params[:per_page] || @model_per_page
 
-    if (params[:per_page] != nil)
-      per_page = params[:per_page]
-    end
-    if (params[:page] == nil)
-      @current_page = eval("#{@model_class_name}.index_sort.page(params[:page]).per(per_page)")
+    @current_page = eval("#{@model_class_name}.scoped")
+    @selected_item = eval("#{@model_class_name}.scoped")
+
+    if (params[:search])
+      @current_page = @current_page.search_alias(params[:search].to_s)
+      @selected_item = @selected_item.search_alias(params[:search].to_s)
     else
-      @current_page = eval("#{@model_class_name}.index_sort.page(params[:page]).per(per_page)")
+      @current_page = @current_page.index_sort
+      @selected_item = @selected_item.index_sort
     end
+
+    @current_page = @current_page.page(cur_page).per(per_page)
+    #@selected_item = @selected_item.page(cur_page).per(per_page)
 
     if (new_unit == nil)
       if (params[:id] == nil)
-        @selected_item = eval("#{@model_class_name}.index_sort.first()")
+        @selected_item = @selected_item.first()
       else
         @selected_item = eval("#{@model_class_name}.where(id: params[:id]).first()")
       end
