@@ -25,7 +25,7 @@
             <ul class="nav nav-list">
               <li class="nav-header">Standard Functions</li>
               <li><%= link_to(I18n.t("main_layout.side_menu.menus"), root_path) %></li>
-              <li><%= link_to(I18n.t("main_layout.side_menu.recipes"), root_path) %></li>
+              <li><%= link_to(I18n.t("main_layout.side_menu.recipes"), recipes_path) %></li>
               <li class="nav-header"><%= I18n.t("main_layout.side_menu.admin_functions") %></li>
               <li><%= link_to(I18n.t("main_layout.side_menu.measuring_units"), measuring_units_path) %></li>
               <li><%= link_to(I18n.t("main_layout.side_menu.measurement_aliases"), measurement_aliases_path) %></li>
@@ -34,6 +34,9 @@
               <li><%= link_to(I18n.t("main_layout.side_menu.ingredient_aliases"), ingredient_aliases_path) %></li>
               <li><%= link_to(I18n.t("main_layout.side_menu.ingredients"), ingredients_path) %></li>
               <li><%= link_to(I18n.t("main_layout.side_menu.recipe_types"), recipe_types_path) %></li>
+              <li><%= link_to(I18n.t("main_layout.side_menu.containers"), containers_path) %></li>
+              <li><%= link_to(I18n.t("main_layout.side_menu.container_aliases"), container_aliases_path) %></li>
+              <li><%= link_to(I18n.t("main_layout.side_menu.prep_orders"), prep_orders_path) %></li>
             </ul>
           </div>
         </div>

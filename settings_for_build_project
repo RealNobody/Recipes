@@ -1,0 +1,8 @@
+# sparrow
+project_base_name="Recipes"
+# Sparrow/
+project_base_parent_dir=""
+# SageACT
+project_repository_name="RealNobody"
+# sparrow_host
+project_app_directory="."

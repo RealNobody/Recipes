@@ -1,0 +1,25 @@
+<% if (@recipe.id) %>
+  <h1><%= @recipe.name %></h1>
+  <span class="recipe-view-label"><%= I18n.t("recipe.view.recipe_type") %></span>
+  <span class="recipe-view-data"><%= @recipe.recipe_type.name %></span><br />
+
+  <span class="recipe-view-label"><%= I18n.t("recipe.view.prep_order") %></span>
+  <span class="recipe-view-data"><%= @recipe.prep_order.name %></span><br />
+
+  <span class="recipe-view-label"><%= I18n.t("recipe.view.meals") %></span>
+  <span class="recipe-view-data"><%= @recipe.meals %></span><br />
+
+  <span class="recipe-view-label"><%= I18n.t("recipe.view.servings") %></span>
+  <span class="recipe-view-data"><%= @recipe.servings %></span><br />
+
+  <span class="recipe-view-label"><%= I18n.t("recipe.view.day_before_instructions") %></span>
+  <span class="recipe-view-data"><br />=""<%= @recipe.prep_instructions %></span><br />
+
+  <span class="recipe-view-label"><%= I18n.t("recipe.view.instructions") %></span>
+  <span class="recipe-view-data"><br /><%= @recipe.cooking_instructions %></span><br />
+
+  <span class="recipe-view-label"><%= I18n.t("recipe.view.label_instructions") %></span>
+  <span class="recipe-view-data"><br />><%= @recipe.label_instructions %></span><br />
+<% else %>
+  <h1>New Recipie</h1>
+<% end %>

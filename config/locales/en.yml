@@ -5,6 +5,7 @@ en:
   activerecord:
     models:
       measuring_unit: "Measuring Unit"
+    measuring_unit:
       error:
         already_exists: "An measuring unit with the name \"%{name}\" already exists which uses this name as an alias."
     measurement_conversion:
@@ -19,9 +20,16 @@ en:
       list_name: "%{alias} (%{ingredient})"
       error:
         already_exists: "An ingredient with the name \"%{name}\" already exists."
+    container_alias:
+      list_name: "%{alias} (%{container})"
+      error:
+        already_exists: "A container with the name \"%{name}\" already exists."
     ingredient:
       error:
         already_exists: "An ingredient with the name \"%{name}\" already exists which uses this name as an alias."
+    recipe:
+      error:
+        blank_instructions: "You must specify either preparations or cooking instructions."
   user:
     create:
       success: "User was successfully created."
@@ -60,6 +68,9 @@ en:
       ingredient_aliases: "Ingredient Aliases"
       ingredients: "Ingredients"
       recipe_types: "Recipe Types"
+      containers: "Containers"
+      container_aliases: "Container Aliases"
+      prep_orders: "Prep Orders"
   footer:
     site_name: "Once-A-Month Meal planning"
     copyright: "&copy; Erik Littell 2012"
@@ -90,6 +101,16 @@ en:
       tabs:
         recipe_type: "Recipe Type"
         recipes: "Recipes"
+    container:
+      title: "Recipes | %{unit_type} - %{unit_name}"
+      tabs:
+        container: "Container"
+        recipes: "Recipes"
+    prep_order:
+      title: "Recipes | %{unit_type} - %{unit_name}"
+      tabs:
+        prep_order: "Prep Order"
+        ingredients: "Ingredients"
     measurement_conversion:
       title: "Recipes | %{unit_type} - %{unit_name}"
       tabs:
@@ -103,8 +124,28 @@ en:
       title: "Recipes | ${unit_type} %{unit_name}"
       tabs:
         ingredient_alias: "Ingredient Alias"
+    container_alias:
+      title: "Recipes | ${unit_type} %{unit_name}"
+      tabs:
+        container_alias: "Container Alias"
+    recipe:
+      title: "Recipes | ${unit_type} %{unit_name}"
+      tabs:
+        recipe: "Recipe"
+        edit: "Edit"
+        free_form: "Free-Form Entry"
+        ingredients: "Ingredients"
     ingredient:
       title: "Recipes | ${unit_type} %{unit_name}"
       tabs:
         ingredient: "Ingredient"
         aliases: "Aliases"
+  recipe:
+    view:
+      prep_order: "Prep order:"
+      recipe_type: "Type:"
+      meals: "Meals:"
+      servings: "Servings:"
+      instructions: "Instructions:"
+      day_before_instructions: "Day before:"
+      label_instructions: "Label text:"

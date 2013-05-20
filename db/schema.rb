@@ -11,7 +11,23 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130409044333) do
+ActiveRecord::Schema.define(:version => 20130413170224) do
+
+  create_table "container_aliases", :force => true do |t|
+    t.integer  "container_id"
+    t.string   "alias"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  add_index "container_aliases", ["alias"], :name => "index_container_aliases_on_alias", :unique => true
+  add_index "container_aliases", ["container_id"], :name => "index_container_aliases_on_container_id"
+
+  create_table "containers", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
 
   create_table "ingredient_aliases", :force => true do |t|
     t.integer  "ingredient_id"
@@ -65,18 +81,37 @@ ActiveRecord::Schema.define(:version => 20130409044333) do
   create_table "measuring_units", :force => true do |t|
     t.string   "name"
     t.string   "abbreviation"
-    t.string   "search_name"
     t.datetime "created_at",   :null => false
     t.datetime "updated_at",   :null => false
     t.boolean  "can_delete"
   end
 
-  add_index "measuring_units", ["search_name"], :name => "index_measuring_units_on_search_name", :unique => true
+  create_table "prep_orders", :force => true do |t|
+    t.string   "name"
+    t.integer  "order"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "prep_orders", ["order", "name"], :name => "index_prep_orders_on_order_and_name"
 
   create_table "recipe_types", :force => true do |t|
     t.string   "name"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+  end
+
+  create_table "recipes", :force => true do |t|
+    t.string   "name"
+    t.integer  "recipe_type_id"
+    t.integer  "servings"
+    t.integer  "meals"
+    t.string   "label_instructions"
+    t.integer  "prep_order_id"
+    t.text     "prep_instructions"
+    t.text     "cooking_instructions"
+    t.datetime "created_at",           :null => false
+    t.datetime "updated_at",           :null => false
   end
 
   create_table "users", :force => true do |t|

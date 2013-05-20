@@ -134,10 +134,11 @@ MeasuringUnit.find_or_initialize("Jar").tap do |unit|
   unit.save!()
 end
 
-MeasuringUnit.find_or_initialize("Slice").tap do |unit|
+MeasuringUnit.find_or_initialize("Slices").tap do |unit|
   unit.can_delete = false
   unit.save!()
 
+  # for some reason, I cannot create a custom inflector for slice <=> slices
   unit.add_alias("Slices").save!()
 end
 
