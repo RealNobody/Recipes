@@ -25,7 +25,7 @@ Recipes.ScrollingList.PickList.prototype =
 
     var search_url = scrollingList.build_find_link (href_item.attr ("href"));
     var new_active_item = scroll_div.find ("a[href=\"" + search_url + "\"]");
-    if (! new_active_item || new_active_item.length <= 0)
+    if (!new_active_item || new_active_item.length <= 0)
       new_active_item = scroll_div.find ("a[href^=\"" + search_url + "?\"]");
     if (new_active_item && new_active_item.length > 0)
       new_active_item.closest ("li").addClass ("active");
@@ -110,6 +110,89 @@ Recipes.ScrollingList.PickList.prototype =
     pick_scroll_class.bind_scroll_links ();
   },
 
+  search_change: function (eventData)
+  {
+    var pick_scroll_class = eventData.data.pick_scroll_class;
+    var dialog_box = $ ($ (eventData.currentTarget).closest (".modal"));
+    var scroll_div = dialog_box.find (".scrolling-list-picker");
+    var cur_id = null;
+
+    next_link = scroll_div.find (".active a");
+    if (next_link)
+    {
+      cur_id = next_link.attr ("href");
+      if (cur_id)
+        cur_id = cur_id.match (/.*\/(\d+)(\?|$)/);
+      if (cur_id && cur_id.length > 1)
+      {
+        cur_id = cur_id[1];
+      }
+      else
+      {
+        cur_id = null;
+      }
+    }
+
+    if (cur_id == null)
+    {
+      next_link = scroll_div.find (".scrolling-next a");
+      if (next_link && next_link.length > 0)
+      {
+        cur_id = next_link.attr ("href").match (/(\?|&)id=(\d+)/);
+        if (cur_id && cur_id.length > 2)
+        {
+          cur_id = cur_id[2];
+        }
+        else
+        {
+          cur_id = null;
+        }
+      }
+    }
+
+    if (cur_id == null)
+    {
+      next_link = scroll_div.find (".scrolling-previous a");
+      if (next_link && next_link.length > 0)
+      {
+        cur_id = next_link.attr ("href").match (/(\?|&)id=(\d+)/);
+        if (cur_id && cur_id.length > 2)
+        {
+          cur_id = cur_id[2];
+        }
+        else
+        {
+          cur_id = null;
+        }
+      }
+    }
+
+    if (cur_id == null)
+    {
+      next_link = scroll_div.find ("li a");
+      if (next_link && next_link.length > 0)
+      {
+        cur_id = $ (next_link [0]).attr ("href").match (/(\?|&)id=(\d+)/);
+        if (cur_id && cur_id.length > 2)
+        {
+          cur_id = cur_id[2];
+        }
+        else
+        {
+          cur_id = null;
+        }
+      }
+    }
+
+    if (cur_id == null)
+    {
+      cur_id = dialog_box.attr ("data-selected-item-id")
+    }
+
+    dialog_box.attr ("data-selected-item-id", cur_id);
+    scrollingList.reset_scroll (scroll_div, "/" + dialog_box.attr ("data-class-name") + "/page/1?id=" + cur_id + "&search=" + eventData.currentTarget.value);
+  },
+
   re_bind_elements: function (eventData)
   {
     var pick_scroll_class = eventData.data.pick_scroll_class;
@@ -134,6 +217,9 @@ Recipes.ScrollingList.PickList.prototype =
     $ (".scrolling-list-picker").unbind ("scroll_items_changed", this.scroll_items_added);
     $ (".scrolling-list-picker").bind ("scroll_items_changed", { pick_scroll_class: this }, this.scroll_items_added)
 
+    $ (".pick-dialog-search-text").unbind ("input", this.search_change);
+    $ (".pick-dialog-search-text").bind ("input", { pick_scroll_class: this }, this.search_change)
+
     this.bind_scroll_links ();
   },
 
@@ -154,7 +240,7 @@ Recipes.ScrollingList.PickList.prototype =
 $ (document).ready (
     function ()
     {
-      if (! scrollingPickList)
+      if (!scrollingPickList)
         scrollingPickList = new Recipes.ScrollingList.PickList ();
 
       scrollingPickList.document_ready ();

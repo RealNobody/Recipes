@@ -90,7 +90,7 @@ describe MeasuringUnit do
     end
 
     it "should not allow an alias to be added for two measuring units" do
-      alias_text = Faker::Lorem.sentence
+      alias_text         = Faker::Lorem.sentence
       alt_measuring_unit = FactoryGirl.create(:measuring_unit)
       alt_measuring_unit.add_alias(alias_text).save!
 
