@@ -10,13 +10,13 @@ Recipes.ScrollingList = function ()
 Recipes.ScrollingList.prototype =
 {
   minimum_max_height: 160,
-  history_supported : false,
-  window_history    : null,
+  history_supported:  false,
+  window_history:     null,
 
   should_scroll: function (scroll_div)
   {
     var scroll_info = { scroll_down: false, scroll_up: false, scroll_down_visible: false, scroll_up_visible: false,
-      scroll_up_height             : 0, scroll_link: null};
+      scroll_up_height:              0, scroll_link: null};
     var scroll_next = scroll_div.find (".scrolling-next");
 
     if (scroll_next && scroll_next.length > 0)
@@ -45,7 +45,7 @@ Recipes.ScrollingList.prototype =
       }
     }
 
-    if (! scroll_info.scroll_down)
+    if (!scroll_info.scroll_down)
     {
       scroll_next = scroll_div.find (".scrolling-previous");
       scroll_info.scroll_link = $ (scroll_next.find ("a"));
@@ -81,7 +81,7 @@ Recipes.ScrollingList.prototype =
     var cache_pages = scroll_div.attr ("data-cache-pages");
 
     // $($(".scroll-page-break")[2]).offset().top + $($(".scroll-page-break")[2]).height() - $(".scrolling-list").offset().top
-    if (! cache_pages)
+    if (!cache_pages)
       cache_pages = 0;
     else
       cache_pages = parseInt (cache_pages);
@@ -124,15 +124,53 @@ Recipes.ScrollingList.prototype =
     }
   },
 
+  reset_scroll:   function (scroll_div, new_url)
+  {
+    var scroll_class = this;
+
+    if (!scroll_div.hasClass ("scrolling-fetching"))
+    {
+      scroll_div.addClass ("scrolling-fetching");
+
+      $.ajax (
+          {
+            url:      new_url,
+            dataType: "html"
+          }
+      )
+          .done (
+          function (new_content)
+          {
+            $ (scroll_div.find ("ul")).html (new_content);
+            scroll_class.fire_scroll (scroll_div);
+          }
+      )
+          .fail (
+          function ()
+          {
+            alert ("erik - do something about the fail.");
+          }
+      )
+          .always (
+          function ()
+          {
+            scroll_div.trigger ("scroll_load_finished")
+
+            scroll_div.removeClass ("scrolling-fetching");
+          }
+      );
+    }
+  },
+
   /*
    We don't do the full list when we load the page.
    So, when the list scrolls, if there is more data, load it...
    */
-  list_scrolling    : function (scroll_div)
+  list_scrolling: function (scroll_div)
   {
     var scroll_class = this;
 
-    if (! scroll_div.hasClass ("scrolling-fetching"))
+    if (!scroll_div.hasClass ("scrolling-fetching"))
     {
       scroll_div.addClass ("scrolling-fetching");
 
@@ -142,7 +180,7 @@ Recipes.ScrollingList.prototype =
       {
         $.ajax (
             {
-              url     : scroll_info.scroll_link.attr ("href"),
+              url:      scroll_info.scroll_link.attr ("href"),
               dataType: "html"
             }
         )
@@ -173,11 +211,11 @@ Recipes.ScrollingList.prototype =
 
                 search_url = scroll_class.build_find_link (search_link);
                 search_link = scroll_div.find ("a[href=\"" + search_url + "\"]");
-                if (! search_link || search_link.length <= 0)
+                if (!search_link || search_link.length <= 0)
                   search_link = scroll_div.find ("a[href^=\"" + search_url + "?\"]");
               }
 
-              if (! search_link || search_link.length <= 0)
+              if (!search_link || search_link.length <= 0)
               {
                 var hide_scroll_up = scroll_info.scroll_up;
 
@@ -207,7 +245,7 @@ Recipes.ScrollingList.prototype =
                 var new_scroll_info = scroll_class.should_scroll (scroll_div);
 
                 if (scroll_info.scroll_down_visible &&
-                    new_scroll_info.scroll_up_visible && ! new_scroll_info.scroll_down_visible)
+                    new_scroll_info.scroll_up_visible && !new_scroll_info.scroll_down_visible)
                 {
                   // scroll the window up to hide the scroll-up if necessary/possible.
                   var scroll_amount = scroll_div.get (0).scrollHeight - scroll_div.innerHeight ();
@@ -267,15 +305,15 @@ Recipes.ScrollingList.prototype =
     }
   },
 
-  fire_scroll    : function (scroll_div)
+  fire_scroll:     function (scroll_div)
   {
     var scroll_class = this;
 
     setTimeout (function ()
-                {
-                  $ (scroll_div).trigger ("scroll");
-                },
-                5
+        {
+          $ (scroll_div).trigger ("scroll");
+        },
+        5
     );
   },
 
@@ -344,7 +382,7 @@ Recipes.ScrollingList.prototype =
 $ (document).ready (
     function ()
     {
-      if (! scrollingList)
+      if (!scrollingList)
         scrollingList = new Recipes.ScrollingList ();
 
       scrollingList.document_ready ();

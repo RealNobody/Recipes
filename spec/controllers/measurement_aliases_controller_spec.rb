@@ -33,7 +33,7 @@ describe MeasurementAliasesController do
     before(:each) do
       @paged_test_page     = 2
       @paged_test_per_page = 2
-      @paged_test_item     = MeasurementAlias.all[(@paged_test_page - 1) * @paged_test_per_page]
+      @paged_test_item     = MeasurementAlias.index_sort.all[(@paged_test_page - 1) * @paged_test_per_page]
     end
 
     it "should list items" do
@@ -42,7 +42,7 @@ describe MeasurementAliasesController do
       response.should be_success
 
       assigns(:measurement_aliases).count.should eq(@paged_test_per_page)
-      assigns(:measurement_alias).should eq(assigns(:measurement_aliases).first)
+      assigns(:measurement_alias).should eq(assigns(:measurement_aliases).index_sort.first)
       assigns(:measurement_aliases).should eq(assigns(:current_page))
       assigns(:measurement_alias).should eq(assigns(:selected_item))
     end
@@ -100,7 +100,7 @@ describe MeasurementAliasesController do
         delete :destroy, id: delete_alias.id, page: @paged_test_page, per_page: @paged_test_per_page
 
         response.should be_success
-        assigns(:selected_item).should eq(MeasurementAlias.first)
+        assigns(:selected_item).should eq(MeasurementAlias.index_sort.first)
         find_alias = MeasurementAlias.where(id: delete_alias.id).first
         find_alias.should be_blank
       end

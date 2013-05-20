@@ -45,12 +45,20 @@ function load_project_settings
   project_repository_name="SageACT"
   # sparrow_host
   project_app_directory="sparrow_host"
+  db_root_user_password=""
 
   # build_project
   proj_dir="${exe_name:0:$((${#exe_name} - 13))}"
 
   if [ -f ${proj_dir}/settings_for_build_project ]; then
     settings_lines=$(cat ${proj_dir}/settings_for_build_project)
+    while read exec_setting_val; do
+      eval ${exec_setting_val}
+    done <<< "${settings_lines}"
+  fi
+
+  if [ -f ${proj_dir}/private_settings_for_build_project ]; then
+    settings_lines=$(cat ${proj_dir}/private_settings_for_build_project)
     while read exec_setting_val; do
       eval ${exec_setting_val}
     done <<< "${settings_lines}"
@@ -2163,19 +2171,21 @@ function create_single_user
 
   if [ "${param_adapter_val}" = "mysql2" ]; then
     set +e
-    cur_user="$(mysql -u root -e "SELECT User FROM mysql.user WHERE mysql.user.User='${param_username_val}' AND mysql.user.Host='localhost'")"
+    cur_user="$(mysql -u root -p'${db_root_user_password}' -e "SELECT User FROM mysql.user WHERE mysql.user
+    .User='${param_username_val}' AND
+    mysql.user.Host='localhost'")"
     user_failure="${?}"
     set -e
 
     if [ "${user_failure}" != "0" -o -z "${cur_user}" ]; then
       echo "Creating the MySQL user in case it doesn't already exist..." 2>&1 | tee -a ${create_error_log_file}
-      execute_command "mysql -u root -e \"CREATE USER '${param_username_val}'@'localhost' identified by '${param_password_val}';\"" ${create_error_log_file} create_user_success ""
+      execute_command "mysql -u root -p'${db_root_user_password}' -e \"CREATE USER '${param_username_val}'@'localhost' identified by '${param_password_val}';\"" ${create_error_log_file} create_user_success ""
     else
       echo "The MySQL user \"${param_username_val}\" already exists." 2>&1 | tee -a ${create_error_log_file}
     fi
 
     echo "Granting the user permissions..." 2>&1 | tee -a ${create_error_log_file}
-    execute_command "mysql -u root -e \"GRANT ALL PRIVILEGES ON ${param_database_val}.* to '${param_username_val}'@'localhost';\"" "" ""
+    execute_command "mysql -u root -p'${db_root_user_password}' -e \"GRANT ALL PRIVILEGES ON ${param_database_val}.* to '${param_username_val}'@'localhost';\"" "" ""
   fi
 }
 
@@ -2880,7 +2890,7 @@ function test_smoke_fails
   found_count=0
 
   if [ -f ${proj_dir}/expected_errors_for_build_project ]; then
-    error_lines=$(cat ${proj_dir}/settings_for_build_project)
+    error_lines=$(cat ${proj_dir}/expected_errors_for_build_project)
     while read exec_error_line; do
       eval ${exec_error_line}
     done <<< "${error_lines}"

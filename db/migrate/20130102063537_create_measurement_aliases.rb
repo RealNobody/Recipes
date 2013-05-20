@@ -6,7 +6,6 @@ class CreateMeasurementAliases < ActiveRecord::Migration
       t.timestamps
     end
 
-    add_index :measurement_aliases, [ :alias ], unique: true
-    add_index :measurement_aliases, [ :measuring_unit_id ]
+    add_alias_index(:measurement_aliases, :measuring_units)
   end
 end

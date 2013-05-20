@@ -10,5 +10,5 @@
 #
 
 class MeasurementAlias < ActiveRecord::Base
-  aliases :measuring_unit, allow_blank: true
+  aliases :measuring_unit, allow_blank: true, allow_delete_default_aliases: false
 end

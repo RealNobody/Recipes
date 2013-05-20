@@ -21,7 +21,7 @@ describe MeasuringUnit do
 
   it { should respond_to(:name) }
   it { should respond_to(:abbreviation) }
-  # it { should_not respond_to(:search_name) }
+  it { should_not respond_to(:search_name) }
   it { should respond_to(:measurement_aliases) }
   it { should respond_to(:can_delete) }
   #it { should respond_to(:larger_measurement_conversions) }
@@ -90,7 +90,7 @@ describe MeasuringUnit do
     end
 
     it "should not allow an alias to be added for two measuring units" do
-      alias_text = Faker::Lorem.sentence
+      alias_text         = Faker::Lorem.sentence
       alt_measuring_unit = FactoryGirl.create(:measuring_unit)
       alt_measuring_unit.add_alias(alias_text).save!
 
@@ -129,7 +129,7 @@ describe MeasuringUnit do
   end
 
   describe "seeds should not be deletable" do
-    base_unit      = MeasuringUnit.where(search_name: "cup").first()
+    base_unit      = MeasuringUnit.find_or_initialize("cup")
     unit_destroyed = base_unit.destroy()
     unit_destroyed.should == false
   end

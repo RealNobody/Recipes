@@ -1,0 +1,31 @@
+<% require "scrolling_list_form_helper" %>
+
+<div class="tabbable recipe-admin-tabs">
+  <ul class="nav nav-tabs recipe-nav-tabs">
+    <li class="active">
+      <a href="#container_alias" data-toggle="tab"><%= I18n.t("admin.container_alias.tabs.container_alias") %></a>
+    </li>
+  </ul>
+
+  <div class="tab-content recipe-admin-tab-content">
+    <div class="tab-pane active" id="container_alias">
+      <div class="recipe-tab-content">
+        <%= form_for @container_alias do |form_object| %>
+          <input type="hidden" id="<%= @model_class_name.to_s.singularize.underscore %>-title" value="<%= I18n.t("admin.#{@model_class_name.to_s.singularize.underscore}.title", unit_type: @model_class_name.to_s.singularize.underscore.humanize.titleize, unit_name: @selected_item.alias) %>" />
+
+          <%= form_object.label(:container) %>
+          <%= form_object.scroll_picker(self, :container, :container_id) %>
+
+          <%= form_object.label(:alias) %>
+          <%= form_object.text_field :alias %>
+
+          <br />
+          <%= form_object.submit(I18n.t("scrolling_list.save"), class: "btn btn-primary") %>
+          <% if (@container_alias.id) %>
+            <%= render partial: "scrollable_list/delete_confirmation_dialog", layout: false %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

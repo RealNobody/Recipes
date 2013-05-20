@@ -6,7 +6,8 @@ class Ingredient < ActiveRecord::Base
   belongs_to :measuring_unit
   belongs_to :ingredient_category
 
-  default_scope joins(:ingredient_category).order("ingredient_categories.order, ingredient_categories.name, ingredients.name").readonly(false)
+  #default_scope joins(:ingredient_category).order("ingredient_categories.order, ingredient_categories.name, ingredients.name").readonly(false)
+  scope :index_sort, includes(:ingredient_category).order("ingredient_categories.order, ingredient_categories.name, ingredients.name")
 
   validates :name,
             length:   { maximum: 255, minimum: 1 },

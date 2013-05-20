@@ -35,7 +35,7 @@ describe MeasuringUnitsController do
     before(:each) do
       @paged_test_page     = 2
       @paged_test_per_page = 2
-      @paged_test_item     = MeasuringUnit.all[(@paged_test_page - 1) * @paged_test_per_page]
+      @paged_test_item     = MeasuringUnit.index_sort.all[(@paged_test_page - 1) * @paged_test_per_page]
     end
 
     it "should list items" do
@@ -44,7 +44,7 @@ describe MeasuringUnitsController do
       response.should be_success
 
       assigns(:measuring_units).count.should eq(@paged_test_per_page)
-      assigns(:measuring_unit).should eq(assigns(:measuring_units).first)
+      assigns(:measuring_unit).should eq(assigns(:measuring_units).index_sort.first)
       assigns(:measuring_units).should eq(assigns(:current_page))
       assigns(:measuring_unit).should eq(assigns(:selected_item))
     end
@@ -54,7 +54,7 @@ describe MeasuringUnitsController do
 
       response.should be_success
 
-      assigns(:current_page).first.should eq(@paged_test_item)
+      assigns(:current_page).index_sort.first.should eq(@paged_test_item)
     end
 
     it "should be able to edit an item" do
@@ -63,7 +63,7 @@ describe MeasuringUnitsController do
       response.should be_success
 
       assigns(:selected_item).should eq(@paged_test_item)
-      assigns(:current_page).first.should eq(@paged_test_item)
+      assigns(:current_page).index_sort.first.should eq(@paged_test_item)
     end
 
     it "should be able to create item" do
@@ -81,12 +81,12 @@ describe MeasuringUnitsController do
       response.should be_success
 
       assigns(:selected_item).id.should be_blank
-      assigns(:current_page).first.should eq(@paged_test_item)
+      assigns(:current_page).index_sort.first.should eq(@paged_test_item)
     end
 
     describe "Delete" do
       it "should not be able to delete seed units" do
-        do_not_delete = MeasuringUnit.where(search_name: "cup").first()
+        do_not_delete = MeasuringUnit.find_or_initialize("cup")
 
         delete :destroy, id: do_not_delete.id, page: @paged_test_page, per_page: @paged_test_per_page
 
@@ -101,7 +101,7 @@ describe MeasuringUnitsController do
         delete :destroy, id: delete_unit.id, page: @paged_test_page, per_page: @paged_test_per_page
 
         response.should be_success
-        assigns(:selected_item).should eq(MeasuringUnit.first)
+        assigns(:selected_item).should eq(MeasuringUnit.index_sort.first)
         find_unit = MeasuringUnit.where(id: delete_unit.id).first
         find_unit.should be_blank
       end

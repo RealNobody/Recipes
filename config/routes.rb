@@ -14,6 +14,10 @@ Recipes::Application.routes.draw do
   scroll_resources :ingredient_aliases
   scroll_resources :ingredients
   scroll_resources :recipe_types
+  scroll_resources :containers
+  scroll_resources :container_aliases
+  scroll_resources :prep_orders
+  scroll_resources :recipes
 
   root to: 'static#index'
 

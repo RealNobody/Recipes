@@ -4,8 +4,10 @@ class MeasurementConversion < ActiveRecord::Base
   belongs_to :smaller_measuring_unit, class_name: "MeasuringUnit", foreign_key: :smaller_measuring_unit_id
   belongs_to :larger_measuring_unit, class_name: "MeasuringUnit", foreign_key: :larger_measuring_unit_id
 
-  default_scope joins("INNER JOIN measuring_units ON (measuring_units.id =" +
-                          "measurement_conversions.smaller_measuring_unit_id)").readonly(false).order("measuring_units.name, multiplier")
+  #default_scope joins("INNER JOIN measuring_units ON (measuring_units.id =" +
+  #                        "measurement_conversions.smaller_measuring_unit_id)").readonly(false).order("measuring_units.name, multiplier")
+
+  scope :index_sort, includes(:smaller_measuring_unit).order("measuring_units.name, multiplier")
 
   validates :smaller_measuring_unit_id, presence: true
   validates :larger_measuring_unit_id, presence: true

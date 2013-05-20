@@ -15,7 +15,7 @@ Recipes.AdminPage.prototype =
       var recipe_tab = $ (".recipe-tab-content");
       var size_parent = recipe_tab.closest (".scrolling-content");
       var scrolling_list = $ (".scrolling-list-primary");
-      var new_link = $ (".scrolling-list-new-link")
+      var new_link = $ (".scrolling-list-new-link");
 
       if (size_parent && size_parent.length > 0)
       {
@@ -24,15 +24,25 @@ Recipes.AdminPage.prototype =
         var min_size = adminScrollingList.calculate_min_height () - tab_list_height;
         var calc_min = this.calculate_tabs_min_height ();
         var new_link_height = new_link.height () + recipesApp.container_margin;
-        var tab_set = $(".recipe-admin-tabs .nav-tabs li a")
+        var tab_set = $ (".recipe-admin-tabs .recipe-nav-tabs li a");
         var nIndex;
+        var sub_tab_set;
+        var nSubIndex;
+        var sub_tab;
 
         if (min_size < calc_min)
           min_size = calc_min;
 
         for (nIndex = tab_set.length - 1; nIndex >= 0; nIndex -= 1)
         {
-          $($ (tab_set [nIndex]).attr ("href") + " .recipe-tab-content").css ("min-height", (min_size).toString () + "px");
+          sub_tab = $ ($ (tab_set [nIndex]).attr ("href") + " .recipe-tab-content");
+          sub_tab.css ("min-height", (min_size).toString () + "px");
+
+          sub_tab_set = sub_tab.find (".recipe-admin-tabs-sub .recipe-nav-tabs-sub li a");
+          for (nSubIndex = sub_tab_set.length - 1; nSubIndex >= 0; nSubIndex -= 1)
+          {
+            $ (sub_tab_set [nSubIndex]).attr ("href");
+          }
         }
 
         var scroll_list_min = parseInt (scrolling_list.css ("max-height").replace (/px/, ""));
@@ -52,18 +62,38 @@ Recipes.AdminPage.prototype =
     }
   },
 
-  calculate_tabs_min_height: function ()
+  calculate_sub_tabs_min_height: function (tab_object)
   {
     var tab_height;
     var min_tab_height = 0;
-    var tab_set = $(".recipe-admin-tabs .nav-tabs li a")
+    var tab_set = tab_object.find (".recipe-admin-tabs-sub .recipe-nav-tabs-sub li a")
     var nIndex;
 
     for (nIndex = tab_set.length - 1; nIndex >= 0; nIndex -= 1)
     {
-      tab_height = $($ (tab_set [nIndex]).attr ("href") + " .recipe-tab-content").height ();
+      tab_height = $ ($ (tab_set [nIndex]).attr ("href") + " .recipe-tab-content-sub").height ();
       if (tab_height > min_tab_height)
         min_tab_height = tab_height;
+    }
+
+    return min_tab_height;
+  },
+
+  calculate_tabs_min_height: function ()
+  {
+    var tab_height;
+    var min_tab_height = 0;
+    var tab_set = $ (".recipe-admin-tabs .recipe-nav-tabs li a")
+    var nIndex;
+    var tab_object;
+
+    for (nIndex = tab_set.length - 1; nIndex >= 0; nIndex -= 1)
+    {
+      tab_object = $ ($ (tab_set [nIndex]).attr ("href") + " .recipe-tab-content");
+      tab_height = tab_object.height ();
+      if (tab_height > min_tab_height)
+        min_tab_height = tab_height;
+      tab_height = this.calculate_sub_tabs_min_height (tab_object);
     }
 
     return min_tab_height;
