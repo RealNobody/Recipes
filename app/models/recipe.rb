@@ -5,6 +5,8 @@ class Recipe < ActiveRecord::Base
   belongs_to :recipe_type
   belongs_to :prep_order
 
+  scope :index_sort, order(:name)
+
   validates :name,
             presence: true,
             length:   { minimum: 1, maximum: 255 }

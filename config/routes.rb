@@ -16,6 +16,8 @@ Recipes::Application.routes.draw do
   scroll_resources :recipe_types
   scroll_resources :containers
   scroll_resources :container_aliases
+  scroll_resources :keywords
+  scroll_resources :keyword_aliases
   scroll_resources :prep_orders
   scroll_resources :recipes
 

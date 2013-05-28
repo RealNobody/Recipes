@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130413170224) do
+ActiveRecord::Schema.define(:version => 20130522043300) do
 
   create_table "container_aliases", :force => true do |t|
     t.integer  "container_id"
@@ -56,6 +56,19 @@ ActiveRecord::Schema.define(:version => 20130413170224) do
     t.text     "day_before_prep_instructions"
     t.datetime "created_at",                   :null => false
     t.datetime "updated_at",                   :null => false
+  end
+
+  create_table "keyword_aliases", :force => true do |t|
+    t.string   "alias"
+    t.integer  "keyword_id"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  create_table "keywords", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "measurement_aliases", :force => true do |t|

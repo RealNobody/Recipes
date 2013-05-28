@@ -24,6 +24,10 @@ en:
       list_name: "%{alias} (%{container})"
       error:
         already_exists: "A container with the name \"%{name}\" already exists."
+    keyword_alias:
+      list_name: "%{alias} (%{keyword})"
+      error:
+        already_exists: "A keyword with the name \"%{name}\" already exists."
     ingredient:
       error:
         already_exists: "An ingredient with the name \"%{name}\" already exists which uses this name as an alias."
@@ -70,6 +74,8 @@ en:
       recipe_types: "Recipe Types"
       containers: "Containers"
       container_aliases: "Container Aliases"
+      keywords: "Keywords"
+      keyword_aliases: "Keyword Aliases"
       prep_orders: "Prep Orders"
   footer:
     site_name: "Once-A-Month Meal planning"
@@ -106,6 +112,10 @@ en:
       tabs:
         container: "Container"
         recipes: "Recipes"
+    keyword:
+      title: "Recipes | %{unit_type} - %{unit_name}"
+      tabs:
+        keyword: "Keyword"
     prep_order:
       title: "Recipes | %{unit_type} - %{unit_name}"
       tabs:
@@ -128,6 +138,10 @@ en:
       title: "Recipes | ${unit_type} %{unit_name}"
       tabs:
         container_alias: "Container Alias"
+    keyword_alias:
+      title: "Recipes | ${unit_type} %{unit_name}"
+      tabs:
+        keyword_alias: "Keyword Alias"
     recipe:
       title: "Recipes | ${unit_type} %{unit_name}"
       tabs:

@@ -1,6 +1,6 @@
 //= require recipes
 //= history
-//= scrolling_list
+//= require scrolling_list
 
 var adminScrollingList;
 

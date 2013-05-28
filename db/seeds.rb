@@ -26,5 +26,6 @@ require File.expand_path("db/seeds/ingredient_categories")
 require File.expand_path("db/seeds/recipe_types")
 require File.expand_path("db/seeds/containers")
 require File.expand_path("db/seeds/prep_orders")
+require File.expand_path("db/seeds/keywords")
 
 puts("Finished Seeding.")
