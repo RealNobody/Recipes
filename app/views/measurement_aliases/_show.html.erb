@@ -84,7 +84,7 @@
 
           <%= form_object.label("Measuring unit") %>
           <% if (can_edit || is_new) %>
-            <%= form_object.scroll_picker(self, :measuring_unit, :measuring_unit_id) %>
+            <%= form_object.scroll_picker(:measuring_unit, :measuring_unit_id) %>
           <% else %>
             <%= link_to(@measurement_alias.measuring_unit.name, @measurement_alias.measuring_unit, target: "_blank") %>
           <% end %>

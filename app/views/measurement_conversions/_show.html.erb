@@ -20,10 +20,10 @@
                                    unit_name: scroll_list_name(@selected_item)) %>" />
 
           <%= form_object.label(:smaller_measuring_unit_id) %>
-          <%= form_object.scroll_picker(self, :measuring_unit, :smaller_measuring_unit_id) %>
+          <%= form_object.scroll_picker(:measuring_unit, :smaller_measuring_unit_id) %>
 
           <%= form_object.label(:larger_measuring_unit_id) %>
-          <%= form_object.scroll_picker(self, :measuring_unit, :larger_measuring_unit_id) %>
+          <%= form_object.scroll_picker(:measuring_unit, :larger_measuring_unit_id) %>
 
           <%= form_object.label(:multiplier) %>
           <%= form_object.text_field(:multiplier) %>

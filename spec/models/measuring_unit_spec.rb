@@ -17,6 +17,8 @@ describe MeasuringUnit do
     @measuring_unit = FactoryGirl.build(:measuring_unit)
   end
 
+  it_behaves_like "an aliased table"
+
   subject { @measuring_unit }
 
   it { should respond_to(:name) }
@@ -37,19 +39,21 @@ describe MeasuringUnit do
     it { should_not be_valid }
   end
 
-  describe "abbreviation should default to name" do
-    test_unit = MeasuringUnit.new(name: "Test Tablespoon")
-    test_unit.name.should == test_unit.abbreviation
-  end
+  describe "abbreviation" do
+    describe "should default to name" do
+      test_unit = MeasuringUnit.new(name: "Test Tablespoon")
+      test_unit.name.should == test_unit.abbreviation
+    end
 
-  describe "abbreviation should be able to be different" do
-    test_unit = MeasuringUnit.new(name: "Test Tablespoon", abbreviation: "test Tbsp.")
-    test_unit.name.should_not == test_unit.abbreviation
-  end
+    describe "should be able to be different" do
+      test_unit = MeasuringUnit.new(name: "Test Tablespoon", abbreviation: "test Tbsp.")
+      test_unit.name.should_not == test_unit.abbreviation
+    end
 
-  describe "abbreviation should be able to be an empty string" do
-    test_unit = MeasuringUnit.new(name: "Fred", abbreviation: "")
-    test_unit.name.should_not == test_unit.abbreviation
+    describe "should be able to be an empty string" do
+      test_unit = MeasuringUnit.new(name: "Fred", abbreviation: "")
+      test_unit.name.should_not == test_unit.abbreviation
+    end
   end
 
   describe "default aliases" do

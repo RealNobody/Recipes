@@ -6,10 +6,10 @@ class ScrollableListController < ApplicationController
   before_filter do
     authenticate_user!
 
-    @model_class_name = eval("#{self.controller_name.singularize.classify}")
-    @model_per_page   = eval("#{@model_class_name}.default_per_page")
-    @selected_item    = nil
-    @current_page     = nil
+    @model_class    = self.controller_name.singularize.classify.constantize
+    @model_per_page = @model_class.default_per_page
+    @selected_item  = nil
+    @current_page   = nil
   end
 
   # GET /users
@@ -60,7 +60,7 @@ class ScrollableListController < ApplicationController
   end
 
   def new
-    scroll_list_setup_instance_variables(eval("#{@model_class_name}.new()"))
+    scroll_list_setup_instance_variables(@model_class.new())
 
     respond_to do |format|
       format.html { render action: :index }
@@ -69,7 +69,7 @@ class ScrollableListController < ApplicationController
   end
 
   def new_item
-    scroll_list_setup_instance_variables(eval("#{@model_class_name}.new()"))
+    scroll_list_setup_instance_variables(@model_class.new())
 
     respond_to do |format|
       format.html { render(partial: "show", layout: "../scrollable_list/scroll_list_partial") }
@@ -78,7 +78,7 @@ class ScrollableListController < ApplicationController
   end
 
   def destroy
-    @selected_item = eval("#{@model_class_name}.where(id: params[:id]).first")
+    @selected_item = @model_class.where(id: params[:id]).first
     if (@selected_item && @selected_item.destroy())
       params.delete(:id)
       scroll_list_setup_instance_variables(nil)
@@ -102,10 +102,10 @@ class ScrollableListController < ApplicationController
   end
 
   def create
-    user_item = eval("@#{self.controller_name.singularize}")
+    user_item = instance_variable_get("@#{self.controller_name.singularize}")
 
     if (user_item == nil)
-      scroll_list_setup_instance_variables(eval("#{@model_class_name}.new(params[:#{self.controller_name.singularize}])"))
+      scroll_list_setup_instance_variables(@model_class.new(params[self.controller_name.singularize.to_sym]))
     else
       scroll_list_setup_instance_variables(user_item)
     end
@@ -129,12 +129,12 @@ class ScrollableListController < ApplicationController
   end
 
   def update
-    user_item = eval("@#{self.controller_name.singularize}")
+    user_item = instance_variable_get("@#{self.controller_name.singularize}")
 
     if (user_item == nil)
       scroll_list_setup_instance_variables(nil)
 
-      eval("@selected_item.assign_attributes (params[:#{self.controller_name.singularize}])")
+      @selected_item.assign_attributes (params[self.controller_name.singularize.to_sym])
     else
       scroll_list_setup_instance_variables(user_item)
     end
@@ -160,14 +160,14 @@ class ScrollableListController < ApplicationController
     cur_page = params[:page] || 1
     per_page = params[:per_page] || @model_per_page
 
-    @current_page = eval("#{@model_class_name}.scoped")
-    @selected_item = eval("#{@model_class_name}.scoped")
+    @current_page  = @model_class.scoped
+    @selected_item = @model_class.scoped
 
     if (params[:search])
-      @current_page = @current_page.search_alias(params[:search].to_s)
+      @current_page  = @current_page.search_alias(params[:search].to_s)
       @selected_item = @selected_item.search_alias(params[:search].to_s)
     else
-      @current_page = @current_page.index_sort
+      @current_page  = @current_page.index_sort
       @selected_item = @selected_item.index_sort
     end
 
@@ -178,15 +178,15 @@ class ScrollableListController < ApplicationController
       if (params[:id] == nil)
         @selected_item = @selected_item.first()
       else
-        @selected_item = eval("#{@model_class_name}.where(id: params[:id]).first()")
+        @selected_item = @model_class.where(id: params[:id]).first()
       end
 
-      @selected_item ||= eval("#{@model_class_name}.new()")
+      @selected_item ||= @model_class.new()
     else
       @selected_item = new_unit
     end
 
-    eval("@#{self.controller_name} = @current_page")
-    eval("@#{self.controller_name.singularize} = @selected_item")
+    instance_variable_set("@#{self.controller_name}", @current_page)
+    instance_variable_set("@#{self.controller_name.singularize}", @selected_item)
   end
 end

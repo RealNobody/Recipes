@@ -42,10 +42,10 @@
                   <%= form_object.text_field :name %>
 
                   <%= form_object.label(:recipe_type_id) %>
-                  <%= form_object.scroll_picker(self, :recipe_type, :recipe_type_id) %>
+                  <%= form_object.scroll_picker(:recipe_type, :recipe_type_id) %>
 
                   <%= form_object.label(:prep_order_id) %>
-                  <%= form_object.scroll_picker(self, :prep_order, :prep_order_id) %>
+                  <%= form_object.scroll_picker(:prep_order, :prep_order_id) %>
 
                   <%= form_object.label(:meals) %>
                   <%= form_object.text_field :meals %>

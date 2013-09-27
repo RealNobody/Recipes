@@ -20,10 +20,10 @@
           <%= form_object.text_field :name %>
 
           <%= form_object.label(:measuring_unit) %>
-          <%= form_object.scroll_picker(self, :measuring_unit, :measuring_unit_id) %>
+          <%= form_object.scroll_picker(:measuring_unit, :measuring_unit_id) %>
 
           <%= form_object.label(:ingredient_category) %>
-          <%= form_object.scroll_picker(self, :ingredient_category, :ingredient_category_id) %>
+          <%= form_object.scroll_picker(:ingredient_category, :ingredient_category_id) %>
 
           <%= form_object.label(:prep_instructions) %>
           <%= form_object.text_area(:prep_instructions, class: "ingredient_prep") %>

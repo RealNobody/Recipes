@@ -14,7 +14,7 @@
           <input type="hidden" id="<%= @model_class_name.to_s.singularize.underscore %>-title" value="<%= I18n.t("admin.#{@model_class_name.to_s.singularize.underscore}.title", unit_type: @model_class_name.to_s.singularize.underscore.humanize.titleize, unit_name: @selected_item.alias) %>" />
 
           <%= form_object.label(:ingredient) %>
-          <%= form_object.scroll_picker(self, :ingredient, :ingredient_id) %>
+          <%= form_object.scroll_picker(:ingredient, :ingredient_id) %>
 
           <%= form_object.label(:alias) %>
           <%= form_object.text_field :alias %>

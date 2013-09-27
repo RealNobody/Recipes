@@ -6,6 +6,65 @@ class Object
   end
 end
 
+# This file creates the functions needed to alias a table through another table.
+# The table structures are:
+#
+#  def change
+#    create_table :<aliased_table> do |t|
+#      t.string :<aliased_field>
+#      t.string :<aliased_field>
+#      t.string :<aliased_field>
+#      ...
+#
+#      ... other field definitions...
+#
+#      t.timestamps
+#    end
+#
+#    create_table :<aliased_table>_aliases do |t|
+#      alias_of :<aliased_table_pleural>
+#
+#      t.timestamps
+#    end
+#
+#    add_alias_index :<aliased_table>_aliases, :<aliased_table_pleural>
+#  end
+#
+# The models are:
+#  class <AliasedTable> < ActiveRecord::Base
+#    aliased_by :<aliased_table>_aliases[, options...]
+#
+#    ... rest of the model ...
+#  end
+#
+#  class <AliasedTable>Alias < ActiveRecord::Base
+#    aliases :<aliased_table>[, options...]
+#  end
+#
+#
+#
+# The aliasing functions which are created are mostly contained within the aliased table model.
+# The alias table is mostly utilitarian and is meant as a helper for finding an item in the
+# primary table.
+#
+# The functions other than validation which are most likely to be of use are:
+#
+# <AliasedTable>.find_or_initialize
+#   The primary purpose of this function is to simplify seeding.  This function will find
+#   an existing item by name, or if it cannot be found, will initialize the object with
+#   the searched keyword.  The initialization is done by filling in the first item in the
+#   default_alias_fields option.
+#
+# aliased_table_instance.add_alias
+#   This function simply adds an alias to the list of aliases for that object.  The new alias is
+#   initialized but not saved to disk.
+#
+# <AliasedTable>.search_alias
+#   This function does a non-exact match search of the alias table for any objects who have an alias
+#   which might partially match the passed in search value.
+#
+#   The returned values are sorted in a best guess priority order.
+
 module ActiveRecord
   module Associations # :nodoc:
     module ClassMethods
@@ -31,11 +90,18 @@ module ActiveRecord
         end
 
         alias_metaclass.instance_eval do
-          # This is a helper function to find a measurement by an alias.
+          # This is a helper function to find an item by an alias.
           define_method :find_or_initialize do |alias_name|
             found_unit = self.find_by_alias(alias_name)
             if found_unit == nil
-              found_unit = self.new(name: alias_name)
+              initialize_field ||= default_alias_fields[0] if default_alias_fields && default_alias_fields.length > 0
+              initialize_field ||= default_pleural_alias_fields[0] if default_pleural_alias_fields &&
+                  default_pleural_alias_fields.length > 0
+              if (initialize_field)
+                found_unit = self.new(initialize_field.to_sym => alias_name)
+              else
+                found_unit = self.new()
+              end
             else
               found_unit
             end
@@ -74,15 +140,15 @@ module ActiveRecord
         alias_metaclass.instance_eval do
           # This is a helper function to find items by alias with a loose match.
           define_method :search_alias do |search_string|
-            search_string = search_string.downcase().gsub(/[,;:\t]/, " ").gsub(/[^ \w]/, "_").gsub(/ _/, " ").
-                gsub(/_ /, " ")
+            simplified_search_string = search_string.downcase().gsub(/[,;:\t]/, " ").gsub(/[^ \w]/, "_").
+                gsub(/ _/, " ").gsub(/_ /, " ")
 
             if (search_string.blank?)
               self.index_sort
             else
               # Scopes...
               search_results  = self.scoped
-              search_elements = search_string.split(" ")
+              search_elements = simplified_search_string.split(" ")
               case_clause     = "(CASE WHEN alias = #{self.sanitize(search_string)} THEN 1 ELSE 0 END"
               where_clause    = "alias = #{self.sanitize(search_string)}"
 
@@ -101,26 +167,6 @@ module ActiveRecord
               #search_results = search_results.select("name, #{case_clause} AS search_weight, measuring_units.id")
 
               search_results
-            end
-          end
-        end
-
-        #protected
-        define_method :create_default_aliases do
-          # I want all measuring units to have their own name and abbreviation as aliases.
-          if (default_alias_fields)
-            default_alias_fields.each do |def_alias_field|
-              if (self[def_alias_field])
-                self.add_alias(self[def_alias_field].singularize).save!
-              end
-            end
-          end
-
-          if (default_pleural_alias_fields)
-            default_pleural_alias_fields.each do |def_alias_field|
-              if (self[def_alias_field])
-                self.add_alias(self[def_alias_field].pluralize).save!
-              end
             end
           end
         end
@@ -145,6 +191,26 @@ module ActiveRecord
           end
 
           false
+        end
+
+        #protected
+        define_method :create_default_aliases do
+          # I want all measuring units to have their own name and abbreviation as aliases.
+          if (default_alias_fields)
+            default_alias_fields.each do |def_alias_field|
+              if (self[def_alias_field])
+                self.add_alias(self[def_alias_field].singularize).save!
+              end
+            end
+          end
+
+          if (default_pleural_alias_fields)
+            default_pleural_alias_fields.each do |def_alias_field|
+              if (self[def_alias_field])
+                self.add_alias(self[def_alias_field].pluralize).save!
+              end
+            end
+          end
         end
       end
 

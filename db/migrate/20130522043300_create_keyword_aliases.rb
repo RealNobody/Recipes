@@ -1,8 +1,7 @@
 class CreateKeywordAliases < ActiveRecord::Migration
   def change
     create_table :keyword_aliases do |t|
-      t.string :alias
-      t.integer :keyword_id
+      alias_of :keywords
 
       t.timestamps
     end

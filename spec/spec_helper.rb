@@ -7,7 +7,7 @@ require 'spork'
 require "devise"
 require "support/login_macros"
 
-include LoginMacros
+Dir["./spec/support/**/*.rb"].sort.each { |f| require f }
 
 #uncomment the following line to use spork with the debugger
 #require 'spork/ext/ruby-debug'
