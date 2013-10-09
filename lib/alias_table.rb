@@ -10,7 +10,7 @@ end
 # The table structures are:
 #
 #  def change
-#    create_table :<aliased_table> do |t|
+#    create_table :<aliased_table_pleural> do |t|
 #      t.string :<aliased_field>
 #      t.string :<aliased_field>
 #      t.string :<aliased_field>
@@ -93,18 +93,27 @@ module ActiveRecord
           # This is a helper function to find an item by an alias.
           define_method :find_or_initialize do |alias_name|
             found_unit = self.find_by_alias(alias_name)
-            if found_unit == nil
+            unless found_unit
               initialize_field ||= default_alias_fields[0] if default_alias_fields && default_alias_fields.length > 0
               initialize_field ||= default_pleural_alias_fields[0] if default_pleural_alias_fields &&
                   default_pleural_alias_fields.length > 0
+
               if (initialize_field)
-                found_unit = self.new(initialize_field.to_sym => alias_name)
-              else
-                found_unit = self.new()
+                new_args ={ initialize_field.to_sym => alias_name }
               end
-            else
-              found_unit
+
+              found_unit = self.new(new_args)
             end
+
+            found_unit
+          end
+
+          define_method :default_aliased_fields do
+            default_alias_fields.clone
+          end
+
+          define_method :default_pleural_aliased_fields do
+            default_pleural_alias_fields.clone
           end
         end
 
@@ -115,10 +124,12 @@ module ActiveRecord
           if (found_unit != nil && found_unit.id != self.id)
             nil
           else
-            alias_list = eval("self.#{alias_table}.select do |alias_item|\nalias_item.alias == alias_name\nend")
+            alias_list = (self.send(alias_table.to_sym)).select do |alias_item|
+              alias_item.alias == alias_name
+            end
 
             if (alias_list == nil || alias_list.length == 0)
-              new_alias = eval("self.#{alias_table}.build(alias: alias_name)")
+              self.send(alias_table.to_sym).build(alias: alias_name)
             else
               alias_list[0]
             end
@@ -126,10 +137,10 @@ module ActiveRecord
         end
 
         alias_metaclass.instance_eval do
-          # This is a helper function to find a measurement by an alias.
+          # This is a helper function to find an item by an alias.
           define_method :find_by_alias do |alias_name|
             unless alias_name == nil
-              find_alias = eval("#{alias_table.to_s.pluralize.classify}.where(alias: \"#{alias_name.downcase()}\").first()")
+              find_alias = alias_table.to_s.pluralize.classify.constantize.where(alias: "#{alias_name.downcase}").first()
             end
             unless find_alias == nil
               self.find(find_alias.send(self.name.underscore + "_id"))
@@ -140,7 +151,8 @@ module ActiveRecord
         alias_metaclass.instance_eval do
           # This is a helper function to find items by alias with a loose match.
           define_method :search_alias do |search_string|
-            simplified_search_string = search_string.downcase().gsub(/[,;:\t]/, " ").gsub(/[^ \w]/, "_").
+            search_string            ||= ""
+            simplified_search_string = search_string.downcase().gsub(/[,;\.:\t]/, " ").gsub(/[^ \w]/, "_").
                 gsub(/ _/, " ").gsub(/_ /, " ")
 
             if (search_string.blank?)
@@ -151,6 +163,8 @@ module ActiveRecord
               search_elements = simplified_search_string.split(" ")
               case_clause     = "(CASE WHEN alias = #{self.sanitize(search_string)} THEN 1 ELSE 0 END"
               where_clause    = "alias = #{self.sanitize(search_string)}"
+              where_clause    += " OR alias like #{self.sanitize("%#{search_string}%")}"
+              case_clause     += " + CASE WHEN  alias like #{self.sanitize("%#{search_string}%")} THEN 1 ELSE 0 END"
 
               search_elements.each do |element|
                 if (search_elements.length <= 1 || element.length > 2)
@@ -171,7 +185,7 @@ module ActiveRecord
           end
         end
 
-        define_method :is_default_alias do |test_alias|
+        define_method :is_default_alias? do |test_alias|
           test_alias = test_alias.downcase()
 
           if (default_alias_fields)
@@ -256,7 +270,7 @@ module ActiveRecord
 
         before_destroy do
           unless (allow_delete_default_aliases)
-            if (eval("self.#{aliased_table}.is_default_alias(\"#{self.alias}\")"))
+            if (self.send(aliased_table.to_sym).is_default_alias?("#{self.alias}"))
               return false
             end
           end
@@ -277,7 +291,8 @@ module ActiveRecord
         end
 
         define_method :list_name do
-          eval("I18n.t(\"activerecord.#{self.class.name.underscore}.list_name\", alias: self.alias, #{aliased_table}: self.#{aliased_table}.name)")
+          I18n.t("activerecord.#{self.class.name.underscore}.list_name", alias: self.alias,
+                 aliased_table.to_sym => self.send(aliased_table.to_sym).name)
         end
       end
     end

@@ -96,3 +96,5 @@ RSpec.configure do |config|
   # Devise
   config.include Devise::TestHelpers, :type => :controller
 end
+
+require "galaxy/test_support/rspec_hooks"

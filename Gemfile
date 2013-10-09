@@ -71,3 +71,8 @@ gem 'jquery-rails'
 group :production do
   gem 'pg'
 end
+
+group :test do
+  #gem 'galaxy-test_support', '~> 0.0.11', :path => '../../Deem/code/galaxy-test_support'
+  gem 'galaxy-test_support', '~> 0.0.11', :git => "git@github.com:demandchain/galaxy-test_support.git"
+end

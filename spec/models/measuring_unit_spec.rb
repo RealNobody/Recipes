@@ -17,9 +17,11 @@ describe MeasuringUnit do
     @measuring_unit = FactoryGirl.build(:measuring_unit)
   end
 
-  it_behaves_like "an aliased table"
-
   subject { @measuring_unit }
+
+  describe "is an aliased table" do
+    it_behaves_like "an aliased table"
+  end
 
   it { should respond_to(:name) }
   it { should respond_to(:abbreviation) }
@@ -56,73 +58,6 @@ describe MeasuringUnit do
     end
   end
 
-  describe "default aliases" do
-    it "should create 3 aliases with an abbreviation" do
-      abrev_unit = FactoryGirl.create(:measuring_unit, name: Faker::Name.name.singularize, abbreviation: Faker::Name.name)
-
-      abrev_unit.measurement_aliases.length.should == 3
-    end
-
-    it "should create 2 aliases with an abbreviation" do
-      abrev_unit = FactoryGirl.create(:measuring_unit, name: Faker::Name.name.singularize, abbreviation: nil)
-
-      abrev_unit.measurement_aliases.length.should == 2
-    end
-  end
-
-  describe "should create an alias for the abbreviation on save" do
-    it do
-      @measuring_unit.abbreviation = Faker::Lorem.sentence()
-      @measuring_unit.save!()
-      @measuring_unit.measurement_aliases.length.should == 3
-    end
-  end
-
-  describe "Should be able to search for aliases" do
-    before do
-      @measuring_unit.save!()
-      @measuring_unit.add_alias("Tc").save!()
-      @measuring_unit.add_alias("tc.").save!()
-      @measuring_unit.add_alias("Test Cups").save!()
-    end
-
-    it { should be_valid }
-
-    it do
-      found_unit = MeasuringUnit.find_by_alias("tC")
-      should == found_unit
-    end
-
-    it "should not allow an alias to be added for two measuring units" do
-      alias_text         = Faker::Lorem.sentence
-      alt_measuring_unit = FactoryGirl.create(:measuring_unit)
-      alt_measuring_unit.add_alias(alias_text).save!
-
-      @measuring_unit.add_alias(alias_text).should eq(nil)
-    end
-
-    it "should not allow a measuring unit to be added by alias name" do
-      new_unit = FactoryGirl.build(:measuring_unit, name: "TC.")
-      new_unit.should_not be_valid
-    end
-  end
-
-  describe "Should not find an unused alias" do
-    before do
-      @measuring_unit.save!()
-      @measuring_unit.add_alias("Tc").save!()
-      @measuring_unit.add_alias("tc.").save!()
-      @measuring_unit.add_alias("Test Cups").save!()
-    end
-
-    it { should be_valid }
-
-    it do
-      found_unit = MeasuringUnit.find_by_alias(Faker::Lorem.sentence())
-      found_unit.should == nil
-    end
-  end
-
   describe "Should be deletable" do
     it do
       @measuring_unit.save!()
@@ -148,19 +83,6 @@ describe MeasuringUnit do
       orig_abbreviation                = @measuring_unit[:abbreviation]
       @measuring_unit.has_abbreviation = true
       @measuring_unit[:abbreviation].should eq(orig_abbreviation)
-    end
-  end
-
-  describe "find_or_initialize" do
-    it "should create a new record if it doesn't exist" do
-      new_unit = MeasuringUnit.find_or_initialize(Faker::Name.name)
-      new_unit.id.should be_blank
-    end
-
-    it "should find an existing record if it does exist" do
-      @measuring_unit.save()
-      new_unit = MeasuringUnit.find_or_initialize(@measuring_unit.name)
-      new_unit.id.should_not be_blank
     end
   end
 

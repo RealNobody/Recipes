@@ -1,3 +1,9 @@
+GIT
+  remote: git@github.com:demandchain/galaxy-test_support.git
+  revision: 99db60a953e4c15533192c413a75405655f8be24
+  specs:
+    galaxy-test_support (0.0.11)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -217,6 +223,7 @@ DEPENDENCIES
   devise
   factory_girl_rails
   faker
+  galaxy-test_support (~> 0.0.11)!
   growl
   guard-rspec
   guard-spork

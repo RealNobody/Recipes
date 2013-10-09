@@ -7,6 +7,10 @@ describe Keyword do
 
   subject { @keyword }
 
+  describe "is an aliased table" do
+    it_behaves_like "an aliased table"
+  end
+
   it { should respond_to(:name) }
 
   describe "validation" do

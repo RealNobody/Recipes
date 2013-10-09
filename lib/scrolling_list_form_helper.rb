@@ -31,7 +31,7 @@ module ActionView
         # However, adding the code for the options is more than I want to do right now, or what I need to do.
         # Maybe later.
         method_object_name = options.delete(:relationship_method).to_s
-        unless (method_object_name)
+        if (method_object_name.empty?)
           # guess the name from the method by removing _id from the method.
           method_object_name = method.to_s();
           if (method_object_name.length > 3)
