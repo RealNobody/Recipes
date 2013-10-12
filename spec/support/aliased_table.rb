@@ -37,6 +37,16 @@ shared_examples "an aliased table" do
       ["\u00AC", "", "\u2026", "", "\u03A9", "", "\u2248", "", "\u221A", "", "\u222B", "", "\u2264", "", "\u2265", ""] +
       ["\u00B5", "", "\u00E6", "", "\u00AB", "", "\u201C", "", "\u2260", "", "\u2013", "", "\u00E8", ""] }
 
+  describe "#klass.initialize_field" do
+    it "should respond to #initialize_field" do
+      expect(described_class.respond_to?(:initialize_field)).to be_true
+    end
+
+    it "should respond to #initialize_field" do
+      expect(described_class.initialize_field).to eq init_field_name
+    end
+  end
+
   describe "#klass.default_aliased_fields" do
     it "should respond to #default_aliased_fields" do
       expect(described_class.respond_to?(:default_aliased_fields)).to be_true

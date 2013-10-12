@@ -89,34 +89,6 @@ module ActiveRecord
           end
         end
 
-        alias_metaclass.instance_eval do
-          # This is a helper function to find an item by an alias.
-          define_method :find_or_initialize do |alias_name|
-            found_unit = self.find_by_alias(alias_name)
-            unless found_unit
-              initialize_field ||= default_alias_fields[0] if default_alias_fields && default_alias_fields.length > 0
-              initialize_field ||= default_pleural_alias_fields[0] if default_pleural_alias_fields &&
-                  default_pleural_alias_fields.length > 0
-
-              if (initialize_field)
-                new_args ={ initialize_field.to_sym => alias_name }
-              end
-
-              found_unit = self.new(new_args)
-            end
-
-            found_unit
-          end
-
-          define_method :default_aliased_fields do
-            default_alias_fields.clone
-          end
-
-          define_method :default_pleural_aliased_fields do
-            default_pleural_alias_fields.clone
-          end
-        end
-
         define_method :add_alias do |alias_name|
           alias_name = alias_name.downcase()
           found_unit = self.class.find_by_alias(alias_name)
@@ -137,6 +109,41 @@ module ActiveRecord
         end
 
         alias_metaclass.instance_eval do
+          define_method :initialize_field do
+            if default_alias_fields && default_alias_fields.length > 0
+              initialize_field_return ||= default_alias_fields[0]
+            end
+            if default_pleural_alias_fields &&default_pleural_alias_fields.length > 0
+              initialize_field_return ||= default_pleural_alias_fields[0]
+            end
+
+            initialize_field_return.to_sym
+          end
+
+          # This is a helper function to find an item by an alias.
+          define_method :find_or_initialize do |alias_name|
+            found_unit = self.find_by_alias(alias_name)
+            unless found_unit
+              initialize_field = self.initialize_field
+
+              if (initialize_field)
+                new_args ={ initialize_field.to_sym => alias_name }
+              end
+
+              found_unit = self.new(new_args)
+            end
+
+            found_unit
+          end
+
+          define_method :default_aliased_fields do
+            default_alias_fields.clone
+          end
+
+          define_method :default_pleural_aliased_fields do
+            default_pleural_alias_fields.clone
+          end
+
           # This is a helper function to find an item by an alias.
           define_method :find_by_alias do |alias_name|
             unless alias_name == nil
@@ -146,9 +153,7 @@ module ActiveRecord
               self.find(find_alias.send(self.name.underscore + "_id"))
             end
           end
-        end
 
-        alias_metaclass.instance_eval do
           # This is a helper function to find items by alias with a loose match.
           define_method :search_alias do |search_string|
             search_string            ||= ""
@@ -175,10 +180,9 @@ module ActiveRecord
               case_clause += ")"
 
               search_results = search_results.where(where_clause)
-              search_results = search_results.order("#{case_clause} DESC").order(:name)
+              search_results = search_results.order("#{case_clause} DESC").order(self.initialize_field)
               search_results = search_results.joins(alias_table)
               search_results = search_results.uniq
-              #search_results = search_results.select("name, #{case_clause} AS search_weight, measuring_units.id")
 
               search_results
             end
@@ -244,7 +248,8 @@ module ActiveRecord
         # option? to say if default scope is specified
         # option? to specify name field?
         #default_scope joins(aliased_table).readonly(false).order("#{aliased_table.to_s.pluralize}.name, alias")
-        scope :index_sort, includes(aliased_table).order("#{aliased_table.to_s.pluralize}.name, alias")
+        scope :index_sort, includes(aliased_table).
+            order("#{aliased_table.to_s.pluralize}.#{aliased_table.to_s.classify.constantize.initialize_field}, alias")
 
         validates "#{aliased_table}".to_sym, presence: true
         validates_presence_of aliased_table
@@ -264,7 +269,7 @@ module ActiveRecord
           # for nil explicitly in the validate function.
           # This allows the value to be blank (""), but not nil.
           if (allow_blank && self.alias == nil)
-            errors.add(:name, I18n.t("activerecord.#{aliased_table}.error.cannot_be_nil"))
+            errors.add(aliased_table.to_s.classify.constantize.initialize_field, I18n.t("activerecord.#{aliased_table}.error.cannot_be_nil"))
           end
         end
 
@@ -291,8 +296,9 @@ module ActiveRecord
         end
 
         define_method :list_name do
-          I18n.t("activerecord.#{self.class.name.underscore}.list_name", alias: self.alias,
-                 aliased_table.to_sym => self.send(aliased_table.to_sym).name)
+          I18n.t("activerecord.#{self.class.name.underscore}.list_name",
+                 alias:               self.alias,
+                 aliased_table.to_sym => self.send(aliased_table).send(aliased_table.to_s.classify.constantize.initialize_field))
         end
       end
     end

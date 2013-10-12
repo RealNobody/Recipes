@@ -12,7 +12,7 @@ module ScrollingListHelper
         link_value = link_to_next_page(page_items, I18n.t("scrolling_list.picker.next_page"))
       else
         unless (page_items.last_page?)
-          link_value = "#{eval("#{page_items.klass.name.pluralize.underscore}_url")}/page/#{page_items.current_page + 1}"
+          link_value = "#{self.send("#{page_items.klass.name.pluralize.underscore}_url")}/page/#{page_items.current_page+ 1}"
           link_value = link_to("Next Page", link_value)
         end
       end
@@ -65,7 +65,7 @@ module ScrollingListHelper
         link_value = link_to_previous_page(page_items, I18n.t("scrolling_list.picker.previous_page"))
       else
         unless (page_items.first_page?)
-          link_value = "#{eval("#{page_items.klass.name.pluralize.underscore}_url")}/page/#{page_items.current_page - 1}"
+          link_value = "#{self.send("#{page_items.klass.name.pluralize.underscore}_url")}/page/#{page_items.current_page- 1}"
           link_value += "?id=" + current_item.id.to_s() if current_item
           link_value = link_to("Previous Page", link_value)
         end
