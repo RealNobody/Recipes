@@ -12,9 +12,6 @@
 class MeasuringUnit < ActiveRecord::Base
   aliased_by :measurement_aliases, allow_delete_default_aliases: false, default_alias_fields: [:name, :abbreviation], default_pleural_alias_fields: [:name]
 
-  attr_accessible :name, :abbreviation
-  attr_protected :can_delete
-
   has_many :larger_measurement_conversions, dependent: :delete_all, class_name: "MeasurementConversion",
            foreign_key:                                :smaller_measuring_unit_id
   has_many :smaller_measurement_conversions, dependent: :delete_all, class_name: "MeasurementConversion",
@@ -25,8 +22,6 @@ class MeasuringUnit < ActiveRecord::Base
 
   has_many :ingredients
 
-  #default_scope order("name")
-  scope :index_sort, order("name")
   paginates_per 2
 
   validates :name,

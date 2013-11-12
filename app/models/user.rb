@@ -29,15 +29,6 @@ class User < ActiveRecord::Base
          :trackable,
          :validatable
 
-  # Setup accessible (or protected) attributes for your model
-  attr_protected :email,
-                 :name,
-                 :password,
-                 :password_confirmation,
-                 :remember_me
-
-  # has_secure_password
-
   validates :email,
             length:     { maximum: 255 },
             presence:   true,

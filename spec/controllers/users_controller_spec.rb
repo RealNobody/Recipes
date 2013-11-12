@@ -85,7 +85,7 @@ describe UsersController do
       end
 
       it "should render a page" do
-        post :update, id: @test_user.id, user: @new_user_information
+        patch :update, id: @test_user.id, user: @new_user_information
 
         response.should be_redirect
         response.should redirect_to(user_path(assigns(:user).id))
@@ -103,7 +103,7 @@ describe UsersController do
         @new_user_information[:name] = ""
         original_name                = @test_user.name
 
-        post :update, id: @test_user.id, user: @new_user_information
+        patch :update, id: @test_user.id, user: @new_user_information
 
         response.should be_success
 
@@ -184,7 +184,7 @@ describe UsersController do
     end
 
     it "should require a user for update" do
-      post :update, id: @test_user.id
+      patch :update, id: @test_user.id
       response.should be_redirect
       response.should redirect_to("/users/sign_in")
       flash[:alert].should eq(I18n.t("devise.failure.unauthenticated"))

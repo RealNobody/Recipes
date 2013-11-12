@@ -24,7 +24,9 @@ describe MeasuringUnitsController do
       @test_measuring_unit                    = FactoryGirl.attributes_for(:measuring_unit)
       @test_measuring_unit[:has_abbreviation] = false
 
-      post :update, id: @update_measuring_unit.id, measuring_unit: @test_measuring_unit
+      patch :update,
+            id:             @update_measuring_unit.id,
+            measuring_unit: @test_measuring_unit
 
       response.should be_success
       #flash[:notice].should eq(I18n.t("scrolling_list_controller.update.success", resource_name: "Measuring unit"))
@@ -35,7 +37,7 @@ describe MeasuringUnitsController do
     before(:each) do
       @paged_test_page     = 2
       @paged_test_per_page = 2
-      @paged_test_item     = MeasuringUnit.index_sort.all[(@paged_test_page - 1) * @paged_test_per_page]
+      @paged_test_item     = MeasuringUnit.index_sort.to_a[(@paged_test_page - 1) * @paged_test_per_page]
     end
 
     it "should list items" do
@@ -152,7 +154,11 @@ describe MeasuringUnitsController do
         end
 
         it "should update units" do
-          post :update, id: @new_item.id + 99999, page: @paged_test_page, per_page: @paged_test_per_page, measuring_unit: @new_values
+          patch :update,
+                id:             @new_item.id + 99999,
+                page:           @paged_test_page,
+                per_page:       @paged_test_per_page,
+                measuring_unit: @new_values
 
           response.should be_success
           #flash[:notice].should eq(I18n.t("scrolling_list_controller.update.success", resource_name: "Measuring unit"))
@@ -163,7 +169,11 @@ describe MeasuringUnitsController do
         end
 
         it "should update units" do
-          post :update, id: @new_item.id, page: @paged_test_page, per_page: @paged_test_per_page, measuring_unit: @new_values
+          patch :update,
+                id:             @new_item.id,
+                page:           @paged_test_page,
+                per_page:       @paged_test_per_page,
+                measuring_unit: @new_values
 
           response.should be_success
           #flash[:notice].should eq(I18n.t("scrolling_list_controller.update.success", resource_name: "Measuring unit"))
@@ -178,7 +188,11 @@ describe MeasuringUnitsController do
           @new_values[:abbreviation]     = Faker::Lorem.sentence
           @new_values[:has_abbreviation] = true
 
-          post :update, id: @new_item.id, page: @paged_test_page, per_page: @paged_test_per_page, measuring_unit: @new_values
+          patch :update,
+                id:             @new_item.id,
+                page:           @paged_test_page,
+                per_page:       @paged_test_per_page,
+                measuring_unit: @new_values
 
           response.should be_success
           flash[:error].should_not be_blank

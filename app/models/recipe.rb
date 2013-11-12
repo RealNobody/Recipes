@@ -1,11 +1,8 @@
 class Recipe < ActiveRecord::Base
-  attr_accessible :cooking_instructions, :label_instructions, :meals, :name, :prep_instructions, :prep_order_id,
-                  :recipe_type_id, :servings
-
   belongs_to :recipe_type
   belongs_to :prep_order
 
-  scope :index_sort, order(:name)
+  scope :index_sort, -> { order(:name) }
 
   validates :name,
             presence: true,

@@ -30,7 +30,7 @@ shared_examples "an aliased table" do
 
   let(:find_object) { FactoryGirl.create(described_class.name.to_s.underscore.to_sym, initialize_fields_hash) }
   let(:find_object_2) { FactoryGirl.create(described_class.name.to_s.underscore.to_sym, initialize_fields_hash_2) }
-  let(:search_results) { described_class.search_alias(all_names[0]).all.map { |row| row[init_field_name] } }
+  let(:search_results) { described_class.search_alias(all_names[0]).to_a.map { |row| row[init_field_name] } }
   let(:special_characters) { ["\u00E9", "", "\u00E5", "", "\u00EE", "", "\u00FC", "", "\u00F1", "", "\u00F8", ""] +
       ["\u00A5", "", "\u2122", "", "\u00A3", "", "\u00A2", "", "\u221E", "", "\u00A7", "", "\u00B6", "", "\u2022", ""] +
       ["\u00AA", "", "\u00BA", "", "\u0153", "", "\u2020", "", "\u03C0", "", "\u2202", "", "\u00A9", "", "\u02DA", ""] +
@@ -147,7 +147,7 @@ shared_examples "an aliased table" do
     end
   end
 
-  describe "##{subject.class}.find_by_alias" do
+  describe "#find_by_alias" do
     it "should find an alias record exact match" do
       expect(find_object.id).to be
       described_class.default_aliased_fields.each do |field_name|
@@ -212,7 +212,7 @@ shared_examples "an aliased table" do
     end
   end
 
-  describe "##{subject.class}.find_or_initialize" do
+  describe "#find_or_initialize" do
     it "should initialize an object if it cannot be found" do
       described_class.default_aliased_fields.each do |field_name|
         init_item = described_class.find_or_initialize(initialize_fields_hash[field_name.to_sym].singularize)
@@ -260,7 +260,7 @@ shared_examples "an aliased table" do
     end
   end
 
-  describe "##{subject.class}.search_alias" do
+  describe "#search_alias" do
     let(:long_set_1) { build_long_word_set }
     let(:short_set_1) { build_short_word_set }
     let(:long_set_2) { build_long_word_set long_set_1 }
@@ -367,7 +367,7 @@ shared_examples "an aliased table" do
     end
 
     it "should find a mixed-up match" do
-      described_class.search_alias(all_names[0]).all[0..3].each do |match_row|
+      described_class.search_alias(all_names[0]).to_a[0..3].each do |match_row|
         expect(all_names[0..3].include?(match_row[init_field_name])).to be_true
       end
     end
@@ -378,7 +378,7 @@ shared_examples "an aliased table" do
     end
 
     it "should search for small words exact match only if multiples" do
-      short_find_results = described_class.search_alias(all_names[10]).all.
+      short_find_results = described_class.search_alias(all_names[10]).to_a.
           map { |row| row[init_field_name] }
       expect(short_find_results.count).to be >= 2
       expect(short_find_results[0]).to eq(all_names[10])
@@ -386,7 +386,7 @@ shared_examples "an aliased table" do
     end
 
     it "should search for small words if they are the only thing entered" do
-      short_find_results = described_class.search_alias(short_set_1.sample).all.map { |row| row[init_field_name] }
+      short_find_results = described_class.search_alias(short_set_1.sample).to_a.map { |row| row[init_field_name] }
 
       expect(short_find_results.count).to be >= 6
 
@@ -483,7 +483,7 @@ shared_examples "an aliased table" do
     end
 
     loop_count = 0
-    while word_set.count < 2 && loop_count < 500 do
+    while word_set.count < set_size + 2 && loop_count < 500 do
       loop_count += 1
       add_word   = ('a'..'z').map { |a| a }.sample(rand(1..2)).join("")
       unless contains_word(add_word, word_set, *args)

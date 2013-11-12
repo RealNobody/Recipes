@@ -71,13 +71,18 @@ module ActiveRecord
       def aliased_by(alias_table, options = {})
         # option - default_alias_fields: [ :name ]
         # option - default_pleural_alias_fields: [ :name ]
+        # option - index_sort: -> { order(initialize_field[0])}
 
         default_alias_fields         = options[:default_alias_fields] || [:name]
         default_pleural_alias_fields = options[:default_pleural_alias_fields] || [:name]
+        index_sort_scope             = options[:index_sort] || -> { order(:name) }
 
         has_many alias_table, dependent: :delete_all
 
         after_save :create_default_aliases
+
+        #default_scope order(:name)
+        scope :index_sort, index_sort_scope
 
         validate do
           # alias_name = alias and id is not null
@@ -164,27 +169,37 @@ module ActiveRecord
               self.index_sort
             else
               # Scopes...
-              search_results  = self.scoped
               search_elements = simplified_search_string.split(" ")
-              case_clause     = "(CASE WHEN alias = #{self.sanitize(search_string)} THEN 1 ELSE 0 END"
-              where_clause    = "alias = #{self.sanitize(search_string)}"
-              where_clause    += " OR alias like #{self.sanitize("%#{search_string}%")}"
-              case_clause     += " + CASE WHEN  alias like #{self.sanitize("%#{search_string}%")} THEN 1 ELSE 0 END"
+              case_clause     = "(CASE WHEN `alias` = #{self.sanitize(search_string)} THEN 1 ELSE 0 END"
+              where_clause    = "`alias` = #{self.sanitize(search_string)}"
+              where_clause    += " OR `alias` like #{self.sanitize("%#{search_string}%")}"
+              case_clause     += " + CASE WHEN `alias` like #{self.sanitize("%#{search_string}%")} THEN 1 ELSE 0 END"
 
               search_elements.each do |element|
                 if (search_elements.length <= 1 || element.length > 2)
-                  where_clause += " OR alias like #{self.sanitize("%#{element}%")}"
-                  case_clause  += " + CASE WHEN  alias like #{self.sanitize("%#{element}%")} THEN 1 ELSE 0 END"
+                  where_clause += " OR `alias` like #{self.sanitize("%#{element}%")}"
+                  case_clause  += " + CASE WHEN `alias` like #{self.sanitize("%#{element}%")} THEN 1 ELSE 0 END"
                 end
               end
               case_clause += ")"
 
-              search_results = search_results.where(where_clause)
-              search_results = search_results.order("#{case_clause} DESC").order(self.initialize_field)
-              search_results = search_results.joins(alias_table)
-              search_results = search_results.uniq
+              full_query = "SELECT `#{self.name.underscore.pluralize}`.*"
+              full_query << " FROM `#{self.name.underscore.pluralize}`"
+              full_query << " INNER JOIN (SELECT `#{self.name.underscore.pluralize}`.`id`, MAX("
+              full_query << case_clause
+              full_query << ") AS max_sort"
+              full_query << " FROM `#{self.name.underscore.pluralize}`"
+              full_query << " INNER JOIN `#{alias_table.to_s.pluralize}`"
+              full_query << " ON (`#{alias_table.to_s.pluralize}`.`#{self.name.underscore}_id` = `#{self.name.underscore.pluralize}`.`id`)"
+              full_query << " WHERE ("
+              full_query << where_clause
+              full_query << ") GROUP BY #{self.name.underscore.pluralize}.id)"
+              full_query << " AS `sorted_units`"
+              full_query << " ON (`sorted_units`.`id` = `#{self.name.underscore.pluralize}`.`id`)"
+              full_query << " ORDER BY `sorted_units`.`max_sort` DESC,"
+              full_query << " `#{self.name.underscore.pluralize}`.`#{self.initialize_field}` ASC"
 
-              search_results
+              self.find_by_sql(full_query)
             end
           end
         end
@@ -239,17 +254,13 @@ module ActiveRecord
         allow_blank                  = options[:allow_blank] || false
         allow_delete_default_aliases = options[:allow_delete_default_aliases] == nil ? true : options[:allow_delete_default_aliases]
 
-        attr_accessible :alias
-        # ? option to specify the id field here? - yes like , but add when needed, not now.
-        attr_accessible "#{aliased_table.to_s}_id".to_sym
-
         belongs_to aliased_table
 
         # option? to say if default scope is specified
         # option? to specify name field?
         #default_scope joins(aliased_table).readonly(false).order("#{aliased_table.to_s.pluralize}.name, alias")
-        scope :index_sort, includes(aliased_table).
-            order("#{aliased_table.to_s.pluralize}.#{aliased_table.to_s.classify.constantize.initialize_field}, alias")
+        scope :index_sort, -> { includes(aliased_table).
+            order("#{aliased_table.to_s.pluralize}.#{aliased_table.to_s.classify.constantize.initialize_field}, alias") }
 
         validates "#{aliased_table}".to_sym, presence: true
         validates_presence_of aliased_table

@@ -105,7 +105,7 @@ class ScrollableListController < ApplicationController
     user_item = instance_variable_get("@#{self.controller_name.singularize}")
 
     if (user_item == nil)
-      scroll_list_setup_instance_variables(@model_class.new(params[self.controller_name.singularize.to_sym]))
+      scroll_list_setup_instance_variables(@model_class.new(permitted_attributes(params[self.controller_name.singularize.to_sym])))
     else
       scroll_list_setup_instance_variables(user_item)
     end
@@ -134,20 +134,22 @@ class ScrollableListController < ApplicationController
     if (user_item == nil)
       scroll_list_setup_instance_variables(nil)
 
-      @selected_item.assign_attributes (params[self.controller_name.singularize.to_sym])
+      @selected_item.assign_attributes(permitted_attributes(params[self.controller_name.singularize.to_sym]))
     else
       scroll_list_setup_instance_variables(user_item)
     end
 
     respond_to do |format|
       if @selected_item.save()
-        format.html { render action: :index, notice: t("scrolling_list_controller.update.success", resource_name: self.controller_name.singularize.humanize) }
+        format.html { render action: :index, notice: t("scrolling_list_controller.update.success",
+                                                       resource_name: self.controller_name.singularize.humanize) }
         format.json { render json: @selected_item }
       else
         if (@selected_item.errors.full_messages && @selected_item.errors.full_messages.length > 0)
           flash[:error] = @selected_item.errors.full_messages.to_sentence
         else
-          flash[:error] = t("scrolling_list_controller.update.failure", resource_name: self.controller_name.singularize.humanize)
+          flash[:error] = t("scrolling_list_controller.update.failure",
+                            resource_name: self.controller_name.singularize.humanize)
         end
         format.html { render action: :index }
         format.json { render json: @selected_items.errors, status: :unprocessable_entity }
@@ -160,8 +162,8 @@ class ScrollableListController < ApplicationController
     cur_page = params[:page] || 1
     per_page = params[:per_page] || @model_per_page
 
-    @current_page  = @model_class.scoped
-    @selected_item = @model_class.scoped
+    @current_page  = @model_class.all
+    @selected_item = @model_class.all
 
     if (params[:search])
       @current_page  = @current_page.search_alias(params[:search].to_s)

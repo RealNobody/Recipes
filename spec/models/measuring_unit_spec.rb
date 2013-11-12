@@ -17,7 +17,7 @@ describe MeasuringUnit do
     @measuring_unit = FactoryGirl.build(:measuring_unit)
   end
 
-  subject { @measuring_unit }
+  let(:subject) { @measuring_unit }
 
   describe "is an aliased table" do
     it_behaves_like "an aliased table"
@@ -42,17 +42,17 @@ describe MeasuringUnit do
   end
 
   describe "abbreviation" do
-    describe "should default to name" do
+    it "should default to name" do
       test_unit = MeasuringUnit.new(name: "Test Tablespoon")
       test_unit.name.should == test_unit.abbreviation
     end
 
-    describe "should be able to be different" do
+    it "should be able to be different" do
       test_unit = MeasuringUnit.new(name: "Test Tablespoon", abbreviation: "test Tbsp.")
       test_unit.name.should_not == test_unit.abbreviation
     end
 
-    describe "should be able to be an empty string" do
+    it "should be able to be an empty string" do
       test_unit = MeasuringUnit.new(name: "Fred", abbreviation: "")
       test_unit.name.should_not == test_unit.abbreviation
     end
@@ -67,7 +67,7 @@ describe MeasuringUnit do
     end
   end
 
-  describe "seeds should not be deletable" do
+  it "seeds should not be deletable" do
     base_unit      = MeasuringUnit.find_or_initialize("cup")
     unit_destroyed = base_unit.destroy()
     unit_destroyed.should == false
@@ -101,23 +101,23 @@ describe MeasuringUnit do
       end
 
       it "should know immediate up conversions" do
-        @smaller_unit.can_convert_to(@middle_unit).should eq(true)
+        expect(@smaller_unit.can_convert_to(@middle_unit)).to be_true
       end
 
       it "should know immediate down conversions" do
-        @larger_unit.can_convert_to(@middle_unit).should eq(true)
+        expect(@larger_unit.can_convert_to(@middle_unit)).to be_true
       end
 
       it "should know skip up conversions" do
-        @smaller_unit.can_convert_to(@larger_unit).should eq(true)
+        expect(@smaller_unit.can_convert_to(@larger_unit)).to be_true
       end
 
       it "should know skip down conversions" do
-        @larger_unit.can_convert_to(@smaller_unit).should eq(true)
+        expect(@larger_unit.can_convert_to(@smaller_unit)).to be_true
       end
 
       it "should know unsupported conversions" do
-        @smaller_unit.can_convert_to(@unrelated_unit).should eq(false)
+        expect(@smaller_unit.can_convert_to(@unrelated_unit)).to be_false
       end
     end
 
@@ -171,7 +171,7 @@ describe MeasuringUnit do
       it "should test seeding" do
         test_unit = MeasuringUnit.find_or_initialize("Cup")
         test_unit.tap do |unit|
-          unit              = MeasuringUnit.find(unit.id, readonly: false)
+          unit              = MeasuringUnit.all.find(unit.id)
           unit.abbreviation = "C."
           unit.can_delete   = false
           unit.save!()

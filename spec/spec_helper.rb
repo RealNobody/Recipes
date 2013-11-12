@@ -99,3 +99,4 @@ RSpec.configure do |config|
 end
 
 require "galaxy/test_support/rspec_hooks"
+#Galaxy::TestSupport::Configuration.rspec_seed = 1

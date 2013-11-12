@@ -23,7 +23,9 @@ describe MeasurementAliasesController do
       @update_measurement_alias = MeasurementAlias.create(alias: Faker::Lorem.sentence, measuring_unit_id: MeasuringUnit.first.id)
       @test_measurement_alias   = { alias: Faker::Lorem.sentence, measuring_unit_id: MeasuringUnit.first.id }
 
-      post :update, id: @update_measurement_alias.id, measurement_alias: @test_measurement_alias
+      patch :update,
+            id:                @update_measurement_alias.id,
+            measurement_alias: @test_measurement_alias
 
       response.should be_success
     end
@@ -33,7 +35,7 @@ describe MeasurementAliasesController do
     before(:each) do
       @paged_test_page     = 2
       @paged_test_per_page = 2
-      @paged_test_item     = MeasurementAlias.index_sort.all[(@paged_test_page - 1) * @paged_test_per_page]
+      @paged_test_item     = MeasurementAlias.index_sort.to_a[(@paged_test_page - 1) * @paged_test_per_page]
     end
 
     it "should list items" do
@@ -147,7 +149,11 @@ describe MeasurementAliasesController do
         end
 
         it "should update aliases" do
-          post :update, id: @new_item.id + 99999, page: @paged_test_page, per_page: @paged_test_per_page, measurement_alias: @new_values
+          patch :update,
+                id:                @new_item.id + 99999,
+                page:              @paged_test_page,
+                per_page:          @paged_test_per_page,
+                measurement_alias: @new_values
 
           response.should be_success
           #flash[:notice].should eq(I18n.t("scrolling_list_controller.update.success", resource_name: "Measuring unit"))
@@ -157,7 +163,11 @@ describe MeasurementAliasesController do
         end
 
         it "should update aliases" do
-          post :update, id: @new_item.id, page: @paged_test_page, per_page: @paged_test_per_page, measurement_alias: @new_values
+          patch :update,
+                id:                @new_item.id,
+                page:              @paged_test_page,
+                per_page:          @paged_test_per_page,
+                measurement_alias: @new_values
 
           response.should be_success
           #flash[:notice].should eq(I18n.t("scrolling_list_controller.update.success", resource_name: "Measuring unit"))
@@ -169,7 +179,11 @@ describe MeasurementAliasesController do
         it "should not update invalid aliases" do
           @new_values[:alias] = ""
 
-          post :update, id: @new_item.id, page: @paged_test_page, per_page: @paged_test_per_page, measurement_alias: @new_values
+          patch :update,
+                id:                @new_item.id,
+                page:              @paged_test_page,
+                per_page:          @paged_test_per_page,
+                measurement_alias: @new_values
 
           response.should be_success
           flash[:error].should_not be_blank

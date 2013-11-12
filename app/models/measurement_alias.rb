@@ -11,4 +11,12 @@
 
 class MeasurementAlias < ActiveRecord::Base
   aliases :measuring_unit, allow_blank: true, allow_delete_default_aliases: false
+
+  def permitted_attributes(params)
+    if params.respond_to? (:permit)
+      params = params.permit(:alias, :measuring_unit_id)
+    end
+
+    params
+  end
 end

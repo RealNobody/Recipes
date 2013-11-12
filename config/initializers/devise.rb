@@ -1,13 +1,19 @@
 # Use this hook to configure devise mailer, warden hooks and so forth.
 # Many of these configuration options can be set straight in your model.
 Devise.setup do |config|
+  # The secret key used by Devise. Devise uses this key to generate
+  # random tokens. Changing this key will render invalid all existing
+  # confirmation, reset password and unlock tokens in the database.
+  config.secret_key = 'c341c59938b07f764cc3e4491f2bc099e9f572966bbbdabf0f22a0099a90a4469b3667dbfee25530ab4ed9b524209496322806971cc29442e99327f87125d248'
+
   # ==> Mailer Configuration
   # Configure the e-mail address which will be shown in Devise::Mailer,
-  # note that it will be overwritten if you use your own mailer class with default "from" parameter.
-  config.mailer_sender = "please-change-me-at-config-initializers-devise@example.com"
+  # note that it will be overwritten if you use your own mailer class
+  # with default "from" parameter.
+  config.mailer_sender = 'please-change-me-at-config-initializers-devise@example.com'
 
   # Configure the class responsible to send e-mails.
-  # config.mailer = "Devise::Mailer"
+  # config.mailer = 'Devise::Mailer'
 
   # ==> ORM configuration
   # Load and configure the ORM. Supports :active_record (default) and
@@ -48,17 +54,21 @@ Devise.setup do |config|
   # enable it only for database (email + password) authentication.
   # config.params_authenticatable = true
 
-  # Tell if authentication through HTTP Basic Auth is enabled. False by default.
+  # Tell if authentication through HTTP Auth is enabled. False by default.
   # It can be set to an array that will enable http authentication only for the
   # given strategies, for example, `config.http_authenticatable = [:token]` will
-  # enable it only for token authentication.
+  # enable it only for token authentication. The supported strategies are:
+  # :database      = Support basic authentication with authentication key + password
+  # :token         = Support basic authentication with token authentication key
+  # :token_options = Support token authentication with options as defined in
+  #                  http://api.rubyonrails.org/classes/ActionController/HttpAuthentication/Token.html
   # config.http_authenticatable = false
 
   # If http headers should be returned for AJAX requests. True by default.
   # config.http_authenticatable_on_xhr = true
 
-  # The realm used in Http Basic Authentication. "Application" by default.
-  # config.http_authentication_realm = "Application"
+  # The realm used in Http Basic Authentication. 'Application' by default.
+  # config.http_authentication_realm = 'Application'
 
   # It will change confirmation, password recovery and other workflows
   # to behave the same regardless if the e-mail provided was right or wrong.
@@ -72,6 +82,12 @@ Devise.setup do |config|
   # passing :skip => :sessions to `devise_for` in your config/routes.rb
   config.skip_session_storage = [:http_auth]
 
+  # By default, Devise cleans up the CSRF token on authentication to
+  # avoid CSRF token fixation attacks. This means that, when using AJAX
+  # requests for sign in and sign up, you need to get a new CSRF token
+  # from the server. You can disable this option at your own risk.
+  # config.clean_up_csrf_token_on_authentication = true
+
   # ==> Configuration for :database_authenticatable
   # For bcrypt, this is the cost for hashing the password and defaults to 10. If
   # using other encryptors, it sets how many times you want the password re-encrypted.
@@ -82,7 +98,7 @@ Devise.setup do |config|
   config.stretches = Rails.env.test? ? 1 : 10
 
   # Setup a pepper to generate the encrypted password.
-  # config.pepper = "7100837e415efb7daa7df23ccc67c34e1d53a1fb7d4a2daff9307d89d5f6534fdf70c95f25aecf3bbd1a96a0dbf50b64deddde2c1ea2b03dda328bc58a42bb54"
+  # config.pepper = '5b9963dd999d3be19bc0da6b076586106e7e067c42cd0c8f48d96afbbb9c0440a4ba61c2108e4e5b61d48f2c5f7a5914e3bfd3e8a86a1ee02a0c47969a9210d1'
 
   # ==> Configuration for :confirmable
   # A period that the user is allowed to access the website even without
@@ -91,6 +107,14 @@ Devise.setup do |config|
   # access will be blocked just in the third day. Default is 0.days, meaning
   # the user cannot access the website without confirming his account.
   # config.allow_unconfirmed_access_for = 2.days
+
+  # A period that the user is allowed to confirm their account before their
+  # token becomes invalid. For example, if set to 3.days, the user can confirm
+  # their account within 3 days after the mail was sent, but on the fourth day
+  # their account can't be confirmed with the token any more.
+  # Default is nil, meaning there is no restriction on how long a user can take
+  # before confirming their account.
+  # config.confirm_within = 3.days
 
   # If true, requires any email changes to be confirmed (exactly the same way as
   # initial account confirmation) to be applied. Requires additional unconfirmed_email
@@ -113,11 +137,11 @@ Devise.setup do |config|
   # config.rememberable_options = {}
 
   # ==> Configuration for :validatable
-  # Range for password length. Default is 6..128.
-  # config.password_length = 6..128
+  # Range for password length. Default is 8..128.
+  config.password_length = 8..128
 
   # Email regex used to validate email formats. It simply asserts that
-  # an one (and only one) @ exists in the given string. This is mainly
+  # one (and only one) @ exists in the given string. This is mainly
   # to give user feedback and not to assert the e-mail validity.
   # config.email_regexp = /\A[^@]+@[^@]+\z/
 
@@ -125,7 +149,7 @@ Devise.setup do |config|
   # The time you want to timeout the user session without activity. After this
   # time the user will be asked for credentials again. Default is 30 minutes.
   # config.timeout_in = 30.minutes
-  
+
   # If true, expires auth token on session timeout.
   # config.expire_auth_token_on_timeout = false
 
@@ -167,7 +191,9 @@ Devise.setup do |config|
   # :sha1, :sha512 or encryptors from others authentication tools as :clearance_sha1,
   # :authlogic_sha512 (then you should set stretches above to 20 for default behavior)
   # and :restful_authentication_sha1 (then you should set stretches to 10, and copy
-  # REST_AUTH_SITE_KEY to pepper)
+  # REST_AUTH_SITE_KEY to pepper).
+  #
+  # Require the `devise-encryptable` gem when using anything other than bcrypt
   # config.encryptor = :sha512
 
   # ==> Configuration for :token_authenticatable
@@ -197,7 +223,7 @@ Devise.setup do |config|
   # should add them to the navigational formats lists.
   #
   # The "*/*" below is required to match Internet Explorer requests.
-  # config.navigational_formats = ["*/*", :html]
+  # config.navigational_formats = ['*/*', :html]
 
   # The default HTTP method used to sign out a resource. Default is :delete.
   config.sign_out_via = :delete
@@ -221,12 +247,12 @@ Devise.setup do |config|
   # is mountable, there are some extra configurations to be taken into account.
   # The following options are available, assuming the engine is mounted as:
   #
-  #     mount MyEngine, at: "/my_engine"
+  #     mount MyEngine, at: '/my_engine'
   #
   # The router that invoked `devise_for`, in the example above, would be:
   # config.router_name = :my_engine
   #
   # When using omniauth, Devise cannot automatically set Omniauth path,
   # so you need to do it manually. For the users scope, it would be:
-  # config.omniauth_path_prefix = "/my_engine/users/auth"
+  # config.omniauth_path_prefix = '/my_engine/users/auth'
 end

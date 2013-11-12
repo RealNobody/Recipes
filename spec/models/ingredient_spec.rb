@@ -56,42 +56,5 @@ describe Ingredient do
     end
 
     it { should be_valid }
-
-    it "should allow multiple aliases to be added to an ingredient" do
-      alias_count = @ingredient.ingredient_aliases.count
-      added_alias = @ingredient.add_alias(Faker::Lorem.sentence)
-      added_alias.save!
-      added_alias = @ingredient.add_alias(Faker::Lorem.sentence)
-      added_alias.save!
-
-      @ingredient.ingredient_aliases.count.should eq(alias_count + 2)
-    end
-
-    it "should have default aliases" do
-      @ingredient.ingredient_aliases.count.should eq (3)
-    end
-
-    it "should have the name as a default aliases" do
-      @ingredient.save!()
-      Ingredient.find_by_alias(@ingredient.name.upcase).id.should eq(@ingredient.id)
-    end
-
-    it "should find ingredients by aliases case insensitive" do
-      found_ingredient = Ingredient.find_by_alias(@alias_text.upcase)
-
-      found_ingredient.id.should eq(@ingredient.id)
-    end
-
-    it "should not allow an alias to be added for two ingredients" do
-      alt_ingredient = FactoryGirl.create(:ingredient)
-
-      alt_ingredient.add_alias(@alias_text).should eq(nil)
-    end
-
-    it "should not allow duplicate ingredients by alias case insensitive" do
-      alt_ingredient = FactoryGirl.build(:ingredient, name: @alias_text.upcase)
-
-      alt_ingredient.should_not be_valid
-    end
   end
 end
