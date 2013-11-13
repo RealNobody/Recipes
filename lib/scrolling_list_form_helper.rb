@@ -42,7 +42,8 @@ module ActionView
 
         # output the link and the button as a single "control"
         full_output = InstanceTag.new(@object_name, method, self,
-                                      options.delete(:object)).to_scroll_picker(related_object, related_object_class_name, options)
+                                      options.delete(:object) || {}).to_scroll_picker(related_object,
+                                                                                 related_object_class_name, options)
 
         # if the dialog doesn't already exist on the form, output it.
         unless @scroll_list_hash[related_object_class_name]
@@ -62,7 +63,7 @@ module ActionView
       end
     end
 
-    class InstanceTag
+    class InstanceTag < ActionView::Helpers::Tags::Base
       # This is a helper to output the link and selector button for scrollable list item pickers.
       #
       # Parameters:
