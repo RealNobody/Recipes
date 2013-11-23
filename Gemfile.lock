@@ -219,7 +219,7 @@ DEPENDENCIES
   rb-fsevent
   rb-inotify
   rspec-rails
-  sass-rails
+  sass-rails (>= 3.2)
   simplecov
   spork
   thin

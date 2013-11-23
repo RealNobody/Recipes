@@ -12,6 +12,10 @@
 //
 //= require jquery
 //= require jquery_ujs
+
+// Loads all Bootstrap javascripts
+// = require bootstrap
+
 //= require recipes
 //= require_tree ../../../vendor/assets/javascripts/History
 //= require scrolling_list
