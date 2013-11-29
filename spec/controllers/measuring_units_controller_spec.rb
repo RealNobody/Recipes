@@ -1,9 +1,10 @@
 require "spec_helper"
 
 describe MeasuringUnitsController do
+  let(:test_user) { FactoryGirl.create(:user) }
+
   before(:each) do
-    @test_user = FactoryGirl.create(:user)
-    sign_in @test_user
+    sign_in test_user
   end
 
   describe "create" do

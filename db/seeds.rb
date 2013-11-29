@@ -6,26 +6,8 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
-puts("Seeding users...")
-User.where(email: "realnobody1@cox.net").first_or_initialize().tap do |admin_user|
-  admin_user.password = "Nobody"
-  admin_user.name     = "Real Nobody"
-  admin_user.save!()
-end
+require "seedling"
 
-User.where(email: "guest@guest.com").first_or_initialize().tap do |admin_user|
-  admin_user.password = "password"
-  admin_user.name     = "guest@guest.com"
-  admin_user.save!()
-end
-
-# Recipes seeds
-require File.expand_path("db/seeds/measuring_units")
-require File.expand_path("db/seeds/measurement_conversions")
-require File.expand_path("db/seeds/ingredient_categories")
-require File.expand_path("db/seeds/recipe_types")
-require File.expand_path("db/seeds/containers")
-require File.expand_path("db/seeds/prep_orders")
-require File.expand_path("db/seeds/keywords")
+Seedling.seed_all
 
 puts("Finished Seeding.")

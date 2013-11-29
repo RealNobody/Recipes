@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails'
+gem 'rails', ">= 4.0"
 gem "bcrypt-ruby"
 gem 'devise'                # Login gem
 gem 'kaminari'              # Paging Gem
@@ -35,12 +35,16 @@ end
 
 # Test gems on Macintosh OS X
 group :test do
+  gem "database_cleaner"
   gem 'simplecov', :require => false
   gem 'capybara'
+  gem "selenium-webdriver"
   # gem 'rb-fsevent', '0.9.1', require: false
   gem 'growl'
   gem 'factory_girl_rails'
   gem 'faker'
+
+  #gem 'page-object'
 end
 
 # Gems used only for assets and not required

@@ -12,8 +12,21 @@ shared_examples "scrolling list controller" do
   #   id
   #   id=new
 
+  #@model_class    = self.controller_name.singularize.classify.constantize
+  #@model_per_page = @model_class.default_per_page
+  #@selected_item  = nil
+  #@current_page   = nil
+
+  before(:each) do
+    let(:test_user) { FactoryGirl.create(:user) }
+
+    sign_in test_user
+  end
+
   describe "#index, #show, #edit, #new" do
-    it "should default to the first page of data"
+    it "should default to the first page of data", js: true do
+    end
+
     it "should return json data"
     it "should go to any page"
     it "should highlight the selected item"
