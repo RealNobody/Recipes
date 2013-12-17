@@ -145,12 +145,12 @@ Recipes.ScrollingList.prototype =
             scroll_class.fire_scroll (scroll_div);
           }
       )
-          .fail (
-          function ()
-          {
-            alert ("erik - do something about the fail.");
-          }
-      )
+//          .fail (
+//          function ()
+//          {
+//            alert ("erik - do something about the fail.");
+//          }
+//      )
           .always (
           function ()
           {
@@ -238,7 +238,9 @@ Recipes.ScrollingList.prototype =
                   scroll_div.scrollTop (scroll_div.scrollTop () + scroll_offset);
                 }
                 else
+                {
                   scroll_div.find ("ul").append (add_content.html ());
+                }
 
                 scroll_div.trigger ("scroll_items_changed")
 
@@ -278,12 +280,12 @@ Recipes.ScrollingList.prototype =
               }
             }
         )
-            .fail (
-            function ()
-            {
-              alert ("erik - do something about the fail.");
-            }
-        )
+//            .fail (
+//            function ()
+//            {
+//              alert ("erik - do something about the fail.");
+//            }
+//        )
             .always (
             function ()
             {
@@ -327,6 +329,10 @@ Recipes.ScrollingList.prototype =
 
     if (query_pos >= 0)
       clicked_href = clicked_href.substr (0, query_pos);
+    if (clicked_href.substr (clicked_href.length - 1) == "/")
+      clicked_href = clicked_href.substr(0, clicked_href.length - 1);
+    if (clicked_href.substr (clicked_href.length - 5) == "/edit")
+      clicked_href = clicked_href.substr(0, clicked_href.length - 5);
 
     return clicked_href;
   },

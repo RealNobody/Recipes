@@ -235,10 +235,10 @@ Recipes.ScrollingList.Admin.prototype =
               item_id = "new"
               scroll_class.display_content_on_page (scroll_div, xHeader.responseText, item_url, new_url, item_id, true);
             }
-            else
-            {
-              alert ("erik - do something about the fail.");
-            }
+//            else
+//            {
+//              alert ("erik - do something about the fail.");
+//            }
           }
       );
     }
@@ -378,13 +378,23 @@ Recipes.ScrollingList.Admin.prototype =
 
     // It is possible for the user to press the forward and back button too fast
     // for the scrolling to keep up with it, so we have to set the selection here sometimes...
-    scroll_div.find (".active").removeClass ("active");
+    var active_item = scroll_div.find (".active");
+    active_item = active_item.closest("li")
+
     search_url = scrollingList.build_find_link (window.location.pathname);
-    var new_active_item = scroll_div.find ("a[href=\"" + search_url + "\"]");
+    var new_active_item = scroll_div.find ("a[href*=\"" + search_url + "\"]");
     if (! new_active_item || new_active_item.length <= 0)
       new_active_item = scroll_div.find ("a[href^=\"" + search_url + "?\"]");
-    if (new_active_item && new_active_item.length > 0)
+    if (new_active_item && new_active_item.length > 0 && active_item != new_active_item)
+    {
+      active_item.removeClass("active");
       new_active_item.closest ("li").addClass ("active");
+    }
+    else
+    {
+      if (!new_active_item || new_active_item.length <= 0)
+        active_item.removeClass("active");
+    }
   },
 
   document_ready: function ()

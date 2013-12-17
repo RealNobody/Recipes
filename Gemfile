@@ -39,12 +39,11 @@ group :test do
   gem 'simplecov', :require => false
   gem 'capybara'
   gem "selenium-webdriver"
+  gem "site_prism"                    # page object model - https://github.com/natritmeyer/site_prism
   # gem 'rb-fsevent', '0.9.1', require: false
   gem 'growl'
   gem 'factory_girl_rails'
   gem 'faker'
-
-  #gem 'page-object'
 end
 
 # Gems used only for assets and not required

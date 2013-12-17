@@ -30,7 +30,8 @@ shared_examples "an aliased table" do
 
   let(:find_object) { FactoryGirl.create(described_class.name.to_s.underscore.to_sym, initialize_fields_hash) }
   let(:find_object_2) { FactoryGirl.create(described_class.name.to_s.underscore.to_sym, initialize_fields_hash_2) }
-  let(:search_results) { described_class.search_alias(all_names[0]).to_a.map { |row| row[init_field_name] } }
+  let(:search_results) { described_class.search_alias(all_names[0])[1].to_a.map { |row| row[init_field_name] } }
+  let(:search_results_count) { described_class.search_alias(all_names[0])[0] }
   let(:special_characters) { ["\u00E9", "", "\u00E5", "", "\u00EE", "", "\u00FC", "", "\u00F1", "", "\u00F8", ""] +
       ["\u00A5", "", "\u2122", "", "\u00A3", "", "\u00A2", "", "\u221E", "", "\u00A7", "", "\u00B6", "", "\u2022", ""] +
       ["\u00AA", "", "\u00BA", "", "\u0153", "", "\u2020", "", "\u03C0", "", "\u2202", "", "\u00A9", "", "\u02DA", ""] +
@@ -348,14 +349,17 @@ shared_examples "an aliased table" do
     end
 
     it "should return everything if empty string passed" do
-      expect(described_class.search_alias(nil).count).to eq(described_class.all.count)
+      described_class_search_alias = described_class.search_alias("")
+      expect(described_class_search_alias[1].count).to eq(described_class.all.count)
     end
 
     it "should return everything if nil is passed" do
-      expect(described_class.search_alias(nil).count).to eq(described_class.all.count)
+      described_class_search_alias = described_class.search_alias(nil)
+      expect(described_class_search_alias[1].count).to eq(described_class.all.count)
     end
 
     it "should return anything with a partial match" do
+      expect(search_results_count).to be >= 9
       expect(search_results.count).to be >= 9
       all_names[0..8].each do |match_word|
         expect(search_results.include?(match_word)).to be_true
@@ -363,11 +367,12 @@ shared_examples "an aliased table" do
     end
 
     it "should prefer an exact match" do
-      expect(described_class.search_alias(all_names[0]).first[init_field_name]).to eq(all_names[0])
+      described_class_search_alias = described_class.search_alias(all_names[0])
+      expect(described_class_search_alias[1].first[init_field_name]).to eq(all_names[0])
     end
 
     it "should find a mixed-up match" do
-      described_class.search_alias(all_names[0]).to_a[0..3].each do |match_row|
+      described_class.search_alias(all_names[0])[1].to_a[0..3].each do |match_row|
         expect(all_names[0..3].include?(match_row[init_field_name])).to be_true
       end
     end
@@ -378,17 +383,21 @@ shared_examples "an aliased table" do
     end
 
     it "should search for small words exact match only if multiples" do
-      short_find_results = described_class.search_alias(all_names[10]).to_a.
+      described_class_search_alias = described_class.search_alias(all_names[10])
+      short_find_results           = described_class_search_alias[1].to_a.
           map { |row| row[init_field_name] }
+      expect(short_find_results.count).to eq(described_class_search_alias[0])
       expect(short_find_results.count).to be >= 2
       expect(short_find_results[0]).to eq(all_names[10])
       expect(short_find_results.include?(all_names[11])).to be_true
     end
 
     it "should search for small words if they are the only thing entered" do
-      short_find_results = described_class.search_alias(short_set_1.sample).to_a.map { |row| row[init_field_name] }
+      described_class_search_alias = described_class.search_alias(short_set_1.sample)
+      short_find_results           = described_class_search_alias[1].to_a.map { |row| row[init_field_name] }
 
       expect(short_find_results.count).to be >= 6
+      expect(short_find_results.count).to eq(described_class_search_alias[0])
 
       expect(short_find_results.include?(all_names[0])).to be_true
       expect(short_find_results.include?(all_names[1])).to be_true
@@ -402,6 +411,46 @@ shared_examples "an aliased table" do
       expect(search_results.count).to be >= 9
       all_names[9..-1].each do |match_word|
         expect(search_results.include?(match_word)).to be_false
+      end
+    end
+
+    describe "paging" do
+      it "should return anything with a partial match" do
+        found_element = (1..search_results_count).map { false }
+        (0..search_results_count).step(2) do |page|
+          sub_search_results_count, sub_search_results = described_class.search_alias(all_names[0], page, 2)
+          expect(sub_search_results_count).to be >= 9
+          expect(sub_search_results.count).to be <= 2
+          all_names[0..8].each_with_index do |match_word, index|
+            if (sub_search_results.map(&init_field_name).include?(match_word))
+              found_element[index] = true
+            end
+          end
+        end
+
+        found_element.each do |found|
+          expect(found).to be_true
+        end
+      end
+
+      it "should ignore small words < 2" do
+        (0..search_results_count).step(2) do |page|
+          sub_search_results_count, sub_search_results = described_class.search_alias(all_names[0], page, 2)
+          expect(sub_search_results_count).to be >= 9
+          expect(sub_search_results.count).to be <= 2
+          expect(sub_search_results.map(&init_field_name).include?(all_names[9])).to be_false
+        end
+      end
+
+      it "should not find words that do not include the search words" do
+        (0..search_results_count).step(2) do |page|
+          sub_search_results_count, sub_search_results = described_class.search_alias(all_names[0], page, 2)
+          expect(sub_search_results_count).to be >= 9
+          expect(sub_search_results.count).to be <= 2
+          all_names[9..-1].each do |match_word|
+            expect(sub_search_results.map(&init_field_name).include?(match_word)).to be_false
+          end
+        end
       end
     end
   end

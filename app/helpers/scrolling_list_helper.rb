@@ -18,28 +18,18 @@ module ScrollingListHelper
       end
       if (link_value)
         link_value   = link_value.gsub(/\/new\/?/, "")
-        link_value   = link_value.gsub(/(\/\d+\/?)?\?page=/, "/page/")
-        append_value = ""
+        link_value   = link_value.gsub(/(\/\d+(\/edit)?\/?)?\?page=/, "/page/")
+
         if (current_item == nil || current_item.id == nil)
           append_value = "?id=new"
         else
           append_value = "?id=#{current_item.id}"
         end
         unless (items_per_page == per_default)
-          if (append_value.blank?)
-            append_value = "?"
-          else
-            append_value += "&"
-          end
-          append_value += "per_page=#{items_per_page}"
+          append_value += "&per_page=#{items_per_page}"
         end
         if (search_text)
-          if (append_value.blank?)
-            append_value = "?"
-          else
-            append_value += "&"
-          end
-          append_value += "search=#{url_encode(search_text)}"
+          append_value += "&search=#{ERB::Util.url_encode(search_text)}"
         end
         unless (append_value.blank?)
           link_value = link_value.gsub(/href="(.*?)"/, "href=\"\\1#{append_value}\"")
@@ -66,34 +56,24 @@ module ScrollingListHelper
       else
         unless (page_items.first_page?)
           link_value = "#{self.send("#{page_items.klass.name.pluralize.underscore}_url")}/page/#{page_items.current_page- 1}"
-          link_value += "?id=" + current_item.id.to_s() if current_item
           link_value = link_to("Previous Page", link_value)
         end
       end
+
       if (link_value)
         link_value   = link_value.gsub(/\/new\/?/, "")
-        link_value   = link_value.gsub(/(\/\d+\/?)?\?page=/, "/page/")
-        append_value = ""
+        link_value   = link_value.gsub(/(\/\d+(\/edit)?\/?)?\?page=/, "/page/")
+
         if (current_item == nil || current_item.id == nil)
           append_value = "?id=new"
         else
           append_value = "?id=#{current_item.id}"
         end
         unless (items_per_page == per_default)
-          if (append_value.blank?)
-            append_value = "?"
-          else
-            append_value += "&"
-          end
-          append_value += "per_page=#{items_per_page}"
+          append_value += "&per_page=#{items_per_page}"
         end
         if (search_text)
-          if (append_value.blank?)
-            append_value = "?"
-          else
-            append_value += "&"
-          end
-          append_value += "search=#{url_encode(search_text)}"
+          append_value += "&search=#{ERB::Util.url_encode(search_text)}"
         end
         unless (append_value.blank?)
           link_value = link_value.gsub(/href="(.*?)"/, "href=\"\\1#{append_value}\"")
@@ -136,23 +116,28 @@ module ScrollingListHelper
     end
 
     if (param_page)
-      link_item += "#{link_connector}page=#{param_page}"
+      link_item      += "#{link_connector}page=#{param_page}"
+      link_connector = "&"
     end
-    if (param_per_page)
-      link_item += "#{link_connector}per_page=#{param_per_page}"
+    if (param_per_page && param_per_page != per_page_model)
+      link_item      += "#{link_connector}per_page=#{param_per_page}"
+      link_connector = "&"
     end
     if (search_text)
-      link_item += "#{link_connector}search=#{url_encode(search_text)}"
+      link_item      += "#{link_connector}search=#{ERB::Util.url_encode(search_text)}"
+      link_connector = "&"
     end
     if (current_item)
       if (link_item_id === current_item.id)
         item_class = " class=\"active\""
       else
-        link_item += "#{link_connector}id=#{current_item.id}"
+        link_item      += "#{link_connector}id=#{current_item.id}"
+        link_connector = "&"
       end
     end
 
-    "<li#{item_class}>#{link_to(description, link_item, class: "scroll-item-link")}</li>".html_safe
+    Rails.logger.error("returned item = <li#{item_class}>#{link_to(description, link_item.html_safe, class: "scroll-item-link")}</li>".html_safe)
+    "<li#{item_class}>#{link_to(description, link_item.html_safe, class: "scroll-item-link")}</li>".html_safe
   end
 
   #def scrolling_list_page_break(prev_link, next_link, page_items, current_item, param_page, param_per_page, per_page_model)

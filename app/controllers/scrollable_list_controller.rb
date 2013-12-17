@@ -17,10 +17,7 @@ class ScrollableListController < ApplicationController
   def index
     scroll_list_setup_instance_variables(nil)
 
-    respond_to do |format|
-      format.html
-      format.json { render json: @current_page }
-    end
+    render_full_index(@current_page)
   end
 
   def page
@@ -40,10 +37,7 @@ class ScrollableListController < ApplicationController
       item_status = 404
     end
 
-    respond_to do |format|
-      format.html { render(partial: "show", layout: "../scrollable_list/scroll_list_partial", status: item_status) }
-      format.json { render json: @current_page }
-    end
+    render_page_element(@selected_item, item_status)
   end
 
   def edit
@@ -53,28 +47,19 @@ class ScrollableListController < ApplicationController
   def show
     scroll_list_setup_instance_variables(nil)
 
-    respond_to do |format|
-      format.html { render action: :index }
-      format.json { render json: @selected_item }
-    end
+    render_full_index(@selected_item)
   end
 
   def new
     scroll_list_setup_instance_variables(@model_class.new())
 
-    respond_to do |format|
-      format.html { render action: :index }
-      format.json { render json: @selected_item }
-    end
+    render_full_index(@selected_item)
   end
 
   def new_item
     scroll_list_setup_instance_variables(@model_class.new())
 
-    respond_to do |format|
-      format.html { render(partial: "show", layout: "../scrollable_list/scroll_list_partial") }
-      format.json { render json: @measuring_units }
-    end
+    render_page_element(@selected_item)
   end
 
   def destroy
@@ -83,21 +68,16 @@ class ScrollableListController < ApplicationController
       params.delete(:id)
       scroll_list_setup_instance_variables(nil)
 
-      respond_to do |format|
-        format.html { render action: :index }
-        format.json { render json: @selected_item }
-      end
+      render_full_index(@selected_item)
     else
       if (@selected_item && @selected_item.errors.full_messages && @selected_item.errors.full_messages.length > 0)
         flash[:error] = @selected_item.errors.full_messages.to_sentence
       else
         flash[:error] = t("scrolling_list_controller.delete.failure", resource_name: self.controller_name.singularize.humanize)
       end
+
       scroll_list_setup_instance_variables(nil)
-      respond_to do |format|
-        format.html { render action: :index }
-        format.json { render json: @selected_item }
-      end
+      render_full_index(@selected_item)
     end
   end
 
@@ -121,10 +101,8 @@ class ScrollableListController < ApplicationController
       else
         flash[:error] = t("scrolling_list_controller.create.failure", resource_name: self.controller_name.singularize.humanize)
       end
-      respond_to do |format|
-        format.html { render action: :index }
-        format.json { render json: @selected_item }
-      end
+
+      render_full_index(@selected_item)
     end
   end
 
@@ -136,6 +114,10 @@ class ScrollableListController < ApplicationController
 
       @selected_item.assign_attributes(permitted_attributes(params[self.controller_name.singularize.to_sym]))
     else
+      # I think this is a dead path.
+      # I don't remember why it was ever here.  If I ever get here again, I should not
+      # why this if/else exists.
+
       scroll_list_setup_instance_variables(user_item)
     end
 
@@ -151,44 +133,70 @@ class ScrollableListController < ApplicationController
           flash[:error] = t("scrolling_list_controller.update.failure",
                             resource_name: self.controller_name.singularize.humanize)
         end
+
         format.html { render action: :index }
-        format.json { render json: @selected_items.errors, status: :unprocessable_entity }
+        format.json { render json: @selected_item.errors, status: :unprocessable_entity }
       end
     end
   end
 
   private
   def scroll_list_setup_instance_variables(new_unit)
-    cur_page = params[:page] || 1
-    per_page = params[:per_page] || @model_per_page
+    cur_page = params[:page].try(:to_i) || 1
+    per_page = params[:per_page].try(:to_i) || @model_per_page
 
     @current_page  = @model_class.all
     @selected_item = @model_class.all
 
     if (params[:search])
-      @current_page  = @current_page.search_alias(params[:search].to_s)
-      @selected_item = @selected_item.search_alias(params[:search].to_s)
+      my_count, @current_page = @current_page.search_alias(params[:search].to_s, (cur_page - 1) * per_page, per_page)
+
+      @current_page  ||= []
+      unless params[:id]
+        @selected_item = @selected_item.search_alias(params[:search].to_s, 0, 1)[1].first
+      end
+
+      @current_page.define_singleton_method :current_page do
+        cur_page
+      end
+      @current_page.define_singleton_method :first_page? do
+        cur_page <= 1
+      end
+      @current_page.define_singleton_method :last_page? do
+        cur_page >= ((my_count / per_page) + (((my_count % per_page) == 0) ? 0 : 1))
+      end
     else
       @current_page  = @current_page.index_sort
-      @selected_item = @selected_item.index_sort
+      @selected_item = @selected_item.index_sort.limit(1).first
+
+      @current_page = @current_page.page(cur_page).per(per_page)
     end
 
-    @current_page = @current_page.page(cur_page).per(per_page)
-    #@selected_item = @selected_item.page(cur_page).per(per_page)
-
-    if (new_unit == nil)
-      if (params[:id] == nil)
-        @selected_item = @selected_item.first()
-      else
+    if new_unit
+      @selected_item = new_unit
+    else
+      if params[:id]
         @selected_item = @model_class.where(id: params[:id]).first()
       end
 
       @selected_item ||= @model_class.new()
-    else
-      @selected_item = new_unit
     end
 
     instance_variable_set("@#{self.controller_name}", @current_page)
     instance_variable_set("@#{self.controller_name.singularize}", @selected_item)
+  end
+
+  def render_full_index(json_item, item_status = 200)
+    respond_to do |format|
+      format.html { render action: :index, status: item_status }
+      format.json { render json: json_item, status: item_status }
+    end
+  end
+
+  def render_page_element(json_item, item_status = 200)
+    respond_to do |format|
+      format.html { render(partial: "show", layout: "../scrollable_list/scroll_list_partial", status: item_status) }
+      format.json { render json: json_item, status: item_status }
+    end
   end
 end

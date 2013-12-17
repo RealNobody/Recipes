@@ -2,6 +2,10 @@ module LoginMacros
   def visit_page(page_name, page_user)
     Capybara.page.visit(page_name)
 
+    validate_page page_user
+  end
+
+  def validate_page(page_user)
     inputs = Capybara.page.all("input")
 
     # I don't override the sign in view and i18n it.

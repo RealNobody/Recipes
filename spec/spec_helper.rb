@@ -5,8 +5,12 @@ SimpleCov.start 'rails'
 require 'rubygems'
 require 'spork'
 require "devise"
+require 'capybara'
 require 'capybara/rspec'
+require 'selenium-webdriver'
+require 'site_prism'
 require "cleaner"
+require "pages/recipe_rspec_app"
 
 Dir["./spec/support/**/*.rb"].sort.each { |f| require f }
 
@@ -98,6 +102,12 @@ RSpec.configure do |config|
 
   # Devise
   config.include Devise::TestHelpers, :type => :controller
+
+  config.treat_symbols_as_metadata_keys_with_true_values = true
+end
+
+SitePrism.configure do |config|
+  config.use_implicit_waits = true
 end
 
 require "galaxy/test_support/rspec_hooks"

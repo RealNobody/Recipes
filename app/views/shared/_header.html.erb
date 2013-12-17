@@ -8,7 +8,7 @@
       </a>
       <a class="brand" href="#"><%= I18n.t("header.site_name") %></a>
       <div id="recipe-button-menu" class="nav-collapse collapse">
-        <p class="navbar-text pull-right">
+        <p class="navbar-text pull-right" id="login-state">
           <% if current_user == nil %>
             <%= I18n.t("header.not_logged_in") %>
           <% else %>
@@ -19,9 +19,9 @@
           <% end %>
         </p>
         <ul class="nav">
-          <li class="active"><%= link_to(I18n.t("header.home"), root_path) %></li>
-          <li><%= link_to(I18n.t("header.menu_planner"), root_path) %></li>
-          <li><%= link_to(I18n.t("header.administration"), root_path) %></li>
+          <li class="active"><%= link_to(I18n.t("header.home"), root_path, id: "menu_home") %></li>
+          <li><%= link_to(I18n.t("header.menu_planner"), root_path, id: "menu_menu_planner") %></li>
+          <li><%= link_to(I18n.t("header.administration"), root_path, id: "menu_administration") %></li>
         </ul>
       </div>
     </div>

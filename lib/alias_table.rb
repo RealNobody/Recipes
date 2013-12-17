@@ -160,46 +160,67 @@ module ActiveRecord
           end
 
           # This is a helper function to find items by alias with a loose match.
-          define_method :search_alias do |search_string|
+          define_method :search_alias do |search_string, offset = 0, limit = 0|
             search_string            ||= ""
-            simplified_search_string = search_string.downcase().gsub(/[,;\.:\t]/, " ").gsub(/[^ \w]/, "_").
+            search_string            = search_string.downcase()
+            simplified_search_string = search_string.gsub(/[,;\.:\t]/, " ").gsub(/[^ \w]/, "_").
                 gsub(/ _/, " ").gsub(/_ /, " ")
 
             if (search_string.blank?)
-              self.index_sort
+              return_set = self.index_sort
+              return_set = return_set.limit(limit) if (limit > 0)
+              return_set = return_set.offset(offset) if (offset > 0)
+
+              [self.all.count, return_set]
             else
               # Scopes...
               search_elements = simplified_search_string.split(" ")
-              case_clause     = "(CASE WHEN `alias` = #{self.sanitize(search_string)} THEN 1 ELSE 0 END"
-              where_clause    = "`alias` = #{self.sanitize(search_string)}"
-              where_clause    += " OR `alias` like #{self.sanitize("%#{search_string}%")}"
-              case_clause     += " + CASE WHEN `alias` like #{self.sanitize("%#{search_string}%")} THEN 1 ELSE 0 END"
+              case_clause     = "(CASE WHEN `#{alias_table.to_s.pluralize}`.`alias` = #{self.sanitize(search_string)} THEN 1 ELSE 0 END"
+              where_clause    = "`#{alias_table.to_s.pluralize}`.`alias` = #{self.sanitize(search_string)}"
+              where_clause    += " OR `#{alias_table.to_s.pluralize}`.`alias` like #{self.sanitize("%#{search_string}%")}"
+              case_clause     += " + CASE WHEN `#{alias_table.to_s.pluralize}`.`alias` like #{self.sanitize("%#{search_string}%")} THEN 1 ELSE 0 END"
 
               search_elements.each do |element|
                 if (search_elements.length <= 1 || element.length > 2)
-                  where_clause += " OR `alias` like #{self.sanitize("%#{element}%")}"
-                  case_clause  += " + CASE WHEN `alias` like #{self.sanitize("%#{element}%")} THEN 1 ELSE 0 END"
+                  where_clause += " OR `#{alias_table.to_s.pluralize}`.`alias` like #{self.sanitize("%#{element}%")}"
+                  case_clause  += " + CASE WHEN `#{alias_table.to_s.pluralize}`.`alias` like #{self.sanitize("%#{element}%")} THEN 1 ELSE 0 END"
                 end
               end
               case_clause += ")"
 
               full_query = "SELECT `#{self.name.underscore.pluralize}`.*"
               full_query << " FROM `#{self.name.underscore.pluralize}`"
-              full_query << " INNER JOIN (SELECT `#{self.name.underscore.pluralize}`.`id`, MAX("
+              full_query << " INNER JOIN (SELECT `#{alias_table.to_s.pluralize}`.`#{self.name.underscore}_id`, MAX("
               full_query << case_clause
               full_query << ") AS max_sort"
-              full_query << " FROM `#{self.name.underscore.pluralize}`"
-              full_query << " INNER JOIN `#{alias_table.to_s.pluralize}`"
-              full_query << " ON (`#{alias_table.to_s.pluralize}`.`#{self.name.underscore}_id` = `#{self.name.underscore.pluralize}`.`id`)"
+              full_query << " FROM `#{alias_table.to_s.pluralize}`"
               full_query << " WHERE ("
               full_query << where_clause
-              full_query << ") GROUP BY #{self.name.underscore.pluralize}.id)"
+              full_query << ") GROUP BY `#{alias_table.to_s.pluralize}`.`#{self.name.underscore}_id`)"
               full_query << " AS `sorted_units`"
-              full_query << " ON (`sorted_units`.`id` = `#{self.name.underscore.pluralize}`.`id`)"
+              full_query << " ON (`sorted_units`.`#{self.name.underscore}_id` = `#{self.name.underscore.pluralize}`.`id`)"
               full_query << " ORDER BY `sorted_units`.`max_sort` DESC,"
               full_query << " `#{self.name.underscore.pluralize}`.`#{self.initialize_field}` ASC"
+              if (offset > 0 || limit > 0)
+                full_query << " LIMIT "
+                if (offset > 0)
+                  full_query << offset.to_s
+                  if (limit > 0)
+                    full_query << ", "
+                  end
+                end
+                if (limit > 0)
+                  full_query << limit.to_s
+                end
+              end
 
-              self.find_by_sql(full_query)
+              count_query = "SELECT COUNT(DISTINCT `#{alias_table.to_s.pluralize}`.`#{self.name.underscore}_id`)"
+              count_query << " FROM `#{alias_table.to_s.pluralize}`"
+              count_query << " WHERE ("
+              count_query << where_clause
+              count_query << ")"
+
+              [self.count_by_sql(count_query), self.find_by_sql(full_query)]
             end
           end
         end
