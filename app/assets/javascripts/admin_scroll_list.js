@@ -346,7 +346,7 @@ Recipes.ScrollingList.Admin.prototype =
     this.history_supported = History.enabled;
     if (this.history_supported)
     {
-      active_link = $ (".scrolling-list-content .active");
+      active_link = $ (".scrolling-list-primary .scrolling-list-content .active");
       if (active_link && active_link.length > 0)
       {
         active_link = active_link.find ("a");
@@ -382,9 +382,12 @@ Recipes.ScrollingList.Admin.prototype =
     active_item = active_item.closest("li")
 
     search_url = scrollingList.build_find_link (window.location.pathname);
-    var new_active_item = scroll_div.find ("a[href*=\"" + search_url + "\"]");
+    var new_active_item = scroll_div.find ("a[href=\"" + search_url + "\"]");
     if (! new_active_item || new_active_item.length <= 0)
       new_active_item = scroll_div.find ("a[href^=\"" + search_url + "?\"]");
+    if (! new_active_item || new_active_item.length <= 0)
+      new_active_item = scroll_div.find ("a[href*=\"" + search_url + "?\"]");
+
     if (new_active_item && new_active_item.length > 0 && active_item != new_active_item)
     {
       active_item.removeClass("active");
@@ -393,7 +396,9 @@ Recipes.ScrollingList.Admin.prototype =
     else
     {
       if (!new_active_item || new_active_item.length <= 0)
+      {
         active_item.removeClass("active");
+      }
     }
   },
 

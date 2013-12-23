@@ -327,6 +327,12 @@ module ActiveRecord
           end
         end
 
+        alias_metaclass.instance_eval do
+          define_method :initialize_field do
+            :alias
+          end
+        end
+
         define_method :list_name do
           I18n.t("activerecord.#{self.class.name.underscore}.list_name",
                  alias:               self.alias,

@@ -1,8 +1,8 @@
-class ScrollingListSection < SitePrism::Section
-  element :selected_item, ".active"
-  element :wait_next, ".scrolling-next"
-  element :wait_previous, ".scrolling-previous"
-  elements :items, "li a"
+require "pages/scrolling_list_section"
+
+class PickDialogSection < SitePrism::Section
+  element :search, ".pick-dialog-search-text"
+  section :results, ScrollingListSection, ".scrolling-list-content"
 
   def scroll(direction, number_of_elements)
     # I think I'm going to need this, but I don't want to take the time right now to

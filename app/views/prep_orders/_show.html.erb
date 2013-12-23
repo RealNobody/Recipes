@@ -19,6 +19,9 @@
           <%= form_object.label(:name) %>
           <%= form_object.text_field :name %>
 
+          <%= form_object.label(:order) %>
+          <%= form_object.text_field :order %>
+
           <br />
           <%= form_object.submit(I18n.t("scrolling_list.save"), class: "btn btn-primary") %>
           <% if (@prep_order.id) %>

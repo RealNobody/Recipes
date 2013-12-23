@@ -1,6 +1,6 @@
 require "pages/layout_section"
 
-class RecipePage < SitePrism::Page
+class RecipeAppPage < SitePrism::Page
   section :layout, LayoutSection, "body"
 
   def user=(user)

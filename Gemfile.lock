@@ -1,7 +1,7 @@
 PATH
   remote: ../../Deem/code/galaxy-test_support
   specs:
-    galaxy-test_support (0.0.17)
+    galaxy-test_support (0.0.18)
 
 GEM
   remote: https://rubygems.org/
@@ -233,7 +233,7 @@ DEPENDENCIES
   devise
   factory_girl_rails
   faker
-  galaxy-test_support (~> 0.0.12)!
+  galaxy-test_support (~> 0.0.18)!
   growl
   guard-rspec
   guard-spork

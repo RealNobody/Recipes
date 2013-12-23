@@ -1,7 +1,8 @@
 module ActionDispatch
-    module Routing
+  module Routing
     class Mapper
       module Resources
+        #Erik -- this is probably going to break.  Need to fix that...
         def scroll_resources(resource)
           resources resource
 

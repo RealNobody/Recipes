@@ -416,7 +416,7 @@ shared_examples "an aliased table" do
 
     describe "paging" do
       it "should return anything with a partial match" do
-        found_element = (1..search_results_count).map { false }
+        found_element = (1..9).map { false }
         (0..search_results_count).step(2) do |page|
           sub_search_results_count, sub_search_results = described_class.search_alias(all_names[0], page, 2)
           expect(sub_search_results_count).to be >= 9
