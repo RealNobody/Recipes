@@ -41,7 +41,7 @@
 
     <div class="tab-pane" id="aliases">
       <div class="recipe-tab-content">
-        The aliases page<br>
+        <%= render partial: "search_alias/show", layout: false, locals: { search_aliases: @measuring_unit.search_aliases.page(1) } %>
       </div>
     </div>
 

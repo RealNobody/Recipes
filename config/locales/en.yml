@@ -16,6 +16,10 @@ en:
       list_name: "%{alias} (%{measuring_unit})"
       error:
         cannot_be_nil: "Measurement aliases cannot be nil."
+    ingredient_category:
+      list_name: "Ingredient Category: %{ingredient_category}"
+      error:
+        already_exists: "An ingredient category with the name \"%{name}\" already exists."
     ingredient_alias:
       list_name: "%{alias} (%{ingredient})"
       error:

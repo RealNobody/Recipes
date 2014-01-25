@@ -4,7 +4,7 @@ describe MeasuringUnitsController do
   describe "Logging into the site" do
     let(:first_item) { MeasuringUnit.index_sort.first }
     let(:test_user) { FactoryGirl.create(:user) }
-    let(:page_object) { RecipeRspecApp.current_instance.full_page(test_user, MeasuringUnit) }
+    let(:page_object) { RecipeRspecApp.full_page(test_user, MeasuringUnit) }
 
     it "logs into the site", :js do
       page_object.load item_id: first_item.id

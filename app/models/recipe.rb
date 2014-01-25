@@ -1,4 +1,6 @@
 class Recipe < ActiveRecord::Base
+  aliased
+
   belongs_to :recipe_type
   belongs_to :prep_order
 

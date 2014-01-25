@@ -10,7 +10,10 @@
 #
 
 class MeasuringUnit < ActiveRecord::Base
-  aliased_by :measurement_aliases, allow_delete_default_aliases: false, default_alias_fields: [:name, :abbreviation], default_pleural_alias_fields: [:name]
+  aliased alias_fields:          [:name, :abbreviation],
+          pleural_alias_fields:  [:name],
+          allow_blank_aliases:   true,
+          allow_delete_defaults: false
 
   has_many :larger_measurement_conversions, dependent: :delete_all, class_name: "MeasurementConversion",
            foreign_key:                                :smaller_measuring_unit_id

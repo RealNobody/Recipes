@@ -24,8 +24,8 @@ shared_examples "a scrollable list controller" do
   let(:last_item) { model_class.index_sort.last }
   let(:second_page) { model_class.index_sort.page(2).to_a }
   let(:test_user) { FactoryGirl.create(:user) }
-  let(:page_object) { RecipeRspecApp.current_instance.full_page(test_user, model_class) }
-  let(:scrolling_list_page) { RecipeRspecApp.current_instance.scrolling_list_page(test_user, model_class) }
+  let(:page_object) { RecipeRspecApp.full_page(test_user, model_class) }
+  let(:scrolling_list_page) { RecipeRspecApp.scrolling_list_page(test_user, model_class) }
   let(:action) { [:index, :page].sample }
   let(:item_action) { [:item, :edit, :show, :new_item, :new].sample }
   let(:new_attributes) { FactoryGirl.attributes_for(model_class.name.underscore.to_sym) }
@@ -497,7 +497,7 @@ shared_examples "a searchable scrollable list controller" do
   let(:first_page) { model_class.index_sort.page(1).to_a }
   let(:last_item) { model_class.index_sort.last }
   let(:test_user) { FactoryGirl.create(:user) }
-  let(:scrolling_list_page) { RecipeRspecApp.current_instance.scrolling_list_page(test_user, model_class) }
+  let(:scrolling_list_page) { RecipeRspecApp.scrolling_list_page(test_user, model_class) }
   let(:action) { [:index, :page].sample }
   let(:item_action) { [:item, :edit, :show, :new_item, :new].sample }
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20130713191431) do
+ActiveRecord::Schema.define(version: 20140121022949) do
 
   create_table "container_aliases", force: true do |t|
     t.integer  "container_id"
@@ -129,6 +129,16 @@ ActiveRecord::Schema.define(version: 20130713191431) do
     t.datetime "created_at",           null: false
     t.datetime "updated_at",           null: false
   end
+
+  create_table "search_aliases", force: true do |t|
+    t.string   "alias"
+    t.integer  "aliased_id"
+    t.string   "aliased_type"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "search_aliases", ["aliased_type", "alias"], name: "index_search_aliases_on_aliased_type_and_alias", unique: true, using: :btree
 
   create_table "users", force: true do |t|
     t.string   "name"

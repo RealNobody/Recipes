@@ -1,4 +1,6 @@
 class IngredientCategory < ActiveRecord::Base
+  aliased
+
   has_many :ingredients
 
   scope :index_sort, -> { order("ingredient_categories.order, name") }

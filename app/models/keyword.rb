@@ -1,5 +1,5 @@
 class Keyword < ActiveRecord::Base
-  aliased_by :keyword_aliases
+  aliased
 
   validates :name,
             length:   { maximum: 255, minimum: 1 },

@@ -53,6 +53,8 @@ class Seedling
 
       relations = table.reflect_on_all_associations(:belongs_to)
       relations.each do |belongs_to|
+        next if belongs_to.options && belongs_to.options[:polymorphic]
+
         belongs_to_table_name = belongs_to.options[:class_name] || belongs_to.name
         prev_table            = belongs_to_table_name.to_s.singularize.classify.constantize
 

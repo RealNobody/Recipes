@@ -13,8 +13,18 @@ require "pages/recipe_type_section"
 class RecipeRspecApp
   @@current_app = nil
 
-  def self.current_instance
-    @@current_app ||= RecipeRspecApp.new
+  class << self
+    def current_instance
+      @@current_app ||= RecipeRspecApp.new
+    end
+
+    def full_page(user, model_class)
+      RecipeRspecApp.current_instance.full_page(user, model_class)
+    end
+
+    def item_page(user, model_class)
+      RecipeRspecApp.current_instance.item_page(user, model_class)
+    end
   end
 
   def full_page(user, model_class)

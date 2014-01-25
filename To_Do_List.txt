@@ -1,3 +1,6 @@
+Coffee
+HAML
+
 Cucumber
   https://github.com/jonleighton/poltergeist
 

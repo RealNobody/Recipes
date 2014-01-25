@@ -7,6 +7,10 @@ describe Recipe do
 
   subject { @recipe }
 
+  describe "is an aliased table" do
+    it_behaves_like "an aliased table"
+  end
+
   it { should respond_to(:name) }
   it { should respond_to(:cooking_instructions) }
   it { should respond_to(:label_instructions) }

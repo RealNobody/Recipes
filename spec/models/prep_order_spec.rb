@@ -7,6 +7,10 @@ describe PrepOrder do
 
   subject { @prep_order }
 
+  describe "is an aliased table" do
+    it_behaves_like "an aliased table"
+  end
+
   it { should respond_to(:name) }
   it { should respond_to(:order) }
   it { should respond_to(:recipes) }

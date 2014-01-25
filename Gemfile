@@ -5,6 +5,7 @@ gem "bcrypt-ruby"
 gem 'devise'                # Login gem
 gem 'kaminari'              # Paging Gem
 gem 'thin'
+gem "haml-rails"
 
 # bootstrap
 gem 'sass-rails', '>= 3.2' # sass-rails needs to be higher than 3.2
@@ -79,6 +80,6 @@ group :production do
 end
 
 group :test do
-  gem 'galaxy-test_support', '~> 0.0.18', :path => '../../Deem/code/galaxy-test_support'
+  gem 'galaxy-test_support', '~> 0.0.17', :path => '../../Deem/code/galaxy-test_support'
   #gem 'galaxy-test_support', '~> 0.0.18', :git => "git@github.com:demandchain/galaxy-test_support.git"
 end

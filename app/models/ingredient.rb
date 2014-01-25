@@ -1,7 +1,6 @@
 class Ingredient < ActiveRecord::Base
-  aliased_by :ingredient_aliases,
-             index_sort: -> { includes(:ingredient_category).
-                 order("ingredient_categories.order, ingredient_categories.name, ingredients.name") }
+  aliased index_sort: -> { includes(:ingredient_category).
+      order("ingredient_categories.order, ingredient_categories.name, ingredients.name") }
 
   belongs_to :measuring_unit
   belongs_to :ingredient_category

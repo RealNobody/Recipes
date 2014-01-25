@@ -1,4 +1,6 @@
 class RecipeType < ActiveRecord::Base
+  aliased
+
   has_many :recipes
 
   scope :index_sort, -> { order(:name) }
