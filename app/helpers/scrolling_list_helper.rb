@@ -130,10 +130,10 @@ module ScrollingListHelper
     if (current_item)
       if (link_item_id === current_item.id)
         item_class = " class=\"active\""
-      else
-        link_item      += "#{link_connector}id=#{current_item.id}"
-        link_connector = "&"
       end
+
+      link_item      += "#{link_connector}id=#{current_item.id}"
+      link_connector = "&"
     end
 
     Rails.logger.error("returned item = <li#{item_class}>#{link_to(description, link_item.html_safe, class: "scroll-item-link")}</li>".html_safe)

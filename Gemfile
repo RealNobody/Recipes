@@ -80,6 +80,6 @@ group :production do
 end
 
 group :test do
-  gem 'galaxy-test_support', '~> 0.0.17', :path => '../../Deem/code/galaxy-test_support'
-  #gem 'galaxy-test_support', '~> 0.0.18', :git => "git@github.com:demandchain/galaxy-test_support.git"
+  #gem 'galaxy-test_support', '~> 0.0.18', :path => '../../Deem/code/galaxy-test_support'
+  gem 'galaxy-test_support', '~> 0.0.18', :git => "git@github.com:demandchain/galaxy-test_support.git"
 end
