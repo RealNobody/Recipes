@@ -185,7 +185,6 @@ root.ScrollingListContent = class ScrollingListContent
   get_title:               (item_url) ->
     title_text = null
     object_type = item_url.match(/\/?([^\/]+)/)[1]
-    object_type = object_type.substring(0, object_type.length - 1)
     title_object = $("#" + object_type + "-title")
     if (title_object.length > 0)
       title_text = title_object.attr("value")

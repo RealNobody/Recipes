@@ -21,12 +21,12 @@ describe ScrollingListHelper do
 
     it "outputs a link for the next page to load" do
       @current_page = page_items
-      test_value = scrolling_list_next_link page_items,
-                                            current_item,
-                                            param_page,
-                                            param_per_page,
-                                            per_page_model,
-                                            search_text
+      test_value    = scrolling_list_next_link page_items,
+                                               current_item,
+                                               param_page,
+                                               param_per_page,
+                                               per_page_model,
+                                               search_text
 
       expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/3?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">Next Page</a>")
     end
@@ -116,12 +116,12 @@ describe ScrollingListHelper do
 
     it "outputs a link for the next page to load" do
       @current_page = page_items
-      test_value = scrolling_list_previous_link page_items,
-                                                current_item,
-                                                param_page,
-                                                param_per_page,
-                                                per_page_model,
-                                                search_text
+      test_value    = scrolling_list_previous_link page_items,
+                                                   current_item,
+                                                   param_page,
+                                                   param_per_page,
+                                                   per_page_model,
+                                                   search_text
 
       expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/1?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">Previous Page</a>")
     end
@@ -350,6 +350,42 @@ describe ScrollingListHelper do
                                                nil
 
       expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/1\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+    end
+  end
+
+  describe "page title" do
+    let(:selected_item) { FactoryGirl.create(:measuring_unit) }
+
+    before(:each) do
+      instance_variable_set("@model_class", MeasuringUnit)
+      instance_variable_set("@selected_item", selected_item)
+    end
+
+    describe "#page_title_field" do
+      it "should return a hidden tag" do
+        expect(page_title_field).to eq(hidden_field_tag("measuring_units-title", "#{selected_item.list_name} - Measuring Unit | Recipes"))
+      end
+    end
+
+    describe "#page_title" do
+      it "should return a base title if no model class" do
+        instance_variable_set("@model_class", nil)
+        expect(page_title).to eq("Recipes")
+      end
+
+      it "should return a default title" do
+        expect(page_title).to eq("#{selected_item.list_name} - Measuring Unit | Recipes")
+      end
+
+      it "should use scroll_list_name" do
+        selected_item.stub(:list_name).and_return("Erik")
+        expect(page_title).to eq("Erik - Measuring Unit | Recipes")
+      end
+
+      it "use a custom format if specified" do
+        selected_item.stub(:list_name).and_return("Erik")
+        expect(page_title).to eq("Erik - Measuring Unit | Recipes")
+      end
     end
   end
 end

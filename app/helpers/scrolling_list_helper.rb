@@ -17,8 +17,8 @@ module ScrollingListHelper
         end
       end
       if (link_value)
-        link_value   = link_value.gsub(/\/new\/?/, "")
-        link_value   = link_value.gsub(/(\/\d+(\/edit)?\/?)?\?page=/, "/page/")
+        link_value = link_value.gsub(/\/new\/?/, "")
+        link_value = link_value.gsub(/(\/\d+(\/edit)?\/?)?\?page=/, "/page/")
 
         if (current_item == nil || current_item.id == nil)
           append_value = "?id=new"
@@ -61,8 +61,8 @@ module ScrollingListHelper
       end
 
       if (link_value)
-        link_value   = link_value.gsub(/\/new\/?/, "")
-        link_value   = link_value.gsub(/(\/\d+(\/edit)?\/?)?\?page=/, "/page/")
+        link_value = link_value.gsub(/\/new\/?/, "")
+        link_value = link_value.gsub(/(\/\d+(\/edit)?\/?)?\?page=/, "/page/")
 
         if (current_item == nil || current_item.id == nil)
           append_value = "?id=new"
@@ -93,12 +93,12 @@ module ScrollingListHelper
   def self.scroll_list_name(current_item)
     if (current_item.respond_to?("list_name"))
       current_item.list_name
+    elsif(current_item.class.respond_to?("initialize_field"))
+      current_item.send(current_item.class.initialize_field)
+    elsif(current_item.respond_to?("name"))
+      current_item.name
     else
-      if (current_item.respond_to?("name"))
-        current_item.name
-      else
-        current_item.to_s()
-      end
+      current_item.to_s()
     end
   end
 
@@ -138,6 +138,22 @@ module ScrollingListHelper
 
     Rails.logger.error("returned item = <li#{item_class}>#{link_to(description, link_item.html_safe, class: "scroll-item-link")}</li>".html_safe)
     "<li#{item_class}>#{link_to(description, link_item.html_safe, class: "scroll-item-link")}</li>".html_safe
+  end
+
+  def page_title_field
+    hidden_field_tag("#{@model_class.name.to_s.pluralize.underscore}-title", page_title)
+  end
+
+  def page_title
+    if @model_class
+      i18n_name     = "admin.#{@model_class.name.to_s.singularize.underscore}.title"
+      default_title = I18n.t("admin.default.title_format")
+      title         = I18n.t(i18n_name, default: default_title)
+      title % { unit_type: @model_class.name.to_s.singularize.underscore.humanize.titleize,
+                unit_name: scroll_list_name(@selected_item) }
+    else
+      I18n.t("admin.default.title")
+    end
   end
 
   #def scrolling_list_page_break(prev_link, next_link, page_items, current_item, param_page, param_per_page, per_page_model)

@@ -12,10 +12,7 @@
     <div class="tab-pane active" id="measurement_conversion">
       <div class="recipe-tab-content">
         <%= form_for @measurement_conversion do |form_object| %>
-          <input type="hidden" id="<%= @model_class_name.to_s.singularize.underscore %>-title"
-                 value="<%= I18n.t("admin.#{@model_class_name.to_s.singularize.underscore}.title",
-                                   unit_type: @model_class_name.to_s.singularize.underscore.humanize.titleize,
-                                   unit_name: scroll_list_name(@selected_item)) %>" />
+          <%= page_title_field %>
 
           <%= form_object.label(:smaller_measuring_unit_id) %>
           <%= form_object.scroll_picker(:measuring_unit, :smaller_measuring_unit_id) %>

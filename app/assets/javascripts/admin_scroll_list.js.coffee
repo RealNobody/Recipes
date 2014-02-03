@@ -75,7 +75,14 @@ root.ScrollingListAdmin = class ScrollingListAdmin
       if (requestFailed)
         History.replaceState(history_info, title_text, history_info.link_url)
       else
-        History.pushState(history_info, title_text, history_info.link_url)
+        push_state = true
+        old_state = History.getState();
+        if (old_state.data.hasOwnProperty("link_url"))
+          push_state = false
+          push_state ||= history_info.link_url != old_state.data.link_url
+          push_state ||= history_info.scroll_id != old_state.data.scroll_id
+        if (push_state)
+          History.pushState(history_info, title_text, history_info.link_url)
 
     $(window).trigger("resize")
 

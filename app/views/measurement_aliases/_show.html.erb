@@ -75,10 +75,7 @@
                !@measurement_alias.measuring_unit.is_default_alias?(@measurement_alias.alias))
         %>
         <%= form_for @measurement_alias do |form_object| %>
-          <input type="hidden" id="<%= @model_class_name.to_s.singularize.underscore %>-title"
-                 value="<%= I18n.t("admin.#{@model_class_name.to_s.singularize.underscore}.title",
-                                   unit_type: @model_class_name.to_s.singularize.underscore.humanize.titleize,
-                                   unit_name: @selected_item.alias) %>" />
+          <%= page_title_field %>
 
           <%= form_object.label("Measuring unit") %>
           <% if (can_edit || is_new) %>

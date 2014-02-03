@@ -17,7 +17,6 @@ en:
       error:
         cannot_be_nil: "Measurement aliases cannot be nil."
     ingredient_category:
-      list_name: "Ingredient Category: %{ingredient_category}"
       error:
         already_exists: "An ingredient category with the name \"%{name}\" already exists."
     ingredient_alias:
@@ -93,8 +92,10 @@ en:
     menu_planner: "Menu Planner"
     administration: "Administration"
   admin:
+    default:
+      title: "Recipes"
+      title_format: "%{unit_name} - %{unit_type} | Recipes"
     measuring_unit:
-      title: "Recipes | %{unit_type} - %{unit_name}"
       tabs:
         measuring_unit: "Measuring Unit"
         aliases: "Aliases"
@@ -102,59 +103,47 @@ en:
         ingredients: "Ingredients"
       has_abbreviation: "Show a default abbreviation"
     ingredient_category:
-      title: "Recipes | %{unit_type} - %{unit_name}"
       tabs:
         ingredient_category: "Ingredient Category"
         ingredients: "Ingredients"
     recipe_type:
-      title: "Recipes | %{unit_type} - %{unit_name}"
       tabs:
         recipe_type: "Recipe Type"
         recipes: "Recipes"
     container:
-      title: "Recipes | %{unit_type} - %{unit_name}"
       tabs:
         container: "Container"
         recipes: "Recipes"
     keyword:
-      title: "Recipes | %{unit_type} - %{unit_name}"
       tabs:
         keyword: "Keyword"
     prep_order:
-      title: "Recipes | %{unit_type} - %{unit_name}"
       tabs:
         prep_order: "Prep Order"
         ingredients: "Ingredients"
     measurement_conversion:
-      title: "Recipes | %{unit_type} - %{unit_name}"
       tabs:
         measurement_conversion: "Measurement Conversion"
         conversions: "Conversions"
     measurement_alias:
-      title: "Recipes | %{unit_type} - %{unit_name}"
       tabs:
         measurement_alias: "Measurement Alias"
     ingredient_alias:
-      title: "Recipes | ${unit_type} %{unit_name}"
       tabs:
         ingredient_alias: "Ingredient Alias"
     container_alias:
-      title: "Recipes | ${unit_type} %{unit_name}"
       tabs:
         container_alias: "Container Alias"
     keyword_alias:
-      title: "Recipes | ${unit_type} %{unit_name}"
       tabs:
         keyword_alias: "Keyword Alias"
     recipe:
-      title: "Recipes | ${unit_type} %{unit_name}"
       tabs:
         recipe: "Recipe"
         edit: "Edit"
         free_form: "Free-Form Entry"
         ingredients: "Ingredients"
     ingredient:
-      title: "Recipes | ${unit_type} %{unit_name}"
       tabs:
         ingredient: "Ingredient"
         aliases: "Aliases"
