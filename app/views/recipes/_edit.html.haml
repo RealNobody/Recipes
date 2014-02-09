@@ -1,0 +1,44 @@
+.tabbable.recipe-admin-tabs-sub
+  %ul.nav.nav-tabs.recipe-nav-tabs-sub
+    %li.active
+      = link_to I18n.t("admin.recipe.tabs.recipe"), "#edit-recipe", data: { toggle: "tab" }
+    %li
+      = link_to I18n.t("admin.recipe.tabs.ingredients"), "#edit-ingredients", data: { toggle: "tab" }
+
+  = form_for @recipe do |form_object|
+    .tab-content.recipe-admin-tab-content
+      #edit-recipe.tab-pane.active
+        .recipe-tab-content-sub
+          = form_object.label(:name)
+          = form_object.text_field :name
+
+          = form_object.label(:recipe_type_id)
+          = form_object.scroll_picker(:recipe_type, :recipe_type_id)
+
+          = form_object.label(:prep_order_id)
+          = form_object.scroll_picker(:prep_order, :prep_order_id)
+
+          = form_object.label(:meals)
+          = form_object.text_field :meals
+
+          = form_object.label(:servings)
+          = form_object.text_field :servings
+
+          = form_object.label(:cooking_instructions)
+          = form_object.text_area :cooking_instructions, rows: 5, class: "recipe-instructions"
+
+          = form_object.label(:prep_instructions)
+          = form_object.text_area :prep_instructions, rows: 5, class: "recipe-prep-instructions"
+
+          = form_object.label(:label_instructions)
+          = form_object.text_field :label_instructions
+
+      #edit-ingredients.tab-pane
+        .recipe-tab-content-sub
+          ingredients for the recipe
+          %br/
+
+    %br/
+    = form_object.submit(I18n.t("scrolling_list.save"), class: "btn btn-primary")
+    - if (@recipe.id)
+      = render partial: "scrollable_list/delete_confirmation_dialog", layout: false

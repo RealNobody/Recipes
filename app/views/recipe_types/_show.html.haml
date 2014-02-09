@@ -1,0 +1,16 @@
+.tabbable.recipe-admin-tabs
+  %ul.nav.nav-tabs.recipe-nav-tabs
+    %li.active
+      = link_to I18n.t("admin.recipe_type.tabs.recipe_type"), "#recipe_type", data: { toggle: "tab"}
+    %li>
+      = link_to I18n.t("admin.recipe_type.tabs.recipes"), "#recipes", data: { toggle: "tab" }
+
+  .tab-content.recipe-admin-tab-content
+    #recipe_type.tab-pane.active
+      .recipe-tab-content
+        = render partial: "recipe_type", layout: false
+
+    #recipes.tab-pane
+      .recipe-tab-content
+        The recipes for the type
+        %br/

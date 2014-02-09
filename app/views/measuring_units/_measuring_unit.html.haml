@@ -1,0 +1,16 @@
+= form_for @measuring_unit do |form_object|
+  = page_title_field
+
+  = form_object.label :name
+  = form_object.text_field :name
+
+  %label.checkbox
+    = form_object.check_box(:has_abbreviation, value: @measuring_unit.has_abbreviation, class: "measuring-unit-has-abbreviation")
+    = I18n.t("admin.measuring_unit.has_abbreviation")
+  = form_object.label :abbreviation
+  = form_object.text_field(:abbreviation, disabled: !@measuring_unit.has_abbreviation?, class: "measuring-unit-abbreviation")
+
+  %br/
+  = form_object.submit(I18n.t("scrolling_list.save"), class: "btn btn-primary")
+  - if (@measuring_unit.id && @measuring_unit.can_delete)
+    = render partial: "scrollable_list/delete_confirmation_dialog", layout: false

@@ -1,9 +1,3 @@
-- is_new = @search_alias.id == nil
-- can_edit = @search_alias.aliased
-- can_edit &&= @search_alias.id != nil
-- can_edit &&= !@search_alias.aliased.is_default_alias?(@search_alias.alias)
-- can_edit ||= !@search_alias.aliased || @search_alias.aliased.class.allow_delete_defaults
-
 .tabbable.recipe-admin-tabs
   %ul.nav.nav-tabs.recipe-nav-tabs
     %li.active
@@ -13,29 +7,4 @@
   .tab-content.recipe-admin-tab-content
     #search_alias.tab-pane.active
       .recipe-tab-content
-        = form_for @search_alias do |form_object|
-          = page_title_field
-
-          - if @search_alias.aliased
-            = form_object.label(@search_alias.aliased.class.name.underscore.humanize)
-          - else
-            = form_object.label("New alias")
-          - if (can_edit || is_new)
-            - if is_new
-              Cannot create a new search alias
-            - else
-              = form_object.scroll_picker(@search_alias.aliased.class.name.underscore, :aliased_id)
-          - else
-            = link_to(@search_alias.aliased.name, @search_alias.aliased, target: "_blank")
-
-          = form_object.label(:alias)
-          - if (can_edit || is_new)
-            = form_object.text_field :alias
-          - else
-            = form_object.label(:alias, @search_alias.alias)
-
-          %br/
-          - if (can_edit || is_new)
-            = form_object.submit(I18n.t("scrolling_list.save"), class: "btn btn-primary")
-          - if (can_edit && !is_new)
-            = render partial: "scrollable_list/delete_confirmation_dialog", layout: false
+        = render partial: "search_alias", layout: false

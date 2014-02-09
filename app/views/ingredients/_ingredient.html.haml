@@ -1,0 +1,22 @@
+= form_for @ingredient do |form_object|
+  = page_title_field
+
+  = form_object.label(:name)
+  = form_object.text_field :name
+
+  = form_object.label(:measuring_unit)
+  = form_object.scroll_picker(:measuring_unit, :measuring_unit_id)
+
+  = form_object.label(:ingredient_category)
+  = form_object.scroll_picker(:ingredient_category, :ingredient_category_id)
+
+  = form_object.label(:prep_instructions)
+  = form_object.text_area(:prep_instructions, class: "ingredient_prep")
+
+  = form_object.label(:day_before_prep_instructions)
+  = form_object.text_area(:day_before_prep_instructions, class: "ingredient_prep")
+
+  %br/
+  = form_object.submit(I18n.t("scrolling_list.save"), class: "btn btn-primary")
+  - if (@ingredient.id)
+    = render partial: "scrollable_list/delete_confirmation_dialog", layout: false

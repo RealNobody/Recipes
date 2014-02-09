@@ -1,0 +1,7 @@
+= form_for @recipe do |form_object|
+  Free form entry field for the recipe
+  %br/
+  %br/
+  = form_object.submit(I18n.t("scrolling_list.parse"), class: "btn btn-primary")
+  - if (@recipe.id)
+    = render partial: "scrollable_list/delete_confirmation_dialog", layout: false

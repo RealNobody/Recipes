@@ -1,0 +1,16 @@
+.tabbable.recipe-admin-tabs
+  %ul.nav.nav-tabs.recipe-nav-tabs
+    %li.active
+      = link_to I18n.t("admin.measurement_conversion.tabs.measurement_conversion"), "#measurement_conversion", data: { toggle: "tab" }
+    %li
+      = link_to I18n.t("admin.measurement_conversion.tabs.conversions"), "#conversions", data: { toggle: "tab" }
+
+  .tab-content.recipe-admin-tab-content
+    #measurement_conversion.tab-pane.active
+      .recipe-tab-content
+        = render partial: "measurement_conversion", layout: false
+
+    #conversionstab-pane
+      .recipe-tab-content
+        The related conversions
+        %br/

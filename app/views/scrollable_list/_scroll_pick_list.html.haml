@@ -1,0 +1,15 @@
+%div.scrolling-picker-dialog.modal.hide.fade{ id: "pick-#{local_assigns[:related_object_class_name]}-dialog",
+tabindex:"-1", role: "dialog", "aria-labeledby" => "confirm-delete-title", "aria-hidden" => "true",
+"data-class-name" => local_assigns[:related_object_class_name].to_s.pluralize }
+  .modal-header
+    %button.close{ type: "button", data: { dismiss: "modal" }, "aria-hidden" => "true" } x
+    %h4#confirm-delete-title
+      = I18n.t("scrolling_list.picker.dialog_title",
+      resource_name: local_assigns[:related_object_class_name].to_s.humanize.singularize.titleize)
+  .modal-body
+    %input.pick-dialog-search-text{ type: "text" }
+    .well
+      %div.scrolling-list.scrolling-list-picker{ id: "pick-scroll-#{local_assigns[:related_object_class_name]}",
+      "data-content-id" => "scroll-content-#{local_assigns[:related_object_class_name]}" }
+        %ul.scrolling-list-content.nav.nav-list
+          = render(partial: "scroll_content", template: false, locals: { list_object: related_object, list_object_class_name: related_object_class_name })

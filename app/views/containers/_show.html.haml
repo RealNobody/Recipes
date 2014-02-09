@@ -1,0 +1,16 @@
+.tabbable.recipe-admin-tabs
+  %ul.nav.nav-tabs.recipe-nav-tabs
+    %li.active
+      = link_to I18n.t("admin.container.tabs.container"), "#container", data: { toggle: "tab" }
+    %li
+      = link_to I18n.t("admin.container.tabs.recipes"), "#recipes", data: { toggle: "tab" }
+
+  .tab-content.recipe-admin-tab-content
+    #container.tab-pane.active
+      .recipe-tab-content
+        = render partial: "container", layout: false
+
+    #recipes.tab-pane
+      .recipe-tab-content
+        The recipes for the container
+        %br

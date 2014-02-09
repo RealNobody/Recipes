@@ -42,6 +42,7 @@ en:
       failure: "Could not create %{resource_name}."
   scrolling_list:
     save: "Save"
+    parse: "Parse"
     new: "New %{unit_type}"
     picker:
       change_button: "Change"
@@ -114,6 +115,7 @@ en:
       tabs:
         search_alias: "Alias"
     recipe:
+      new_recipe: "New Recipie"
       tabs:
         recipe: "Recipe"
         edit: "Edit"

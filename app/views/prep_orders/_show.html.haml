@@ -1,0 +1,16 @@
+.tabbable.recipe-admin-tabs
+  %ul.nav.nav-tabs.recipe-nav-tabs
+    %li.active
+      = link_to I18n.t("admin.prep_order.tabs.prep_order"), "#prep_order", data: { toggle: "tab" }
+    %li
+      = link_to I18n.t("admin.prep_order.tabs.ingredients"), "#ingredients", data: { toggle: "tab" }
+
+  .tab-content.recipe-admin-tab-content
+    #prep_order.tab-pane.active
+      .recipe-tab-content
+        = render partial: "prep_order", layout: false
+
+    #ingredients.tab-pane
+      .recipe-tab-content
+        The ingredients for the prep order
+        %br/

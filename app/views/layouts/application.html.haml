@@ -1,0 +1,53 @@
+!!! html
+%html
+  %head
+    %meta{ charset: "utf-8" }
+
+    -#enable responsive features
+    %meta{ name: "viewport", content: "width=device-width, initial-scale=1.0" }
+
+    %title= page_title
+    = stylesheet_link_tag "application", media: "all"
+    = csrf_meta_tags
+    -# HTML5 shim, for IE6-8 support of HTML5 elements
+    /[if lt IE 9]
+      %script{ src: "http://html5shim.googlecode.com/svn/trunk/html5.js" }
+  %body
+    .recipe-body
+      = render "shared/header"
+      .recipe-container
+        .container-fluid
+          .row-fluid
+            .span2
+              #side-menu.well.sidebar-nav
+                %ul.nav.nav-list
+                  %li.nav-header Standard Functions
+                  %li= link_to(I18n.t("main_layout.side_menu.menus"), root_path, id: "menu_root")
+                  %li= link_to(I18n.t("main_layout.side_menu.recipes"), recipes_path, id: "menu_recipes")
+                  %li.nav-header= I18n.t("main_layout.side_menu.admin_functions")
+                  %li= link_to(I18n.t("main_layout.side_menu.measuring_units"), measuring_units_path, id: "menu_measuring_units")
+                  %li= link_to(I18n.t("main_layout.side_menu.conversions"), measurement_conversions_path, id: "menu_measurement_conversions")
+                  %li= link_to(I18n.t("main_layout.side_menu.categories"), ingredient_categories_path, id: "menu_ingredient_categories")
+                  %li= link_to(I18n.t("main_layout.side_menu.ingredients"), ingredients_path, id: "menu_ingredients")
+                  %li= link_to(I18n.t("main_layout.side_menu.recipe_types"), recipe_types_path, id: "menu_recipe_types")
+                  %li= link_to(I18n.t("main_layout.side_menu.containers"), containers_path, id: "menu_containers")
+                  %li= link_to(I18n.t("main_layout.side_menu.keywords"), keywords_path, id: "menu_keywords")
+                  %li= link_to(I18n.t("main_layout.side_menu.prep_orders"), prep_orders_path, id: "menu_prep_orders")
+                  %li= link_to(I18n.t("main_layout.side_menu.search_aliases"), search_aliases_path, id: "menu_search_aliases")
+            .span10
+              .container-fluid.recipe-simple-container
+                %div{ class: "row-fluid recipe-error-information#{flash.keys.length > 0 ? "" : " recipe-error-hidden"}" }
+                  .span12
+                    - if flash.keys.length > 0
+                      #alerts.alert.alert-error.recipe-alert
+                        %button.close{ type: "button", data: { dismiss: "alert" } } &times;
+                        - flash.each do |key, value|
+                          %div{ class: "alert alert-#{key}" }= value
+                .row-fluid
+                  .span12
+                    = yield
+                .row-fluid
+                  .span12
+                    = debug(params) if Rails.env.development?
+      = render "shared/footer"
+    = javascript_include_tag "application"

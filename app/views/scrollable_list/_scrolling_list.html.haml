@@ -1,0 +1,14 @@
+.container-fluid.recipe-simple-container.scrolling-list-container
+  .row-fluid
+    .span3
+      .well
+        %div.scrolling-list.scrolling-list-primary{ id: "scroll-#{@_controller.controller_name}",
+        "data-content-id" => "scroll-content-#{@_controller.controller_name}" }
+          %ul.scrolling-list-content.nav.nav-list
+            = content_for :scroll_list
+      .scrolling-list-new-link
+        = link_to(I18n.t("scrolling_list.new",
+        unit_type: @_controller.controller_name.humanize().singularize().titleize()),
+        self.send("new_#{@_controller.controller_name.singularize()}_path"))
+    %div.span9.scrolling-content{ id: "scroll-content-#{@_controller.controller_name}" }
+      = content_for :first_item

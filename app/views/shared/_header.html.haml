@@ -1,0 +1,20 @@
+#recipe-main-menu.navbar.navbar-inverse.navbar-fixed-top
+  .navbar-inner
+    .container-fluid
+      %a#recipe-button-menu-button.btn.btn-navbar{ data: { toggle: "collapse", target: ".nav-collapse" } }
+        %span.icon-bar
+        %span.icon-bar
+        %span.icon-bar
+      = link_to I18n.t("header.site_name"), "#", class: "brand"
+      #recipe-button-menu.nav-collapse.collapse
+        %p#login-state.navbar-text.pull-right
+          - if current_user == nil
+            = I18n.t("header.not_logged_in")
+          - else
+            = I18n.t("header.logged_in", login_name: current_user.name)
+            -#= link_to "Username", "#", class: "navbar-link"
+        %ul.nav
+          %li.active= link_to(I18n.t("header.home"), root_path, id: "menu_home")
+          %li= link_to(I18n.t("header.menu_planner"), root_path, id: "menu_menu_planner")
+          %li= link_to(I18n.t("header.administration"), root_path, id: "menu_administration")
+.recipe-menu-adjust

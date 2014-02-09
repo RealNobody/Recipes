@@ -1,0 +1,16 @@
+.tabbable.recipe-admin-tabs
+  %ul.nav.nav-tabs.recipe-nav-tabs
+    %li.active
+      = link_to I18n.t("admin.ingredient.tabs.ingredient"), "#ingredient", data: { toggle: "tab" }
+    %li
+      = link_to I18n.t("admin.ingredient.tabs.aliases"), "#aliases", data: { toggle: "tab" }
+
+  .tab-content.recipe-admin-tab-content
+    #ingredient.tab-pane.active
+      .recipe-tab-content
+        = render partial: "ingredient", layout: false
+
+    #aliases.tab-pane
+      .recipe-tab-content
+        The aliases page
+        %br/

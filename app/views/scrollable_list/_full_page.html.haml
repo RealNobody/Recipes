@@ -1,0 +1,4 @@
+- content_for :scroll_list do
+  = render(partial: "scroll_content", layout: false)
+- content_for :first_item do
+  = render(partial: "#{@_controller.controller_name}/show", layout: false)

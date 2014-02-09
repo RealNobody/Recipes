@@ -1,0 +1,9 @@
+.tabbable.recipe-admin-tabs
+  %ul.nav.nav-tabs.recipe-nav-tabs
+    %li.active
+      = link_to I18n.t("admin.keyword.tabs.keyword"), "#keyword", data: { toggle: "tab" }
+
+  .tab-content.recipe-admin-tab-content
+    #keyword.tab-pane.active
+      .recipe-tab-content
+        = render partial: "keyword", layout: false

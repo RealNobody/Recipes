@@ -133,10 +133,10 @@ root.PickerScrollingList = class PickerScrollingList
     scrolling_list = dialog_box.find(".scrolling-list-picker")
 
     cur_id = null
-    extract_id_from_element(cur_id, scrolling_list, ".active a")
-    extract_id_from_element(cur_id, scrolling_list, ".scrolling-next a")
-    extract_id_from_element(cur_id, scrolling_list, ".scrolling-previous a")
-    extract_id_from_element(cur_id, scrolling_list, "li a")
+    this.extract_id_from_element(cur_id, scrolling_list, ".active a")
+    this.extract_id_from_element(cur_id, scrolling_list, ".scrolling-next a")
+    this.extract_id_from_element(cur_id, scrolling_list, ".scrolling-previous a")
+    this.extract_id_from_element(cur_id, scrolling_list, "li a")
 
     if (cur_id == null)
       cur_id = dialog_box.attr("data-selected-item-id")

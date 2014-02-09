@@ -1,0 +1,29 @@
+.tabbable.recipe-admin-tabs
+  %ul.nav.nav-tabs.recipe-nav-tabs
+    %li.active
+      = link_to I18n.t("admin.measuring_unit.tabs.measuring_unit"), "#measuring_unit", data: { toggle: "tab" }
+    %li
+      = link_to I18n.t("admin.measuring_unit.tabs.aliases"), "#aliases", data: { toggle: "tab" }
+    %li
+      = link_to I18n.t("admin.measuring_unit.tabs.conversions"), "#conversions", data: { toggle: "tab" }
+    %li
+      = link_to I18n.t("admin.measuring_unit.tabs.ingredients"), "#ingredients", data: { toggle: "tab" }
+
+  .tab-content.recipe-admin-tab-content
+    #measuring_unit.tab-pane.active
+      .recipe-tab-content
+        = render partial: "measuring_unit", layout: false
+
+    #aliases.tab-pane
+      .recipe-tab-content
+        = render partial: "search_aliases/tab_show", layout: false, locals: { search_aliases: @measuring_unit.search_aliases.page(1) }
+
+    #conversions.tab-pane
+      .recipe-tab-content
+        The conversions page
+        %br/
+
+    #ingredients.tab-pane
+      .recipe-tab-content
+        The ingredients page
+        %br/

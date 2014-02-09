@@ -1,0 +1,41 @@
+- if (@recipe.id)
+  %h1= @recipe.name
+  %span.recipe-view-label= I18n.t("recipe.view.recipe_type")
+  %span.recipe-view-data
+    = @recipe.recipe_type.name
+    %br/
+
+  %span.recipe-view-label= I18n.t("recipe.view.prep_order")
+  %span.recipe-view-data
+    = @recipe.prep_order.name
+    %br/
+
+  %span.recipe-view-label= I18n.t("recipe.view.meals")
+  %span.recipe-view-data
+    = @recipe.meals
+    %br/
+
+  %span.recipe-view-label= I18n.t("recipe.view.servings")
+  %span.recipe-view-data
+    = @recipe.servings
+    %br/
+
+  %span.recipe-view-label= I18n.t("recipe.view.day_before_instructions")
+  %span.recipe-view-data
+    %br/
+    = @recipe.prep_instructions
+    %br/
+
+  %span.recipe-view-label= I18n.t("recipe.view.instructions")
+  %span.recipe-view-data
+    %br/
+    = @recipe.cooking_instructions
+    %br/
+
+  %span.recipe-view-label= I18n.t("recipe.view.label_instructions")
+  %span.recipe-view-data
+    %br/
+    = @recipe.label_instructions
+    %br/
+- else
+  %h1= I18n.t("admin.recipe.new_recipe")

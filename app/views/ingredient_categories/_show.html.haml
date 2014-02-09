@@ -1,0 +1,16 @@
+.tabbable.recipe-admin-tabs
+  %ul.nav.nav-tabs.recipe-nav-tabs
+    %li.active
+      = link_to I18n.t("admin.ingredient_category.tabs.ingredient_category"), "#ingredient_category", data: { toggle: "tab" }
+    %li
+      = link_to I18n.t("admin.ingredient_category.tabs.ingredients"), "#ingredients", data: { toggle: "tab" }
+
+  .tab-content.recipe-admin-tab-content
+    #ingredient_category.tab-pane.active
+      .recipe-tab-content
+        = render partial: "ingredient_category", layout: false
+
+    #ingredients.tab-pane
+      .recipe-tab-content
+        The ingredients for the category
+        %br/

@@ -1,0 +1,10 @@
+= form_for @recipe_type do |form_object|
+  = page_title_field
+
+  = form_object.label(:name)
+  = form_object.text_field :name
+
+  %br/
+  = form_object.submit(I18n.t("scrolling_list.save"), class: "btn btn-primary")
+  - if (@recipe_type.id)
+    = render partial: "scrollable_list/delete_confirmation_dialog", layout: false

@@ -1,0 +1,23 @@
+.tabbable.recipe-admin-tabs
+  %ul.nav.nav-tabs.recipe-nav-tabs
+    %li.active
+      = link_to I18n.t("admin.recipe.tabs.recipe"), "#recipe", data: { toggle: "tab" }
+    %li
+      = link_to I18n.t("admin.recipe.tabs.free_form"), "#free-form", data: { toggle: "tab" }
+    %li
+      = link_to I18n.t("admin.recipe.tabs.edit"), "#edit", data: { toggle: "tab" }
+
+  = page_title_field
+
+  .tab-content.recipe-admin-tab-content
+    #recipe.tab-pane.active
+      .recipe-tab-content
+        = render partial: "view", layout: false
+
+    #edit.tab-pane
+      .recipe-tab-content
+        = render partial: "edit", layout: false
+
+    #free-form.tab-pane
+      .recipe-tab-content
+        = render partial: "free_form", layout: false
