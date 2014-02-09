@@ -18,6 +18,7 @@ describe Ingredient do
   it { should respond_to(:day_before_prep_instructions) }
   it { should respond_to(:measuring_unit) }
   it { should respond_to(:ingredient_category) }
+  it { should respond_to(:search_aliases) }
 
   describe "basic validations" do
     it { should be_valid }

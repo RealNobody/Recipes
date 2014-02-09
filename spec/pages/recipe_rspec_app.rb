@@ -1,5 +1,4 @@
 require "pages/recipe_app_page"
-require "pages/container_alias_section"
 require "pages/container_section"
 require "pages/ingredient_category_section"
 require "pages/ingredient_section"
@@ -9,6 +8,7 @@ require "pages/measuring_unit_section"
 require "pages/prep_order_section"
 require "pages/recipe_section"
 require "pages/recipe_type_section"
+require "pages/search_alias_section"
 
 class RecipeRspecApp
   @@current_app = nil
@@ -18,18 +18,26 @@ class RecipeRspecApp
       @@current_app ||= RecipeRspecApp.new
     end
 
-    def full_page(user, model_class)
-      RecipeRspecApp.current_instance.full_page(user, model_class)
+    def method_missing(method_sym, *arguments, &block)
+      if RecipeRspecApp.current_instance.respond_to?(method_sym, true)
+        RecipeRspecApp.current_instance.send(method_sym, *arguments)
+      else
+        super
+      end
     end
 
-    def item_page(user, model_class)
-      RecipeRspecApp.current_instance.item_page(user, model_class)
+    def respond_to?(method_sym, include_private = false)
+      if RecipeRspecApp.current_instance.respond_to?(method_sym, include_private)
+        true
+      else
+        super
+      end
     end
   end
 
   def full_page(user, model_class)
     instance_var_sym = "@full_#{model_class.name.underscore}_page".to_sym
-    instance_var = instance_variable_get(instance_var_sym)
+    instance_var     = instance_variable_get(instance_var_sym)
 
     unless instance_var
       class_object = Class.new(RecipeAppPage)
@@ -56,7 +64,7 @@ class RecipeRspecApp
 
   def item_page(user, model_class)
     instance_var_sym = "@full_#{model_class.name.underscore}_page".to_sym
-    instance_var = instance_variable_get(instance_var_sym)
+    instance_var     = instance_variable_get(instance_var_sym)
 
     unless instance_var
       class_object = Class.new(RecipeAppPage)
@@ -80,7 +88,7 @@ class RecipeRspecApp
 
   def scrolling_list_page(user, model_class)
     instance_var_sym = "@scrolling_list_#{model_class.name.underscore}_page".to_sym
-    instance_var = instance_variable_get(instance_var_sym)
+    instance_var     = instance_variable_get(instance_var_sym)
 
     unless instance_var
       class_object = Class.new(RecipeAppPage)

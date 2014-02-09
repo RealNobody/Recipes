@@ -512,77 +512,77 @@ module ActiveRecord
       #  end
       #end
 
-      def aliases(aliased_table, options = {})
-        # option - allow_blank: true/false - default false
-        # option - allow_delete_default_aliases: true/false - default true
-
-        allow_blank                  = options[:allow_blank] || false
-        allow_delete_default_aliases = options[:allow_delete_default_aliases] == nil ? true : options[:allow_delete_default_aliases]
-
-        belongs_to aliased_table
-
-        # option? to say if default scope is specified
-        # option? to specify name field?
-        #default_scope joins(aliased_table).readonly(false).order("#{aliased_table.to_s.pluralize}.name, alias")
-        scope :index_sort, -> { includes(aliased_table).
-            order("#{aliased_table.to_s.pluralize}.#{aliased_table.to_s.classify.constantize.initialize_field}, alias") }
-
-        validates "#{aliased_table}".to_sym, presence: true
-        validates_presence_of aliased_table
-
-        validates :alias,
-                  length:     { maximum: 255 },
-                  uniqueness: { case_sensitive: false }
-
-        unless (allow_blank)
-          validates :alias,
-                    presence: true,
-                    length:   { minimum: 1 }
-        end
-
-        validate do
-          # if allow_blank is set, we do not check for presence, so we have to check
-          # for nil explicitly in the validate function.
-          # This allows the value to be blank (""), but not nil.
-          if (allow_blank && self.alias == nil)
-            errors.add(aliased_table.to_s.classify.constantize.initialize_field, I18n.t("activerecord.#{aliased_table}.error.cannot_be_nil"))
-          end
-        end
-
-        before_destroy do
-          unless (allow_delete_default_aliases)
-            if (self.send(aliased_table.to_sym).is_default_alias?("#{self.alias}"))
-              return false
-            end
-          end
-
-          true
-        end
-
-        define_method :alias do
-          self[:alias]
-        end
-
-        define_method :alias= do |alias_name|
-          if (alias_name)
-            self[:alias] = alias_name.downcase()
-          else
-            self[:alias] = alias_name
-          end
-        end
-
-        alias_metaclass.instance_eval do
-          define_method :initialize_field do
-            :alias
-          end
-        end
-
-        define_method :list_name do
-          I18n.t("activerecord.#{self.class.name.underscore}.list_name",
-                 alias:               self.alias,
-                 aliased_table.to_sym => self.send(aliased_table).send(aliased_table.to_s.classify.constantize.initialize_field))
-        end
-      end
+      #def aliases(aliased_table, options = {})
+      #  # option - allow_blank: true/false - default false
+      #  # option - allow_delete_default_aliases: true/false - default true
+      #
+      #  allow_blank                  = options[:allow_blank] || false
+      #  allow_delete_default_aliases = options[:allow_delete_default_aliases] == nil ? true : options[:allow_delete_default_aliases]
+      #
+      #  belongs_to aliased_table
+      #
+      #  # option? to say if default scope is specified
+      #  # option? to specify name field?
+      #  #default_scope joins(aliased_table).readonly(false).order("#{aliased_table.to_s.pluralize}.name, alias")
+      #  scope :index_sort, -> { includes(aliased_table).
+      #      order("#{aliased_table.to_s.pluralize}.#{aliased_table.to_s.classify.constantize.initialize_field}, alias") }
+      #
+      #  validates "#{aliased_table}".to_sym, presence: true
+      #  validates_presence_of aliased_table
+      #
+      #  validates :alias,
+      #            length:     { maximum: 255 },
+      #            uniqueness: { case_sensitive: false }
+      #
+      #  unless (allow_blank)
+      #    validates :alias,
+      #              presence: true,
+      #              length:   { minimum: 1 }
+      #  end
+      #
+      #  validate do
+      #    # if allow_blank is set, we do not check for presence, so we have to check
+      #    # for nil explicitly in the validate function.
+      #    # This allows the value to be blank (""), but not nil.
+      #    if (allow_blank && self.alias == nil)
+      #      errors.add(aliased_table.to_s.classify.constantize.initialize_field, I18n.t("activerecord.#{aliased_table}.error.cannot_be_nil"))
+      #    end
+      #  end
+      #
+      #  before_destroy do
+      #    unless (allow_delete_default_aliases)
+      #      if (self.send(aliased_table.to_sym).is_default_alias?("#{self.alias}"))
+      #        return false
+      #      end
+      #    end
+      #
+      #    true
+      #  end
+      #
+      #  define_method :alias do
+      #    self[:alias]
+      #  end
+      #
+      #  define_method :alias= do |alias_name|
+      #    if (alias_name)
+      #      self[:alias] = alias_name.downcase()
+      #    else
+      #      self[:alias] = alias_name
+      #    end
+      #  end
+      #
+      #  alias_metaclass.instance_eval do
+      #    define_method :initialize_field do
+      #      :alias
+      #    end
+      #  end
+      #
+      #  define_method :list_name do
+      #    I18n.t("activerecord.#{self.class.name.underscore}.list_name",
+      #           alias:               self.alias,
+      #           aliased_table.to_sym => self.send(aliased_table).send(aliased_table.to_s.classify.constantize.initialize_field))
+      #  end
+      #end
     end
   end
 

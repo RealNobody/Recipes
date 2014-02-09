@@ -16,17 +16,14 @@ class SideMenuSection < SitePrism::Section
   element :root, "#menu_root"
   element :recipes, "#menu_recipes"
   element :measuring_units, "#menu_measuring_units"
-  element :measurment_aliases, "#menu_measurement_aliases"
   element :measurement_conversions, "#menu_measurement_conversions"
   element :ingredient_categories, "#menu_ingredient_categories"
-  element :ingredient_aliases, "#menu_ingredient_aliases"
   element :ingredients, "#menu_ingredients"
   element :recipe_types, "#menu_recipe_types"
   element :containers, "#menu_containers"
-  element :container_aliases, "#menu_container_aliases"
   element :keywords, "#menu_keywords"
-  element :keyword_aliases, "#menu_keyword_aliases"
   element :prep_orders, "#menu_prep_orders"
+  element :search_aliases, "#menu_search_aliases"
 end
 
 class LayoutSection < SitePrism::Section

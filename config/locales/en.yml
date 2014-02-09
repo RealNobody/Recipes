@@ -12,25 +12,13 @@ en:
       list_name: "%{smaller_unit} to %{larger_unit}"
       error:
         already_exists: "The measurement conversion already exists"
-    measurement_alias:
-      list_name: "%{alias} (%{measuring_unit})"
+    search_alias:
       error:
-        cannot_be_nil: "Measurement aliases cannot be nil."
+        cannot_be_nil: "Aliases cannot be nil."
+        already_exists: "An alias with the name \"%{name}\" already exists."
     ingredient_category:
       error:
         already_exists: "An ingredient category with the name \"%{name}\" already exists."
-    ingredient_alias:
-      list_name: "%{alias} (%{ingredient})"
-      error:
-        already_exists: "An ingredient with the name \"%{name}\" already exists."
-    container_alias:
-      list_name: "%{alias} (%{container})"
-      error:
-        already_exists: "A container with the name \"%{name}\" already exists."
-    keyword_alias:
-      list_name: "%{alias} (%{keyword})"
-      error:
-        already_exists: "A keyword with the name \"%{name}\" already exists."
     ingredient:
       error:
         already_exists: "An ingredient with the name \"%{name}\" already exists which uses this name as an alias."
@@ -69,16 +57,13 @@ en:
       recipes: "Recipes"
       admin_functions: "Administrative Functions"
       measuring_units: "Measuring Units"
-      measurement_aliases: "Measurement Aliases"
+      search_aliases: "Aliases"
       conversions: "Simple Conversions"
       categories: "Ingredient Categories"
-      ingredient_aliases: "Ingredient Aliases"
       ingredients: "Ingredients"
       recipe_types: "Recipe Types"
       containers: "Containers"
-      container_aliases: "Container Aliases"
       keywords: "Keywords"
-      keyword_aliases: "Keyword Aliases"
       prep_orders: "Prep Orders"
   footer:
     site_name: "Once-A-Month Meal planning"
@@ -125,18 +110,9 @@ en:
       tabs:
         measurement_conversion: "Measurement Conversion"
         conversions: "Conversions"
-    measurement_alias:
+    search_alias:
       tabs:
-        measurement_alias: "Measurement Alias"
-    ingredient_alias:
-      tabs:
-        ingredient_alias: "Ingredient Alias"
-    container_alias:
-      tabs:
-        container_alias: "Container Alias"
-    keyword_alias:
-      tabs:
-        keyword_alias: "Keyword Alias"
+        search_alias: "Alias"
     recipe:
       tabs:
         recipe: "Recipe"

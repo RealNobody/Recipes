@@ -61,8 +61,34 @@ class MoveAliasedTablesToSearchAliases < ActiveRecord::Migration
     execute <<-SQL
       UPDATE
         search_aliases
+        INNER JOIN search_aliases AS new_alias
+          ON (search_aliases.aliased_type = SUBSTR(new_alias.aliased_type, 35)
+              AND search_aliases.alias = new_alias.alias
+             )
       SET
-        aliased_type = SUBSTR(aliased_type, 35, 100)
+        search_aliases.aliased_id = new_alias.aliased_id
+      WHERE
+        SUBSTR(new_alias.aliased_type, 1, 34) = 'MoveAliasedTablesToSearchAliases::'
+    SQL
+
+    execute <<-SQL
+      DELETE
+        new_alias
+      FROM
+        search_aliases AS new_alias
+        INNER JOIN search_aliases
+          ON (search_aliases.aliased_type = SUBSTR(new_alias.aliased_type, 35)
+              AND search_aliases.alias = new_alias.alias
+             )
+      WHERE
+        SUBSTR(new_alias.aliased_type, 1, 34) = 'MoveAliasedTablesToSearchAliases::'
+    SQL
+
+    execute <<-SQL
+      UPDATE
+        search_aliases
+      SET
+        aliased_type = SUBSTR(aliased_type, 35)
       WHERE
         SUBSTR(aliased_type, 1, 34) = 'MoveAliasedTablesToSearchAliases::'
     SQL

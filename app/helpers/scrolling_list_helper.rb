@@ -93,8 +93,6 @@ module ScrollingListHelper
   def self.scroll_list_name(current_item)
     if (current_item.respond_to?("list_name"))
       current_item.list_name
-    elsif(current_item.class.respond_to?("initialize_field"))
-      current_item.send(current_item.class.initialize_field)
     elsif(current_item.respond_to?("name"))
       current_item.name
     else
@@ -109,11 +107,11 @@ module ScrollingListHelper
     link_item_id = link_item.id
 
     link_item = url_for(link_item)
-    if link_item =~ /\?/
-      link_connector = "&"
-    else
+    #if link_item =~ /\?/
+    #  link_connector = "&"
+    #else
       link_connector = "?"
-    end
+    #end
 
     if (param_page)
       link_item      += "#{link_connector}page=#{param_page}"

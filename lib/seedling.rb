@@ -1,3 +1,35 @@
+# TODO: split into two classes.
+# This class got confused, and ended up doing two different things.
+# I should probably split this into two classes, but that is something
+# for later.
+#
+# Right now, this class has two primary uses.
+#
+# Seeding
+#   This class will seed all tables in a database or a single table.
+#   Seeding is accomplished by calling a class function for the table
+#   model object called #seed.
+#   If a table does not have a #seed method, that table will not be seeded
+#   This system assumes that #seed is idempotent and can be called multiple
+#   times.
+#   When seeding multiple tables, relationships between tables are determined
+#   by checking the #belongs_to relationship and ordering the tables accordingly.
+#   This allows tables which may be dependent on another table being seeded first
+#   to be seeded in the appropriate order.
+#
+# Database Cleanup
+#   This class supports an alternative database cleanup method that is NOT
+#   completely safe.  Just "good enough" for many cases, and much faster than
+#   most.
+#
+#   The cleanup methodology works roughly as follows:
+#     Before any test is run, reset the database, and re-seed it (start from a blank
+#     and initialized database.)  The seeding is done by calling Seedling.seed_all
+#     Before tests are run, save a Seedling instance generated from Seedling.test_start
+#     or Seedling.suite_start.
+#     After the tests are complete call test_end or suite_end on the instance saved before
+#     the test was run.
+
 class Seedling
   @@create_order = nil
 

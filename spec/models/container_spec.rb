@@ -12,6 +12,7 @@ describe Container do
   end
 
   it { should respond_to(:name) }
+  it { should respond_to(:search_aliases) }
 
   describe "validation" do
     it "should be valid" do

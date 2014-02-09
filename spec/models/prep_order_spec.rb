@@ -14,6 +14,7 @@ describe PrepOrder do
   it { should respond_to(:name) }
   it { should respond_to(:order) }
   it { should respond_to(:recipes) }
+  it { should respond_to(:search_aliases) }
 
   describe "validation" do
     it "should be valid" do

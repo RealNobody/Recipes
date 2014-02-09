@@ -271,7 +271,7 @@ describe ScrollingListHelper do
                                                per_page_model,
                                                search_text
 
-      expect(test_value).to eq("<li class=\"active\"><a class=\"scroll-item-link\" href=\"/measuring_units/1?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      expect(test_value).to eq("<li class=\"active\"><a class=\"scroll-item-link\" href=\"/measuring_units/1?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=1\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
     end
 
     it "allows param_page to be nil" do

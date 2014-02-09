@@ -54,16 +54,13 @@ class SearchAlias < ActiveRecord::Base
   end
 
   def list_name
-    list_name_value = I18n.t("activerecord.#{self.aliased_type.underscore}_alias.list_name",
-                             alias:                              self.alias,
-                             self.aliased_type.underscore.to_sym => self.aliased.send(self.aliased.class.initialize_field),
-                             default:                            "")
-
-    if list_name_value.blank?
-      list_name_value = "%{alias} (%{name})" % { alias: self.alias,
-                                                 name:  self.aliased.send(self.aliased.class.initialize_field) }
+    if (aliased_type.blank?)
+      "New Alias"
+    else
+      I18n.t("activerecord.#{self.aliased_type.underscore}_alias.list_name",
+             alias:   self.alias,
+             name:    self.aliased.send(self.aliased.class.initialize_field),
+             default: "%{alias} (%{name})")
     end
-
-    list_name_value
   end
 end

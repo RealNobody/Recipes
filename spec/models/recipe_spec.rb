@@ -21,6 +21,7 @@ describe Recipe do
   it { should respond_to(:servings) }
   it { should respond_to(:prep_order) }
   it { should respond_to(:recipe_type) }
+  it { should respond_to(:search_aliases) }
 
   describe "validation" do
     it "should be valid" do

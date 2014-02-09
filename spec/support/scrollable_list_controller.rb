@@ -120,11 +120,17 @@ shared_examples "a scrollable list controller" do
       end
 
       it "handles a failure gracefully" do
-        model_class.any_instance.stub(:save).and_return false
+        subject.stub(:permitted_attributes) do |params|
+          if params.respond_to? (:permit)
+            params = params.permit(params.first)
+          end
 
-        new_attributes
+          params
+        end
+
+        new_attributes[model_class.initialize_field] = nil
+
         max_id = model_class.maximum(:id)
-
         post :create, model_class.name.underscore => new_attributes
 
         expect(response).to be_success
@@ -148,8 +154,9 @@ shared_examples "a scrollable list controller" do
       end
 
       it "handles a failure gracefully" do
-        model_class.any_instance.stub(:save).and_return false
+        #model_class.any_instance.stub(:save).and_return false
 
+        new_attributes[model_class.initialize_field] = nil
         expect(new_attributes[model_class.initialize_field]).to_not eq(first_page[0][model_class.initialize_field])
 
         patch :update,

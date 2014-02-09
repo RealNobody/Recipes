@@ -26,9 +26,10 @@ describe MeasuringUnit do
   it { should respond_to(:name) }
   it { should respond_to(:abbreviation) }
   it { should_not respond_to(:search_name) }
-  it { should respond_to(:measurement_aliases) }
+  it { should respond_to(:search_aliases) }
   it { should respond_to(:can_delete) }
-  #it { should respond_to(:larger_measurement_conversions) }
+  it { should respond_to(:larger_measurement_conversions) }
+  it { should respond_to(:smaller_measurement_conversions) }
   it { should respond_to(:ingredients) }
 
   describe "names should be unique and not case sensitive" do

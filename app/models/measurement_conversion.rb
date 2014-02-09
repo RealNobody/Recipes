@@ -20,6 +20,10 @@ class MeasurementConversion < ActiveRecord::Base
     end
   end
 
+  def self.initialize_field
+    :multiplier
+  end
+
   def list_name
     if (self.smaller_measuring_unit && self.larger_measuring_unit)
       return I18n.t("activerecord.measurement_conversion.list_name", smaller_unit: self.smaller_measuring_unit.abbreviation,

@@ -52,11 +52,21 @@ shared_examples "an aliased table" do
     it "should respond to #default_aliased_fields" do
       expect(described_class.respond_to?(:default_aliased_fields)).to be_true
     end
+
+    it "should have aliased_fields" do
+      expect(described_class.aliased_fields).to_not be_blank
+    end
   end
 
   describe "#klass.default_pleural_aliased_fields " do
     it "should respond to #default_pleural_aliased_fields " do
       expect(described_class.respond_to?(:default_pleural_aliased_fields)).to be_true
+    end
+
+    it "should have pleural_aliased_fields" do
+      unless (described_class.pleural_aliased_fields == [])
+        expect(described_class.pleural_aliased_fields).to_not be_blank
+      end
     end
   end
 
@@ -146,6 +156,10 @@ shared_examples "an aliased table" do
       bad_object = FactoryGirl.build(described_class.name.to_s.underscore.to_sym, new_fields)
       expect(bad_object).to_not be_valid
     end
+  end
+
+  it "should respond to #search_aliases" do
+    expect(find_object.respond_to?(:search_aliases)).to be_true
   end
 
   describe "#find_by_alias" do

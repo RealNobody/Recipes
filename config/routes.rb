@@ -9,17 +9,14 @@ Recipes::Application.routes.draw do
 
   scroll_resources :measuring_units
   scroll_resources :measurement_conversions
-  scroll_resources :measurement_aliases
   scroll_resources :ingredient_categories
-  scroll_resources :ingredient_aliases
   scroll_resources :ingredients
   scroll_resources :recipe_types
   scroll_resources :containers
-  scroll_resources :container_aliases
   scroll_resources :keywords
-  scroll_resources :keyword_aliases
   scroll_resources :prep_orders
   scroll_resources :recipes
+  scroll_resources :search_aliases
 
   root to: 'static#index'
 

@@ -8,29 +8,30 @@ describe MeasuringUnitsController do
   end
 
   describe "create" do
-    it "should set the has abbreviation"# do
-  #    @test_measuring_unit                    = FactoryGirl.attributes_for(:measuring_unit)
-  #    @test_measuring_unit[:has_abbreviation] = false
-  #
-  #    post :create, measuring_unit: @test_measuring_unit
-  #
-  #    response.should be_redirect
-  #    response.should redirect_to(measuring_unit_path(assigns(:measuring_unit).id))
-  #  end
+    it "should ignore the abbreviation if has abbreviation is true" do
+      @test_measuring_unit                    = FactoryGirl.attributes_for(:measuring_unit, abbreviation: "fred")
+      @test_measuring_unit[:has_abbreviation] = false
+
+      post :create, measuring_unit: @test_measuring_unit
+
+      response.should be_redirect
+      response.should redirect_to(measuring_unit_path(assigns(:measuring_unit).id))
+      expect(assigns(:measuring_unit)[:abbreviation]).to be_blank
+    end
   end
 
   describe "update" do
-    it "should set the has abbreviation"# do
-  #    @update_measuring_unit                  = FactoryGirl.create(:measuring_unit, abbreviation: Faker::Name.name)
-  #    @test_measuring_unit                    = FactoryGirl.attributes_for(:measuring_unit)
-  #    @test_measuring_unit[:has_abbreviation] = false
-  #
-  #    patch :update,
-  #          id:             @update_measuring_unit.id,
-  #          measuring_unit: @test_measuring_unit
-  #
-  #    response.should be_success
-  #    #flash[:notice].should eq(I18n.t("scrolling_list_controller.update.success", resource_name: "Measuring unit"))
-  #  end
+    it "should blank the abbreviation if has abbreviation is true" do
+      @update_measuring_unit                  = FactoryGirl.create(:measuring_unit, abbreviation: Faker::Name.name)
+      @test_measuring_unit                    = FactoryGirl.attributes_for(:measuring_unit)
+      @test_measuring_unit[:has_abbreviation] = false
+
+      patch :update,
+            id:             @update_measuring_unit.id,
+            measuring_unit: @test_measuring_unit
+
+      response.should be_success
+      expect(MeasuringUnit.where(id: @update_measuring_unit.id).first[:abbreviation]).to_not be
+    end
   end
 end
