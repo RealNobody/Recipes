@@ -144,7 +144,7 @@ root.ScrollingListContent = class ScrollingListContent
   show_item:               (eventData, scrolling_list, clicked_item_url) ->
     item_url = this.build_click_link(clicked_item_url)
     item_id = this.get_item_link_id(item_url)
-    clicked_item_url = clicked_item_url.replace(/([\?&])id=(:?\d+|new)/, "$1id=" + item_id)
+    clicked_item_url = clicked_item_url.replace(/([\?&])id=(?:new|\d*)/, "$1id=" + item_id)
 
     eventData.preventDefault()
 
@@ -176,7 +176,7 @@ root.ScrollingListContent = class ScrollingListContent
   # Given an object, set the id for the href on the object
   set_link_id: (link_object, item_id) ->
     link_url = link_object.attr("href")
-    link_url = link_url.replace(/([\?&])id=(:?\d+|new)/, "$1id=" + item_id)
+    link_url = link_url.replace(/([\?&])id=(?:new|\d*)/, "$1id=" + item_id)
     link_object.attr("href", link_url)
 
   # This function gets the title for the information for the item.

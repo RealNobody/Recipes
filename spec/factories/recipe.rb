@@ -3,7 +3,7 @@ require 'faker'
 
 FactoryGirl.define do
   factory :recipe do
-    name { Faker::Name.name }
+    name { FactoryHelper.create_aliased_field(Recipe) { Faker::Name.name } }
     recipe_type_id do
       recipe_type = FactoryGirl.create(:recipe_type)
       recipe_type.id

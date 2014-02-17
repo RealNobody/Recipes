@@ -13,7 +13,11 @@ en:
       error:
         already_exists: "The measurement conversion already exists"
     search_alias:
+      new_label: "New Alias"
+    search_alias:
       error:
+        cannot_be_nil_default: "%{table_name} does not allow a blank %{aliased_field}"
+        cannot_delete_defaults_default: "%{table_name} does not allow deleting default aliases"
         cannot_be_nil: "Aliases cannot be nil."
         already_exists: "An alias with the name \"%{name}\" already exists."
     ingredient_category:

@@ -3,6 +3,6 @@ require 'faker'
 
 FactoryGirl.define do
   factory :keyword do
-    name { Faker::Name.name }
+    name { FactoryHelper.create_aliased_field(Keyword) { Faker::Name.name } }
   end
 end

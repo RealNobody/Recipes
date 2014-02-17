@@ -1,6 +1,7 @@
 require "spec_helper"
 
 [
+    :search_alias,
     :container,
     :ingredient,
     :ingredient_category,

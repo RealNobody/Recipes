@@ -70,4 +70,12 @@ describe MeasurementConversion do
                                          smaller_unit: @smaller_measuring_unit.abbreviation,
                                          larger_unit:  @larger_measuring_unit.abbreviation))
   end
+
+  describe "#search_alias" do
+    it "should not search yet" do
+      results = MeasurementConversion.search_alias("z", offset: 0, limit: 2)
+      expect(results[0]).to eq(MeasurementConversion.count)
+      expect(results[1].count).to eq(2)
+    end
+  end
 end

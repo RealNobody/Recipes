@@ -43,13 +43,14 @@ class RecipeRspecApp
       class_object = Class.new(RecipeAppPage)
 
       class_object.class_eval do
-        set_url "/#{model_class.name.underscore.pluralize}{/item_id}{/edit}{?query*}"
-        set_url_matcher /\/#{model_class.name.underscore.pluralize}(:?(:?\/(:?\d+|new))(:?\/edit)?)?(:?\?.*)?/
+        set_url "/#{model_class.name.tableize}{/item_id}{/edit}{?query*}"
+        set_url_matcher /\/#{model_class.name.tableize}(?:(?:\/(?:\d+|new))(?:\/edit)?)?(?:\?.*)?/
 
+        element :page_name, "h1.page_title"
         section :index_list,
                 ScrollingListSection,
-                "#scroll-#{model_class.name.underscore.pluralize} .scrolling-list-content"
-        section model_class.name.underscore.pluralize.to_sym,
+                "#scroll-#{model_class.name.tableize} .scrolling-list-content"
+        section model_class.name.tableize.to_sym,
                 "#{model_class.name}Section".constantize,
                 "\##{model_class.name.underscore}"
       end
@@ -70,10 +71,10 @@ class RecipeRspecApp
       class_object = Class.new(RecipeAppPage)
 
       class_object.class_eval do
-        set_url "/#{model_class.name.underscore.pluralize}/item{/item_id}{/edit}{?query*}"
-        set_url_matcher /\/#{model_class.name.underscore.pluralize}\/item(:?(:?\/(:?\d+|new))(:?\/edit)?)?(:?\?.*)?/
+        set_url "/#{model_class.name.tableize}/item{/item_id}{/edit}{?query*}"
+        set_url_matcher /\/#{model_class.name.tableize}\/item(?:(?:\/(?:\d+|new))(?:\/edit)?)?(?:\?.*)?/
 
-        section model_class.name.underscore.pluralize.to_sym,
+        section model_class.name.tableize.to_sym,
                 "#{model_class.name}Section".constantize,
                 "\##{model_class.name.underscore}"
       end
@@ -94,12 +95,37 @@ class RecipeRspecApp
       class_object = Class.new(RecipeAppPage)
 
       class_object.class_eval do
-        set_url "/#{model_class.name.underscore.pluralize}/page/{page_number}{?query*}"
-        set_url_matcher /\/#{model_class.name.underscore.pluralize}\/page\/(:?\/\d+)?/
+        set_url "/#{model_class.name.tableize}/page/{page_number}{?query*}"
+        set_url_matcher /\/#{model_class.name.tableize}\/page(?:\/\d+)?/
 
-        element :selected_item, ".active"
-        element :wait_next, ".scrolling-next"
-        element :wait_previous, ".scrolling-previous"
+        element :selected_item, ".active a"
+        element :wait_next, ".scrolling-next a"
+        element :wait_previous, ".scrolling-previous a"
+        elements :items, "li a"
+      end
+
+      instance_var = class_object.new
+      instance_variable_set(instance_var_sym, instance_var)
+    end
+
+    instance_var.user = user
+    instance_var
+  end
+
+  def child_scrolling_list_page(user, parent_model_class, model_class, relationship)
+    instance_var_sym = "@child_scrolling_list_#{parent_model_class.name.underscore}_#{model_class.name.underscore}_#{relationship}_page".to_sym
+    instance_var     = instance_variable_get(instance_var_sym)
+
+    unless instance_var
+      class_object = Class.new(RecipeAppPage)
+
+      class_object.class_eval do
+        set_url "/#{parent_model_class.name.tableize}/{parent_id}/#{relationship}/page/{page_number}{?query*}"
+        set_url_matcher /\/#{parent_model_class.name.tableize}\/(?:new|\d*)\/#{relationship}\/page(?:\/\d+)?/
+
+        element :selected_item, ".active a"
+        element :wait_next, ".scrolling-next a"
+        element :wait_previous, ".scrolling-previous a"
         elements :items, "li a"
       end
 

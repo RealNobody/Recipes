@@ -51,16 +51,6 @@ describe "MeasurementConversion pages" do
     end
   end
 
-  # Trying to get code coverage, and this should do it, but the stub isn't working as expected.
-  # Moving on for now, but want to keep this in mind...
-  #it "should be able to visit the middle of the measuring_unit page" do
-  #  ActiveRecord::Relation.any_instance.stub(:first_page?).and_return(true)
-  #  ActiveRecord::Relation.any_instance.stub(:last_page?).and_return(true)
-  #  ActiveRecord::Relation.any_instance.stub(:current_page).and_return(2)
-  #  visit_page("#{measurement_conversions_path}?per_page=4", @user)
-  #  Capybara.page.should have_selector("h1", text: "Measurement Conversions")
-  #end
-
   def get_scroll_link(which_link)
     scroll_link = nil
     begin

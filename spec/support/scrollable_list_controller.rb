@@ -27,13 +27,12 @@ shared_examples "a scrollable list controller" do
   let(:page_object) { RecipeRspecApp.full_page(test_user, model_class) }
   let(:scrolling_list_page) { RecipeRspecApp.scrolling_list_page(test_user, model_class) }
   let(:action) { [:index, :page].sample }
-  let(:item_action) { [:item, :edit, :show, :new_item, :new].sample }
   let(:new_attributes) { FactoryGirl.attributes_for(model_class.name.underscore.to_sym) }
   let(:show_edit) { ((rand(10) % 2) == 0) ? nil : "edit" }
 
   before(:each) do
     model_class.paginates_per 2
-    while model_class.all.count < 20 do
+    while model_class.count < 20 do
       FactoryGirl.create(model_class.name.underscore.to_sym)
     end
   end
@@ -46,6 +45,7 @@ shared_examples "a scrollable list controller" do
 
         expect(page_object.index_list).to have_no_selected_item
         expect(page_object.current_url).to match /\/#{described_class.controller_name}\/new/
+        expect(page_object.page_name.text).to eq described_class.controller_name.humanize.pluralize.titleize
       end
 
       it "should default to the first item when listing the index", :js do
@@ -53,12 +53,14 @@ shared_examples "a scrollable list controller" do
 
         expect(page_object.index_list.selected_item).to have_content(test_scroll_list_name(first_page[0]))
         expect(page_object.current_url).to match /\/#{described_class.controller_name}\/#{first_page[0].id}/
+        expect(page_object.page_name.text).to eq described_class.controller_name.humanize.pluralize.titleize
       end
 
       it "should default to the first page of data", :js do
         page_object.load item_id: first_page[0].id, edit: show_edit
 
         expect(page_object.index_list.selected_item).to have_content(test_scroll_list_name(first_page[0]))
+        expect(page_object.page_name.text).to eq described_class.controller_name.humanize.pluralize.titleize
       end
 
       it "should highlight the selected item", :js do
@@ -67,6 +69,7 @@ shared_examples "a scrollable list controller" do
 
         expect(page_object.index_list.selected_item).to have_content(test_scroll_list_name(test_page[0]))
         expect(page_object.index_list.items.first).to have_content(test_scroll_list_name(first_page[0]))
+        expect(page_object.page_name.text).to eq described_class.controller_name.humanize.pluralize.titleize
       end
 
       it "should start on the second page", :js do
@@ -138,6 +141,17 @@ shared_examples "a scrollable list controller" do
         expect(max_id).to eq(model_class.maximum(:id))
         expect(flash[:error]).to_not be_blank
       end
+
+      it "handles an unknown failure gracefully" do
+        model_class.any_instance.stub(:save).and_return false
+
+        max_id = model_class.maximum(:id)
+        post :create, model_class.name.underscore => new_attributes
+
+        expect(response).to be_success
+        expect(assigns(:selected_item).id).to be_blank
+        expect(flash[:error]).to_not be_blank
+      end
     end
 
     describe "#update" do
@@ -145,7 +159,7 @@ shared_examples "a scrollable list controller" do
         expect(new_attributes[model_class.initialize_field]).to_not eq(first_page[0][model_class.initialize_field])
 
         patch :update,
-              id:                            first_page[0].id,
+              id:                         first_page[0].id,
               model_class.name.underscore => new_attributes
 
         response.should be_success
@@ -154,13 +168,23 @@ shared_examples "a scrollable list controller" do
       end
 
       it "handles a failure gracefully" do
-        #model_class.any_instance.stub(:save).and_return false
-
         new_attributes[model_class.initialize_field] = nil
         expect(new_attributes[model_class.initialize_field]).to_not eq(first_page[0][model_class.initialize_field])
 
         patch :update,
-              id:                            first_page[0].id,
+              id:                         first_page[0].id,
+              model_class.name.underscore => new_attributes
+
+        response.should be_success
+        expect(response).to render_template("index")
+        expect(flash[:error]).to_not be_blank
+      end
+
+      it "handles an unknown failure gracefully" do
+        model_class.any_instance.stub(:save).and_return false
+
+        patch :update,
+              id:                         first_page[0].id,
               model_class.name.underscore => new_attributes
 
         response.should be_success
@@ -228,6 +252,9 @@ shared_examples "a scrollable list controller" do
           expect(assigns(described_class.controller_name.singularize)).to eq(assigns(described_class.controller_name).first)
           expect(assigns(described_class.controller_name)).to eq(assigns(:current_page))
           expect(assigns(described_class.controller_name.singularize)).to eq(assigns(:selected_item))
+          expect(assigns(:parent_obj)).to_not be
+          expect(assigns(:parent_relationship)).to_not be
+          expect(assigns(:parent_ref_field)).to_not be
 
           expect(response.content_type).to eq("application/json")
           json_body = JSON.parse(response.body)
@@ -249,6 +276,9 @@ shared_examples "a scrollable list controller" do
           expect(assigns(described_class.controller_name)).to eq(second_page)
           expect(assigns(described_class.controller_name)).to eq(assigns(:current_page))
           expect(assigns(described_class.controller_name.singularize)).to eq(assigns(:selected_item))
+          expect(assigns(:parent_obj)).to_not be
+          expect(assigns(:parent_relationship)).to_not be
+          expect(assigns(:parent_ref_field)).to_not be
 
           expect(response.content_type).to eq("application/json")
           json_body = JSON.parse(response.body)
@@ -270,6 +300,9 @@ shared_examples "a scrollable list controller" do
           expect(assigns(described_class.controller_name)).to eq(second_page)
           expect(assigns(described_class.controller_name)).to eq(assigns(:current_page))
           expect(assigns(described_class.controller_name.singularize)).to eq(assigns(:selected_item))
+          expect(assigns(:parent_obj)).to_not be
+          expect(assigns(:parent_relationship)).to_not be
+          expect(assigns(:parent_ref_field)).to_not be
 
           expect(response.content_type).to eq("application/json")
           json_body = JSON.parse(response.body)
@@ -291,6 +324,9 @@ shared_examples "a scrollable list controller" do
           expect(assigns(described_class.controller_name)).to eq(second_page)
           expect(assigns(described_class.controller_name)).to eq(assigns(:current_page))
           expect(assigns(described_class.controller_name.singularize)).to eq(assigns(:selected_item))
+          expect(assigns(:parent_obj)).to_not be
+          expect(assigns(:parent_relationship)).to_not be
+          expect(assigns(:parent_ref_field)).to_not be
 
           expect(response.content_type).to eq("application/json")
           json_body = JSON.parse(response.body)
@@ -311,6 +347,9 @@ shared_examples "a scrollable list controller" do
           expect(assigns(described_class.controller_name).count).to eq(0)
           expect(assigns(described_class.controller_name)).to eq(assigns(:current_page))
           expect(assigns(described_class.controller_name.singularize)).to eq(assigns(:selected_item))
+          expect(assigns(:parent_obj)).to_not be
+          expect(assigns(:parent_relationship)).to_not be
+          expect(assigns(:parent_ref_field)).to_not be
 
           expect(response.content_type).to eq("application/json")
           json_body = JSON.parse(response.body)
@@ -318,70 +357,124 @@ shared_examples "a scrollable list controller" do
         end
       end
 
-      describe "#item" do
-        it "should return selected_item based on id for item" do
-          get item_action, page: 2, per_page: 2, format: "json", id: last_item.id
+      [:item, :edit, :show, :new_item, :new].each do |item_action|
+        describe "#item" do
+          it "should return selected_item based on id for item" do
+            get item_action, page: 2, per_page: 2, format: "json", id: last_item.id
 
-          expect(response).to be_success
+            expect(response).to be_success
 
-          expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_true
-          expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_true
-          expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_true
+            expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_true
+            expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_true
+            expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_true
 
-          if [:new, :new_item].include? item_action
-            expect(assigns(described_class.controller_name.singularize).id).to be_blank
-          else
-            expect(assigns(described_class.controller_name.singularize)).to eq(last_item)
+            if [:new, :new_item].include? item_action
+              expect(assigns(described_class.controller_name.singularize).id).to be_blank
+            else
+              expect(assigns(described_class.controller_name.singularize)).to eq(last_item)
+            end
+            expect(assigns(described_class.controller_name).count).to eq(2)
+            expect(assigns(described_class.controller_name)).to eq(second_page)
+            expect(assigns(described_class.controller_name)).to eq(assigns(:current_page))
+            expect(assigns(described_class.controller_name.singularize)).to eq(assigns(:selected_item))
+            expect(assigns(:parent_obj)).to_not be
+            expect(assigns(:parent_relationship)).to_not be
+            expect(assigns(:parent_ref_field)).to_not be
+
+            expect(response.content_type).to eq("application/json")
+            json_body = JSON.parse(response.body)
+            if [:new, :new_item].include? item_action
+              expect(json_body.with_indifferent_access[:id]).to be_blank
+            else
+              expect(json_body.with_indifferent_access[:id]).to eq(last_item.id)
+            end
           end
-          expect(assigns(described_class.controller_name).count).to eq(2)
-          expect(assigns(described_class.controller_name)).to eq(second_page)
-          expect(assigns(described_class.controller_name)).to eq(assigns(:current_page))
-          expect(assigns(described_class.controller_name.singularize)).to eq(assigns(:selected_item))
 
-          expect(response.content_type).to eq("application/json")
-          json_body = JSON.parse(response.body)
-          if [:new, :new_item].include? item_action
-            expect(json_body.with_indifferent_access[:id]).to be_blank
-          else
-            expect(json_body.with_indifferent_access[:id]).to eq(last_item.id)
+          it "should return selected_item based on id for item" do
+            get item_action, page: 2, per_page: 2, id: last_item.id
+
+            expect(response).to be_success
+
+            expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_true
+            expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_true
+            expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_true
+
+            if [:new, :new_item].include? item_action
+              expect(assigns(described_class.controller_name.singularize).id).to be_blank
+            else
+              expect(assigns(described_class.controller_name.singularize)).to eq(last_item)
+            end
+            expect(assigns(described_class.controller_name).count).to eq(2)
+            expect(assigns(described_class.controller_name)).to eq(second_page)
+            expect(assigns(described_class.controller_name)).to eq(assigns(:current_page))
+            expect(assigns(described_class.controller_name.singularize)).to eq(assigns(:selected_item))
+
+            if [:edit, :show, :new].include?(item_action)
+              expect(response).to render_template("index")
+            else
+              expect(response).to render_template("_show")
+            end
           end
-        end
 
-        it "should return a 404 if the item doesn't exist" do
-          get :item, page: 2, per_page: 2, format: "json", id: -1
+          it "doesn't worry about search" do
+            get item_action, page: 1, per_page: 2, format: "json", id: last_item.id, search: first_page[0][model_class.initialize_field]
 
-          expect(response).to_not be_success
+            expect(response).to be_success
+
+            expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_true
+            expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_true
+            expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_true
+
+            if [:new, :new_item].include? item_action
+              expect(assigns(described_class.controller_name.singularize).id).to be_blank
+            else
+              expect(assigns(described_class.controller_name.singularize)).to eq(last_item)
+            end
+            expect(assigns(described_class.controller_name).count).to be >= 1
+            expect(assigns(described_class.controller_name)).to eq(assigns(:current_page))
+            expect(assigns(described_class.controller_name.singularize)).to eq(assigns(:selected_item))
+            expect(assigns(:parent_obj)).to_not be
+            expect(assigns(:parent_relationship)).to_not be
+            expect(assigns(:parent_ref_field)).to_not be
+
+            expect(response.content_type).to eq("application/json")
+            json_body = JSON.parse(response.body)
+            if [:new, :new_item].include? item_action
+              expect(json_body.with_indifferent_access[:id]).to be_blank
+            else
+              expect(json_body.with_indifferent_access[:id]).to eq(last_item.id)
+            end
+          end
+
+          it "doesn't worry about search" do
+            get item_action, page: 1, per_page: 2, id: last_item.id, search: first_page[0][model_class.initialize_field]
+
+            expect(response).to be_success
+
+            expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_true
+            expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_true
+            expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_true
+
+            if [:new, :new_item].include? item_action
+              expect(assigns(described_class.controller_name.singularize).id).to be_blank
+            else
+              expect(assigns(described_class.controller_name.singularize)).to eq(last_item)
+            end
+            expect(assigns(described_class.controller_name).count).to be >= 1
+            expect(assigns(described_class.controller_name)).to eq(assigns(:current_page))
+            expect(assigns(described_class.controller_name.singularize)).to eq(assigns(:selected_item))
+
+            if [:edit, :show, :new].include?(item_action)
+              expect(response).to render_template("index")
+            else
+              expect(response).to render_template("_show")
+            end
+          end
         end
       end
     end
 
     describe "#item" do
-      it "should return selected_item based on id for item" do
-        get item_action, page: 2, per_page: 2, id: last_item.id
-
-        expect(response).to be_success
-
-        expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_true
-        expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_true
-        expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_true
-
-        if [:new, :new_item].include? item_action
-          expect(assigns(described_class.controller_name.singularize).id).to be_blank
-        else
-          expect(assigns(described_class.controller_name.singularize)).to eq(last_item)
-        end
-        expect(assigns(described_class.controller_name).count).to eq(2)
-        expect(assigns(described_class.controller_name)).to eq(second_page)
-        expect(assigns(described_class.controller_name)).to eq(assigns(:current_page))
-        expect(assigns(described_class.controller_name.singularize)).to eq(assigns(:selected_item))
-
-        if [:edit, :show, :new].include?(item_action)
-          expect(response).to render_template("index")
-        else
-          expect(response).to render_template("_show")
-        end
-      end
-
       it "should return a 404 if the item doesn't exist" do
         get :item, page: 2, per_page: 2, id: -1
 
@@ -402,7 +495,7 @@ shared_examples "a scrollable list controller" do
         expect(scrolling_list_page.items[1]).to have_content(test_scroll_list_name(first_page[1]))
         expect(scrolling_list_page).to have_selected_item
 
-        expect(scrolling_list_page.wait_next.find("a")[:href]).to match(/#{scrolling_list_page.url}2/)
+        expect(scrolling_list_page.wait_next[:href]).to match(/#{scrolling_list_page.url page_number: 2}/)
       end
 
       it "should return a middle page" do
@@ -415,8 +508,8 @@ shared_examples "a scrollable list controller" do
         expect(scrolling_list_page.items[1]).to have_content(test_scroll_list_name(second_page[1]))
         expect(scrolling_list_page).to_not have_selected_item
 
-        expect(scrolling_list_page.wait_next.find("a")[:href]).to match(/#{scrolling_list_page.url}3/)
-        expect(scrolling_list_page.wait_previous.find("a")[:href]).to match(/#{scrolling_list_page.url}1/)
+        expect(scrolling_list_page.wait_next[:href]).to match(/#{scrolling_list_page.url page_number: 3}/)
+        expect(scrolling_list_page.wait_previous[:href]).to match(/#{scrolling_list_page.url page_number: 1}/)
       end
 
       it "should return the last page" do
@@ -429,8 +522,7 @@ shared_examples "a scrollable list controller" do
             to have_content(test_scroll_list_name(last_item))
         expect(scrolling_list_page).to_not have_selected_item
 
-        expect(scrolling_list_page.wait_previous.find("a")[:href]).to match(/#{scrolling_list_page.url}#{
-        (model_class.count / 2) + (model_class.count % 2) - 1}/)
+        expect(scrolling_list_page.wait_previous[:href]).to match(/#{scrolling_list_page.url page_number: (model_class.count / 2) + (model_class.count % 2) - 1}/)
       end
 
       it "should accept a custom page_size" do
@@ -441,8 +533,8 @@ shared_examples "a scrollable list controller" do
         expect(scrolling_list_page.items.count).to eq 4
         expect(scrolling_list_page).to_not have_selected_item
 
-        expect(scrolling_list_page.wait_next.find("a")[:href]).to match(/#{scrolling_list_page.url}3/)
-        expect(scrolling_list_page.wait_previous.find("a")[:href]).to match(/#{scrolling_list_page.url}1/)
+        expect(scrolling_list_page.wait_next[:href]).to match(/#{scrolling_list_page.url page_number: 3}/)
+        expect(scrolling_list_page.wait_previous[:href]).to match(/#{scrolling_list_page.url page_number: 1}/)
       end
 
       it "should handle a page greater than the last page" do
@@ -453,7 +545,7 @@ shared_examples "a scrollable list controller" do
         expect(scrolling_list_page.items.count).to be 0
         expect(scrolling_list_page).to_not have_selected_item
 
-        expect(scrolling_list_page.wait_previous.find("a")[:href]).to match(/#{scrolling_list_page.url}#{model_class.count - 1}/)
+        expect(scrolling_list_page.wait_previous[:href]).to match(/#{scrolling_list_page.url page_number: model_class.count - 1}/)
       end
 
       it "should highlight the selected item" do
@@ -467,9 +559,244 @@ shared_examples "a scrollable list controller" do
         expect(scrolling_list_page.selected_item).to have_content(test_scroll_list_name(second_page[0]))
         expect(scrolling_list_page).to have_selected_item
 
-        expect(scrolling_list_page.wait_next.find("a")[:href]).to match(/#{scrolling_list_page.url}3/)
-        expect(scrolling_list_page.wait_previous.find("a")[:href]).to match(/#{scrolling_list_page.url}1/)
+        expect(scrolling_list_page.wait_next[:href]).to match(/#{scrolling_list_page.url page_number: 3}/)
+        expect(scrolling_list_page.wait_previous[:href]).to match(/#{scrolling_list_page.url page_number: 1}/)
       end
+
+      it "should page search results" do
+        # TODO:  Is this reliable enough?  Can we/Should we make this better?
+        scrolling_list_page.load page_number: 2, query: { search: "e" }
+
+        expect(scrolling_list_page).to have_wait_previous
+        expect(scrolling_list_page).to have_wait_next
+        expect(scrolling_list_page.items.count).to eq 2
+        expect(scrolling_list_page).to_not have_selected_item
+
+        expect(scrolling_list_page.wait_next[:href]).to match(/#{scrolling_list_page.url page_number: 3}/)
+        expect(scrolling_list_page.wait_previous[:href]).to match(/#{scrolling_list_page.url page_number: 1}/)
+      end
+
+      it "should self-paginate" do
+        prev_scroll_link = nil
+        page_loop        = 1
+        prev_page_loop   = 0
+        next_scroll_link = nil
+        page_size        = rand(2..4)
+
+        scrolling_list_page.load page_number: 1, query: { per_page: page_size }
+
+        expect(scrolling_list_page).to have_no_wait_previous
+        expect(scrolling_list_page.wait_next).to be
+
+        begin
+          prev_scroll_link = scrolling_list_page.wait_previous[:href] unless scrolling_list_page.has_no_wait_previous?
+          if (prev_scroll_link)
+            expect(scrolling_list_page.displayed?).to be_true
+            prev_scroll_link.should(match(/\/page\/#{prev_page_loop}\?/))
+          end
+
+          prev_page_loop += 1
+          page_loop      += 1
+
+          if scrolling_list_page.has_no_wait_next?
+            next_scroll_link = nil
+          else
+            next_scroll_link = scrolling_list_page.wait_next[:href]
+
+            next_scroll_link.should(match(/\/page\/#{page_loop}\?/))
+            visit_page(next_scroll_link, @user)
+          end
+        end while (next_scroll_link != nil)
+
+        num_elements = model_class.count
+        expect(num_elements / page_size + ((num_elements % page_size) > 0 ? 1 : 0)).to eq prev_page_loop
+      end
+
+      described_class.name[0..-11].singularize.constantize.reflect_on_all_associations(:has_many).each do |has_many|
+        relationship = has_many
+        if (has_many.is_a?(ActiveRecord::Reflection::ThroughReflection))
+          relationship = has_many.through_reflection
+        end
+
+        describe "paging #{has_many.plural_name}" do
+          let(:parent_obj) { FactoryGirl.create(model_class.name.underscore.to_sym) }
+          let(:not_parent_obj) { FactoryGirl.create(model_class.name.underscore.to_sym) }
+          let(:child_scrolling_list_page) { RecipeRspecApp.child_scrolling_list_page(test_user,
+                                                                                     model_class,
+                                                                                     has_many.class_name.constantize,
+                                                                                     has_many.plural_name) }
+          let(:child_first_page) { parent_obj.send(has_many.plural_name).index_sort.page(1).to_a }
+          let(:child_last_item) { parent_obj.send(has_many.plural_name).index_sort.last }
+          let(:child_second_page) { parent_obj.send(has_many.plural_name).index_sort.page(2).to_a }
+
+          before(:each) do
+            has_many.class_name.constantize.paginates_per 2
+
+            # ensure that there are enough child objects
+            has_many_table_name = relationship.class_name.constantize.name
+            foreign_key         = relationship.foreign_key.to_sym
+
+            while parent_obj.send(has_many.plural_name).count < 20 do
+              FactoryGirl.build(has_many_table_name.underscore.to_sym, foreign_key => parent_obj.id).save
+              FactoryGirl.build(has_many_table_name.underscore.to_sym, foreign_key => not_parent_obj.id).save
+            end
+          end
+
+          it "should do something if it gets confused" do
+            child_scrolling_list_page.load page_number: 1, parent_id: parent_obj.id,
+                                           query:       { search_alias_id:                    1,
+                                                          measuring_unit_id:                  1,
+                                                          "#{model_class.name.underscore}_id" => 2 }
+
+            expect(child_scrolling_list_page).to_not have_wait_previous
+            expect(child_scrolling_list_page).to have_wait_next
+            expect(child_scrolling_list_page.items.count).to eq 2
+            expect(child_scrolling_list_page.items[0]).to have_content(test_scroll_list_name(child_first_page[0]))
+            expect(child_scrolling_list_page.items[1]).to have_content(test_scroll_list_name(child_first_page[1]))
+            expect(child_scrolling_list_page).to have_selected_item
+
+            expect(child_scrolling_list_page.wait_next[:href]).to match(/#{child_scrolling_list_page.url parent_id: parent_obj.id, page_number: 2}/)
+          end
+
+          it "should return a partial page of data" do
+            child_scrolling_list_page.load page_number: 1, parent_id: parent_obj.id
+
+            expect(child_scrolling_list_page).to_not have_wait_previous
+            expect(child_scrolling_list_page).to have_wait_next
+            expect(child_scrolling_list_page.items.count).to eq 2
+            expect(child_scrolling_list_page.items[0]).to have_content(test_scroll_list_name(child_first_page[0]))
+            expect(child_scrolling_list_page.items[1]).to have_content(test_scroll_list_name(child_first_page[1]))
+            expect(child_scrolling_list_page).to have_selected_item
+
+            expect(child_scrolling_list_page.wait_next[:href]).to match(/#{child_scrolling_list_page.url parent_id: parent_obj.id, page_number: 2}/)
+          end
+
+          it "should return a middle page" do
+            child_scrolling_list_page.load parent_id: parent_obj.id, page_number: 2
+
+            expect(child_scrolling_list_page).to have_wait_previous
+            expect(child_scrolling_list_page).to have_wait_next
+            expect(child_scrolling_list_page.items.count).to eq 2
+            expect(child_scrolling_list_page.items[0]).to have_content(test_scroll_list_name(child_second_page[0]))
+            expect(child_scrolling_list_page.items[1]).to have_content(test_scroll_list_name(child_second_page[1]))
+            expect(child_scrolling_list_page).to_not have_selected_item
+
+            expect(child_scrolling_list_page.wait_next[:href]).to match(/#{child_scrolling_list_page.url parent_id: parent_obj.id, page_number: 3}/)
+            expect(child_scrolling_list_page.wait_previous[:href]).to match(/#{child_scrolling_list_page.url parent_id: parent_obj.id, page_number: 1}/)
+          end
+
+          it "should return the last page" do
+            child_scrolling_list_page.load parent_id: parent_obj.id, page_number: ((parent_obj.send(has_many.plural_name).count / 2) + (parent_obj.send(has_many.plural_name).count % 2))
+
+            expect(child_scrolling_list_page).to have_wait_previous
+            expect(child_scrolling_list_page).to_not have_wait_next
+            expect(child_scrolling_list_page.items.count).to be >= 1
+            expect(child_scrolling_list_page.items[child_scrolling_list_page.items.count - 1]).
+                to have_content(test_scroll_list_name(child_last_item))
+            expect(child_scrolling_list_page).to_not have_selected_item
+
+            expect(child_scrolling_list_page.wait_previous[:href]).to match(/#{child_scrolling_list_page.url parent_id: parent_obj.id, page_number: (parent_obj.send(has_many.plural_name).count / 2) + (parent_obj.send(has_many.plural_name).count % 2) - 1}/)
+          end
+
+          it "should accept a custom page_size" do
+            child_scrolling_list_page.load parent_id: parent_obj.id, page_number: 2, query: { per_page: 4 }
+
+            expect(child_scrolling_list_page).to have_wait_previous
+            expect(child_scrolling_list_page).to have_wait_next
+            expect(child_scrolling_list_page.items.count).to eq 4
+            expect(child_scrolling_list_page).to_not have_selected_item
+
+            expect(child_scrolling_list_page.wait_next[:href]).to match(/#{child_scrolling_list_page.url parent_id: parent_obj.id, page_number: 3}/)
+            expect(child_scrolling_list_page.wait_previous[:href]).to match(/#{child_scrolling_list_page.url parent_id: parent_obj.id, page_number: 1}/)
+          end
+
+          it "should handle a page greater than the last page" do
+            child_scrolling_list_page.load parent_id: parent_obj.id, page_number: parent_obj.send(has_many.plural_name).count
+
+            expect(child_scrolling_list_page).to have_wait_previous
+            expect(child_scrolling_list_page).to_not have_wait_next
+            expect(child_scrolling_list_page.items.count).to be 0
+            expect(child_scrolling_list_page).to_not have_selected_item
+
+            expect(child_scrolling_list_page.wait_previous[:href]).to match(/#{child_scrolling_list_page.url parent_id: parent_obj.id, page_number: parent_obj.send(has_many.plural_name).count - 1}/)
+          end
+
+          it "should highlight the selected item" do
+            child_scrolling_list_page.load parent_id: parent_obj.id, page_number: 2, query: { id: child_second_page[0].id }
+
+            expect(child_scrolling_list_page).to have_wait_previous
+            expect(child_scrolling_list_page).to have_wait_next
+            expect(child_scrolling_list_page.items.count).to eq 2
+            expect(child_scrolling_list_page.items[0]).to have_content(test_scroll_list_name(child_second_page[0]))
+            expect(child_scrolling_list_page.items[1]).to have_content(test_scroll_list_name(child_second_page[1]))
+            expect(child_scrolling_list_page.selected_item).to have_content(test_scroll_list_name(child_second_page[0]))
+            expect(child_scrolling_list_page).to have_selected_item
+
+            expect(child_scrolling_list_page.wait_next[:href]).to match(/#{child_scrolling_list_page.url parent_id: parent_obj.id, page_number: 3}/)
+            expect(child_scrolling_list_page.wait_previous[:href]).to match(/#{child_scrolling_list_page.url parent_id: parent_obj.id, page_number: 1}/)
+          end
+
+          it "should page search results" do
+            # TODO: remove this if and unless eventually [has_many.class_name, has_many.options]
+            if (has_many.class_name.constantize.respond_to?(:aliased?) && has_many.class_name.constantize.aliased) ||
+                has_many.class_name.constantize == SearchAlias
+              unless has_many.is_a?(ActiveRecord::Reflection::ThroughReflection)
+                # TODO:  Is this reliable enough?  Can we/Should we make this better?
+                child_scrolling_list_page.load parent_id: parent_obj.id, page_number: 2, query: { search: "e" }
+
+                expect(child_scrolling_list_page).to have_wait_previous
+                expect(child_scrolling_list_page).to have_wait_next
+                expect(child_scrolling_list_page.items.count).to eq 2
+                expect(child_scrolling_list_page).to_not have_selected_item
+
+                expect(child_scrolling_list_page.wait_next[:href]).to match(/#{child_scrolling_list_page.url parent_id: parent_obj.id, page_number: 3}/)
+                expect(child_scrolling_list_page.wait_previous[:href]).to match(/#{child_scrolling_list_page.url parent_id: parent_obj.id, page_number: 1}/)
+              end
+            end
+          end
+
+          it "should self-paginate" do
+            prev_scroll_link = nil
+            page_loop        = 1
+            prev_page_loop   = 0
+            next_scroll_link = nil
+            page_size        = rand(2..4)
+
+            child_scrolling_list_page.load parent_id: parent_obj.id, page_number: 1, query: { per_page: page_size }
+
+            expect(child_scrolling_list_page).to have_no_wait_previous
+            expect(child_scrolling_list_page.wait_next).to be
+
+            begin
+              prev_scroll_link = child_scrolling_list_page.wait_previous[:href] unless child_scrolling_list_page.has_no_wait_previous?
+              if (prev_scroll_link)
+                expect(child_scrolling_list_page.displayed?).to be_true
+                prev_scroll_link.should(match(/\/page\/#{prev_page_loop}\?/))
+              end
+
+              prev_page_loop += 1
+              page_loop      += 1
+
+              if child_scrolling_list_page.has_no_wait_next?
+                next_scroll_link = nil
+              else
+                next_scroll_link = child_scrolling_list_page.wait_next[:href]
+
+                next_scroll_link.should(match(/\/page\/#{page_loop}\?/))
+                visit_page(next_scroll_link, @user)
+              end
+            end while (next_scroll_link != nil)
+
+            num_elements = parent_obj.send(has_many.plural_name).count
+            expect(num_elements / page_size + ((num_elements % page_size) > 0 ? 1 : 0)).to eq prev_page_loop
+          end
+        end
+      end
+    end
+
+    it "should handle an invalid id properly" do
+      page_object.load item_id: model_class.maximum(:id) + 1
+      expect(page_object.index_list).to be
     end
 
     #  describe "#index, #new, #show" do
@@ -510,7 +837,7 @@ shared_examples "a searchable scrollable list controller" do
 
   before(:each) do
     model_class.paginates_per 2
-    while model_class.all.count < 20 do
+    while model_class.count < 20 do
       FactoryGirl.create(model_class.name.underscore.to_sym)
     end
   end
@@ -539,84 +866,15 @@ shared_examples "a searchable scrollable list controller" do
           expect(assigns(described_class.controller_name.singularize)).to eq(assigns(described_class.controller_name).first)
           expect(assigns(described_class.controller_name)).to eq(assigns(:current_page))
           expect(assigns(described_class.controller_name.singularize)).to eq(assigns(:selected_item))
+          expect(assigns(:parent_obj)).to_not be
+          expect(assigns(:parent_relationship)).to_not be
+          expect(assigns(:parent_ref_field)).to_not be
 
           expect(response.content_type).to eq("application/json")
           json_body = JSON.parse(response.body)
           expect(json_body.length).to be >= 1
           expect(json_body[0].with_indifferent_access[:id]).to eq(last_item.id)
         end
-      end
-
-      describe "#item" do
-        it "doesn't worry about search" do
-          get item_action, page: 1, per_page: 2, format: "json", id: last_item.id, search: first_page[0][model_class.initialize_field]
-
-          expect(response).to be_success
-
-          expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_true
-          expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_true
-          expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_true
-
-          if [:new, :new_item].include? item_action
-            expect(assigns(described_class.controller_name.singularize).id).to be_blank
-          else
-            expect(assigns(described_class.controller_name.singularize)).to eq(last_item)
-          end
-          expect(assigns(described_class.controller_name).count).to be >= 1
-          expect(assigns(described_class.controller_name)).to eq(assigns(:current_page))
-          expect(assigns(described_class.controller_name.singularize)).to eq(assigns(:selected_item))
-
-          expect(response.content_type).to eq("application/json")
-          json_body = JSON.parse(response.body)
-          if [:new, :new_item].include? item_action
-            expect(json_body.with_indifferent_access[:id]).to be_blank
-          else
-            expect(json_body.with_indifferent_access[:id]).to eq(last_item.id)
-          end
-        end
-      end
-    end
-
-    describe "#item" do
-      it "doesn't worry about search" do
-        get item_action, page: 1, per_page: 2, id: last_item.id, search: first_page[0][model_class.initialize_field]
-
-        expect(response).to be_success
-
-        expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_true
-        expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_true
-        expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_true
-
-        if [:new, :new_item].include? item_action
-          expect(assigns(described_class.controller_name.singularize).id).to be_blank
-        else
-          expect(assigns(described_class.controller_name.singularize)).to eq(last_item)
-        end
-        expect(assigns(described_class.controller_name).count).to be >= 1
-        expect(assigns(described_class.controller_name)).to eq(assigns(:current_page))
-        expect(assigns(described_class.controller_name.singularize)).to eq(assigns(:selected_item))
-
-        if [:edit, :show, :new].include?(item_action)
-          expect(response).to render_template("index")
-        else
-          expect(response).to render_template("_show")
-        end
-      end
-    end
-  end
-
-  describe ScrollableListController, type: :request do
-    describe "#page" do
-      it "should page search results" do
-        scrolling_list_page.load page_number: 2, query: { search: "e" }
-
-        expect(scrolling_list_page).to have_wait_previous
-        expect(scrolling_list_page).to have_wait_next
-        expect(scrolling_list_page.items.count).to eq 2
-        expect(scrolling_list_page).to_not have_selected_item
-
-        expect(scrolling_list_page.wait_next.find("a")[:href]).to match(/#{scrolling_list_page.url}3/)
-        expect(scrolling_list_page.wait_previous.find("a")[:href]).to match(/#{scrolling_list_page.url}1/)
       end
     end
   end

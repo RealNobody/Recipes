@@ -20,7 +20,6 @@ describe ScrollingListHelper do
     end
 
     it "outputs a link for the next page to load" do
-      @current_page = page_items
       test_value    = scrolling_list_next_link page_items,
                                                current_item,
                                                param_page,
@@ -107,6 +106,17 @@ describe ScrollingListHelper do
 
       expect(test_value).to_not be
     end
+
+    it "returns id=new if it is the current item is new" do
+      test_value = scrolling_list_next_link page_items,
+                                            MeasuringUnit.new,
+                                            nil,
+                                            nil,
+                                            param_per_page,
+                                            nil
+
+      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/3?id=new\">Next Page</a>")
+    end
   end
 
   describe "#scrolling_list_previous_link" do
@@ -115,7 +125,6 @@ describe ScrollingListHelper do
     end
 
     it "outputs a link for the next page to load" do
-      @current_page = page_items
       test_value    = scrolling_list_previous_link page_items,
                                                    current_item,
                                                    param_page,
@@ -201,6 +210,17 @@ describe ScrollingListHelper do
                                                 nil
 
       expect(test_value).to_not be
+    end
+
+    it "outputs id=new if current_item is new" do
+      test_value = scrolling_list_previous_link page_items,
+                                                MeasuringUnit.new,
+                                                nil,
+                                                nil,
+                                                param_per_page,
+                                                nil
+
+      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/1?id=new\">Previous Page</a>")
     end
   end
 
@@ -337,6 +357,19 @@ describe ScrollingListHelper do
                                                nil
 
       expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/1?page=2&per_page=2&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+    end
+
+    it "handles a new current_item" do
+      test_value = scrolling_list_link_to_item description,
+                                               link_item,
+                                               page_items,
+                                               MeasuringUnit.new,
+                                               param_page,
+                                               param_per_page,
+                                               per_page_model,
+                                               nil
+
+      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/1?page=2&per_page=2&id=new\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
     end
 
     it "outputs a basic link with minimal information" do

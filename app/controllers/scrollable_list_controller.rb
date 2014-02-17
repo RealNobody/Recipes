@@ -6,10 +6,13 @@ class ScrollableListController < ApplicationController
   before_filter do
     authenticate_user!
 
-    @model_class    = self.controller_name.singularize.classify.constantize
-    @model_per_page = @model_class.default_per_page
-    @selected_item  = nil
-    @current_page   = nil
+    @model_class          = self.controller_name.singularize.classify.constantize
+    @model_per_page       = @model_class.default_per_page
+    @parent_obj,
+        @parent_relationship,
+        @parent_ref_field = get_parent_object()
+    @selected_item        = nil
+    @current_page         = nil
   end
 
   # GET /users
@@ -140,20 +143,65 @@ class ScrollableListController < ApplicationController
     end
   end
 
+  # Currently we only support 1 level of nested items.
+  # If we need to support /measuring_units/33/smaller_measuring_units/22/search_aliases/item/3 (etc.)
+  # We'll have to re-visit.  Probably we'll need a new function.
+  def get_parent_object
+    parent_object   = nil
+    parent_id_param = nil
+
+    params.each do |param_name, value|
+      if param_name[-3..-1] == "_id"
+        parent_route = "/#{param_name[0..-4].pluralize}/#{params[param_name]}/"
+        if request.path.start_with?(parent_route)
+          parent_object   = param_name[0..-4].classify.constantize.where(id: value).first
+          parent_id_param = param_name
+          break
+        end
+      end
+    end
+
+    if parent_object
+      parent_route      = "/#{parent_object.class.name.tableize}/#{params[parent_id_param]}/"
+      relationship_name = @model_class.name.tableize
+      if request.path.start_with?(parent_route)
+        relationship_name = request.path[parent_route.length..-1].split("/").first
+      end
+      [parent_object, relationship_name, parent_id_param]
+    else
+      [nil, nil, nil]
+    end
+  end
+
   private
   def scroll_list_setup_instance_variables(new_unit)
     cur_page = params[:page].try(:to_i) || 1
     per_page = params[:per_page].try(:to_i) || @model_per_page
 
-    @current_page  = @model_class.all
-    @selected_item = @model_class.all
+    if @parent_obj
+      @current_page  = @parent_obj.send(@parent_relationship)
+      @selected_item = @parent_obj.send(@parent_relationship)
+    else
+      @current_page  = @model_class
+      @selected_item = @model_class
+    end
 
     if (params[:search])
-      my_count, @current_page = @current_page.search_alias(params[:search].to_s, (cur_page - 1) * per_page, per_page)
+      my_count, @current_page = @model_class.search_alias(params[:search].to_s,
+                                                          offset:                 (cur_page - 1) * per_page,
+                                                          limit:                  per_page,
+                                                          parent_object:          @parent_obj,
+                                                          relationship:           @parent_relationship,
+                                                          parent_reference_field: @parent_ref_field)
 
-      @current_page  ||= []
+      @current_page ||= []
       unless params[:id]
-        @selected_item = @selected_item.search_alias(params[:search].to_s, 0, 1)[1].first
+        @selected_item = @model_class.search_alias(params[:search].to_s,
+                                                   offset:                 0,
+                                                   limit:                  1,
+                                                   parent_object:          @parent_obj,
+                                                   relationship:           @parent_relationship,
+                                                   parent_reference_field: @parent_ref_field)[1].first
       end
 
       @current_page.define_singleton_method :current_page do

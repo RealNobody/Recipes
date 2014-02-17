@@ -12,6 +12,7 @@ require 'site_prism'
 require "cleaner"
 require "pages/recipe_rspec_app"
 require "support/utils"
+require "support/factory_helper"
 
 Dir["./spec/support/**/*.rb"].sort.each { |f| require f }
 
@@ -112,4 +113,4 @@ SitePrism.configure do |config|
 end
 
 require "galaxy/test_support/rspec_hooks"
-#Galaxy::TestSupport::Configuration.rspec_seed = 852502990360321160475878017111377298342
+#Galaxy::TestSupport::Configuration.rspec_seed = 527890016468117410760660406697150438897

@@ -124,13 +124,13 @@ root.ScrollingListAdmin = class ScrollingListAdmin
         else
           next_item = scrolling_list.find(".scrolling-next a")
           if (next_item.length > 0)
-            selected_item_id = next_item.attr("href").match(/\?id=(\d+|new)/)
+            selected_item_id = next_item.attr("href").match(/\?id=(new|\d*)/)
             if (selected_item_id)
               selected_item_id = selected_item_id[1]
 
           next_item = scrolling_list.find(".scrolling-previous a")
           if (next_item.length > 0)
-            selected_item_id = next_item.attr("href").match(/\?id=(\d+|new)/)
+            selected_item_id = next_item.attr("href").match(/\?id=(new|\d*)/)
             if (selected_item_id)
               selected_item_id = selected_item_id[1]
 

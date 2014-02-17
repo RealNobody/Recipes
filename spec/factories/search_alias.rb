@@ -3,7 +3,6 @@ require 'faker'
 
 FactoryGirl.define do
   factory :search_alias do
-    self.alias { Faker::Lorem.sentence }
     aliased_type { [
         :container,
         :ingredient,
@@ -17,5 +16,7 @@ FactoryGirl.define do
     }
 
     aliased_id { FactoryGirl.create(aliased_type.underscore.to_sym).id }
+
+    self.alias { FactoryHelper.create_aliased_field(aliased_type.constantize) { Faker::Lorem.sentence } }
   end
 end

@@ -33,6 +33,18 @@ class MeasurementConversion < ActiveRecord::Base
     nil
   end
 
+  # TODO: implement search_alias here
+  def self.search_alias(search_string, options = {})
+    offset = options[:offset] || 0
+    limit  = options[:limit] || 0
+
+    return_set = self.index_sort
+    return_set = return_set.limit(limit) if (limit > 0)
+    return_set = return_set.offset(offset) if (offset > 0)
+
+    [self.count, return_set]
+  end
+
   private
   def self.seed
     # Code while debugging conversions to clear seeds in between times.

@@ -172,7 +172,7 @@ describe MeasuringUnit do
       it "should test seeding" do
         test_unit = MeasuringUnit.find_or_initialize("Cup")
         test_unit.tap do |unit|
-          unit              = MeasuringUnit.all.find(unit.id)
+          unit              = MeasuringUnit.find(unit.id)
           unit.abbreviation = "C."
           unit.can_delete   = false
           unit.save!()

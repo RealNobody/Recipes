@@ -8,22 +8,26 @@ module ScrollingListHelper
     end
 
     if page_items.length >= items_per_page
+      route_params = {}
+      if (@parent_obj)
+        route_params[:params] = { use_route: "#{@parent_obj.class.name.underscore}_#{@parent_relationship}" }
+      end
       if page_items == @current_page
-        link_value = link_to_next_page(page_items, I18n.t("scrolling_list.picker.next_page"))
+        link_value = link_to_next_page(page_items, I18n.t("scrolling_list.picker.next_page"), route_params)
       else
         unless (page_items.last_page?)
-          link_value = "#{self.send("#{page_items.klass.name.pluralize.underscore}_url")}/page/#{page_items.current_page+ 1}"
-          link_value = link_to("Next Page", link_value)
+          link_value = "#{self.send("#{page_items.klass.name.tableize}_url")}/page/#{page_items.current_page+ 1}"
+          link_value = link_to("Next Page", link_value, route_params)
         end
       end
       if (link_value)
         link_value = link_value.gsub(/\/new\/?/, "")
         link_value = link_value.gsub(/(\/\d+(\/edit)?\/?)?\?page=/, "/page/")
 
-        if (current_item == nil || current_item.id == nil)
-          append_value = "?id=new"
-        else
+        if (current_item && current_item.id && !current_item.new_record?)
           append_value = "?id=#{current_item.id}"
+        else
+          append_value = "?id=new"
         end
         unless (items_per_page == per_default)
           append_value += "&per_page=#{items_per_page}"
@@ -51,12 +55,16 @@ module ScrollingListHelper
     end
 
     if page_items && page_items.current_page > 1
+      route_params = {}
+      if (@parent_obj)
+        route_params[:params] = { use_route: "#{@parent_obj.class.name.underscore}_#{@parent_relationship}" }
+      end
       if page_items == @current_page
-        link_value = link_to_previous_page(page_items, I18n.t("scrolling_list.picker.previous_page"))
+        link_value = link_to_previous_page(page_items, I18n.t("scrolling_list.picker.previous_page"), route_params)
       else
         unless (page_items.first_page?)
-          link_value = "#{self.send("#{page_items.klass.name.pluralize.underscore}_url")}/page/#{page_items.current_page- 1}"
-          link_value = link_to("Previous Page", link_value)
+          link_value = "#{self.send("#{page_items.klass.name.tableize}_url")}/page/#{page_items.current_page- 1}"
+          link_value = link_to("Previous Page", link_value, route_params)
         end
       end
 
@@ -64,10 +72,10 @@ module ScrollingListHelper
         link_value = link_value.gsub(/\/new\/?/, "")
         link_value = link_value.gsub(/(\/\d+(\/edit)?\/?)?\?page=/, "/page/")
 
-        if (current_item == nil || current_item.id == nil)
-          append_value = "?id=new"
-        else
+        if (current_item && current_item.id && !current_item.new_record?)
           append_value = "?id=#{current_item.id}"
+        else
+          append_value = "?id=new"
         end
         unless (items_per_page == per_default)
           append_value += "&per_page=#{items_per_page}"
@@ -93,7 +101,7 @@ module ScrollingListHelper
   def self.scroll_list_name(current_item)
     if (current_item.respond_to?("list_name"))
       current_item.list_name
-    elsif(current_item.respond_to?("name"))
+    elsif (current_item.respond_to?("name"))
       current_item.name
     else
       current_item.to_s()
@@ -104,13 +112,18 @@ module ScrollingListHelper
       per_page_model, search_text)
     item_class = ""
 
-    link_item_id = link_item.id
+    link_item_id   = link_item.id
 
-    link_item = url_for(link_item)
+    if (@parent_obj)
+      link_item = send("#{@parent_obj.class.name.underscore}_#{@parent_relationship.singularize}_path", @parent_obj, link_item)
+    else
+      link_item = url_for(link_item)
+    end
+
     #if link_item =~ /\?/
     #  link_connector = "&"
     #else
-      link_connector = "?"
+    link_connector = "?"
     #end
 
     if (param_page)
@@ -130,16 +143,23 @@ module ScrollingListHelper
         item_class = " class=\"active\""
       end
 
-      link_item      += "#{link_connector}id=#{current_item.id}"
-      link_connector = "&"
+      if (current_item && current_item.id && !current_item.new_record?)
+        link_item += "#{link_connector}id=#{current_item.id}"
+      else
+        link_item += "#{link_connector}id=new"
+      end
     end
 
-    Rails.logger.error("returned item = <li#{item_class}>#{link_to(description, link_item.html_safe, class: "scroll-item-link")}</li>".html_safe)
-    "<li#{item_class}>#{link_to(description, link_item.html_safe, class: "scroll-item-link")}</li>".html_safe
+    route_params = { class: "scroll-item-link" }
+    if (@parent_obj)
+      route_params[:params] = { use_route: "#{@parent_obj.class.name.underscore}_#{@parent_relationship}" }
+    end
+    Rails.logger.error("returned item = <li#{item_class}>#{link_to(description, link_item.html_safe, route_params)}</li>".html_safe)
+    "<li#{item_class}>#{link_to(description, link_item.html_safe, route_params)}</li>".html_safe
   end
 
   def page_title_field
-    hidden_field_tag("#{@model_class.name.to_s.pluralize.underscore}-title", page_title)
+    hidden_field_tag("#{@model_class.name.to_s.tableize}-title", page_title)
   end
 
   def page_title

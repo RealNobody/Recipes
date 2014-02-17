@@ -119,7 +119,7 @@ root.PickerScrollingList = class PickerScrollingList
     unless (cur_id?)
       next_link = scrolling_list.find(element_finder)
       if (next_link.length > 0)
-        cur_id = next_link.attr("href").match(/(\?|&)id=(\d+)/)
+        cur_id = next_link.attr("href").match(/(\?|&)id=(new|\d*)/)
         if (cur_id && cur_id.length > 2)
           cur_id = cur_id[2]
         else

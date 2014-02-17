@@ -15,6 +15,6 @@ FactoryGirl.define do
 
     prep_instructions { Faker::Lorem.paragraphs.join("\n\n") }
     day_before_prep_instructions { Faker::Lorem.paragraphs.join("\n\n") }
-    name { Faker::Name.name }
+    name { FactoryHelper.create_aliased_field(Ingredient) { Faker::Name.name } }
   end
 end

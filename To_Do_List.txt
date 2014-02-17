@@ -4,6 +4,9 @@ HAML
 Cucumber
   https://github.com/jonleighton/poltergeist
 
+search on main index list
+
+search_alias function in MeasurementConversion class.
 
 Ingredient model
 Ingredient aliases

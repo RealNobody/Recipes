@@ -1,7 +1,7 @@
 class ScrollingListSection < SitePrism::Section
-  element :selected_item, ".active"
-  element :wait_next, ".scrolling-next"
-  element :wait_previous, ".scrolling-previous"
+  element :selected_item, ".active a"
+  element :wait_next, ".scrolling-next a"
+  element :wait_previous, ".scrolling-previous a"
   elements :items, "li a"
 
   def scroll(direction, number_of_elements)
