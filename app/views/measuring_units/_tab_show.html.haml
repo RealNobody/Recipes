@@ -1,0 +1,16 @@
+- show_item = local_assigns[:show_item] unless show_item
+
+= form_for show_item do |form_object|
+  = page_title_field
+
+  = form_object.label :name
+  = show_item.name
+
+  %label.checkbox
+    = form_object.check_box(:has_abbreviation,
+    value: show_item.has_abbreviation,
+    class: "measuring-unit-has-abbreviation",
+    enabled: false)
+    = I18n.t("admin.measuring_unit.has_abbreviation")
+  = form_object.label :abbreviation
+  = show_item.abbreviation

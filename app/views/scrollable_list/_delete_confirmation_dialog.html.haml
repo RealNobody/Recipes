@@ -5,12 +5,12 @@
     %button.close{ type: "button", data: { dismiss: "modal" }, "aria-hidden" => "true" } x
     %h3#confirm-delete-title
       = I18n.t("scrolling_list.delete_dialog.header",
-      resource_type: @model_class_name.to_s.underscore.singularize.humanize.titleize,
+      resource_type: @model_class.model_name.human.titleize,
       resource_name: scroll_list_name(@selected_item))
   .modal-body
     %p
       = I18n.t("scrolling_list.delete_dialog.confirmation_text",
-      resource_type: @model_class_name.to_s.underscore.singularize.humanize.titleize,
+      resource_type: @model_class.model_name.human.titleize,
       resource_name: scroll_list_name(@selected_item))
   .modal-footer
     %button#confirm-delete.btn.btn-danger{ "aria-hidden" => "true" } Yes

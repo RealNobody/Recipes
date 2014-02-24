@@ -8,12 +8,12 @@
   = page_title_field
 
   - if @search_alias.aliased
-    = form_object.label(@search_alias.aliased.class.name.underscore.humanize)
+    = form_object.label(@search_alias.aliased.class.model_name.human)
   - else
     = form_object.label("New alias")
   - if (can_edit || is_new)
     - if is_new
-      Cannot create a new search alias
+      = t("search_alias.view.cannot_create")
     - else
       = form_object.scroll_picker(@search_alias.aliased.class.name.underscore, :aliased_id)
   - else

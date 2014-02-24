@@ -6,8 +6,7 @@ class ScrollableListController < ApplicationController
   before_filter do
     authenticate_user!
 
-    @model_class          = self.controller_name.singularize.classify.constantize
-    @model_per_page       = @model_class.default_per_page
+    @model_class          = self.controller_name.classify.constantize
     @parent_obj,
         @parent_relationship,
         @parent_ref_field = get_parent_object()
@@ -27,7 +26,16 @@ class ScrollableListController < ApplicationController
     scroll_list_setup_instance_variables(nil)
 
     respond_to do |format|
-      format.html { render(partial: "scroll_content", layout: false) }
+      format.html do
+        render(partial: "scroll_content",
+               layout:  false,
+               locals:  { list_item:                @selected_item,
+                          list_page:                @current_page,
+                          list_params:              params,
+                          list_parent_object:       @parent_obj,
+                          list_parent_relationship: @parent_relationship })
+      end
+
       format.json { render json: @current_page }
     end
   end
@@ -76,7 +84,7 @@ class ScrollableListController < ApplicationController
       if (@selected_item && @selected_item.errors.full_messages && @selected_item.errors.full_messages.length > 0)
         flash[:error] = @selected_item.errors.full_messages.to_sentence
       else
-        flash[:error] = t("scrolling_list_controller.delete.failure", resource_name: self.controller_name.singularize.humanize)
+        flash[:error] = t("scrolling_list_controller.delete.failure", resource_name: @model_class.model_name.human)
       end
 
       scroll_list_setup_instance_variables(nil)
@@ -95,14 +103,17 @@ class ScrollableListController < ApplicationController
 
     if (@selected_item.save())
       respond_to do |format|
-        format.html { redirect_to @selected_item, notice: "#{self.controller_name.singularize.humanize} was successfully created." }
+        flash[:error] =
+            format.html { redirect_to @selected_item,
+                                      notice: t("scrolling_list_controller.create.success",
+                                                resource_name: @model_class.model_name.human) }
         format.json { render json: @selected_item, status: :created, location: @selected_item }
       end
     else
       if (@selected_item.errors.full_messages && @selected_item.errors.full_messages.length > 0)
         flash[:error] = @selected_item.errors.full_messages.to_sentence
       else
-        flash[:error] = t("scrolling_list_controller.create.failure", resource_name: self.controller_name.singularize.humanize)
+        flash[:error] = t("scrolling_list_controller.create.failure", resource_name: @model_class.model_name.human)
       end
 
       render_full_index(@selected_item)
@@ -127,14 +138,14 @@ class ScrollableListController < ApplicationController
     respond_to do |format|
       if @selected_item.save()
         format.html { render action: :index, notice: t("scrolling_list_controller.update.success",
-                                                       resource_name: self.controller_name.singularize.humanize) }
+                                                       resource_name: @model_class.model_name.human) }
         format.json { render json: @selected_item }
       else
         if (@selected_item.errors.full_messages && @selected_item.errors.full_messages.length > 0)
           flash[:error] = @selected_item.errors.full_messages.to_sentence
         else
           flash[:error] = t("scrolling_list_controller.update.failure",
-                            resource_name: self.controller_name.singularize.humanize)
+                            resource_name: @model_class.model_name.human)
         end
 
         format.html { render action: :index }
@@ -176,7 +187,7 @@ class ScrollableListController < ApplicationController
   private
   def scroll_list_setup_instance_variables(new_unit)
     cur_page = params[:page].try(:to_i) || 1
-    per_page = params[:per_page].try(:to_i) || @model_per_page
+    per_page = params[:per_page].try(:to_i) || @model_class.default_per_page
 
     if @parent_obj
       @current_page  = @parent_obj.send(@parent_relationship)
@@ -243,7 +254,16 @@ class ScrollableListController < ApplicationController
 
   def render_page_element(json_item, item_status = 200)
     respond_to do |format|
-      format.html { render(partial: "show", layout: "../scrollable_list/scroll_list_partial", status: item_status) }
+      format.html do
+        parameters = { partial: "show", layout: "../scrollable_list/scroll_list_partial", status: item_status }
+        if (@parent_obj)
+          parameters[:partial] = "tab_show"
+          parameters[:layout]  = false
+          parameters[:locals]  = { show_item: @selected_item }
+        end
+
+        render(parameters)
+      end
       format.json { render json: json_item, status: item_status }
     end
   end

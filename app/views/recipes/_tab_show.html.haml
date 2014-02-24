@@ -1,0 +1,2 @@
+- show_item = local_assigns[:show_item] unless show_item
+= render partial: "view", layout: false, locals: { show_item: show_item }

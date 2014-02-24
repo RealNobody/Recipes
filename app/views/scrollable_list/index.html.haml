@@ -1,2 +1,13 @@
-%h1.page_title= @_controller.controller_name.humanize.pluralize.titleize
-= render(partial: "full_page", layout: "scrollable_list/scrolling_list")
+%h1.page_title= @model_class.model_name.human.pluralize.titleize
+= render(partial: "full_page",
+layout: "scrollable_list/scrolling_list",
+locals: { scroll_list_class: "scrolling-list-primary",
+model_class:                 @model_class,
+list_item:                   @selected_item,
+list_page:                   @current_page,
+list_params:                 params,
+show_path:                   "#{@model_class.name.tableize}/show",
+list_content_name:           :main_scroll_list,
+item_content_name:           :main_item,
+list_parent_object:          @parent_obj,
+list_parent_relationship:    @parent_relationship })

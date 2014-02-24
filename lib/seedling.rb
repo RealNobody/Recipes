@@ -60,7 +60,7 @@ class Seedling
         ActiveRecord::Base.connection.tables.each do |table_name|
           table = nil
           begin
-            table = table_name.to_s.singularize.classify.constantize
+            table = table_name.to_s.classify.constantize
           rescue NameError
             # ignore, we don't care about tables we don't have classes for
           end
@@ -88,7 +88,7 @@ class Seedling
         next if belongs_to.options && belongs_to.options[:polymorphic]
 
         belongs_to_table_name = belongs_to.options[:class_name] || belongs_to.name
-        prev_table            = belongs_to_table_name.to_s.singularize.classify.constantize
+        prev_table            = belongs_to_table_name.to_s.classify.constantize
 
         if @@create_order.include?(prev_table)
           prev_table = nil

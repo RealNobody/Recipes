@@ -5,11 +5,17 @@ tabindex:"-1", role: "dialog", "aria-labeledby" => "confirm-delete-title", "aria
     %button.close{ type: "button", data: { dismiss: "modal" }, "aria-hidden" => "true" } x
     %h4#confirm-delete-title
       = I18n.t("scrolling_list.picker.dialog_title",
-      resource_name: local_assigns[:related_object_class_name].to_s.humanize.singularize.titleize)
+      resource_name: local_assigns[:related_object_class_name].to_s.classify.constantize.model_name.human.titleize)
   .modal-body
     %input.pick-dialog-search-text{ type: "text" }
     .well
       %div.scrolling-list.scrolling-list-picker{ id: "pick-scroll-#{local_assigns[:related_object_class_name]}",
       "data-content-id" => "scroll-content-#{local_assigns[:related_object_class_name]}" }
         %ul.scrolling-list-content.nav.nav-list
-          = render(partial: "scroll_content", template: false, locals: { list_object: related_object, list_object_class_name: related_object_class_name })
+          = render(partial: "scroll_content",
+          template: false,
+          locals: { list_item:      related_object || local_assigns[:related_object_class_name].to_s.classify.constantize.first,
+          list_page:                local_assigns[:related_object_class_name].to_s.classify.constantize.index_sort.page(1),
+          list_params:              { page: 1 },
+          list_parent_object:       nil,
+          list_parent_relationship: nil })

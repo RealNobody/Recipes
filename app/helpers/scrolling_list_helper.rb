@@ -1,5 +1,12 @@
 module ScrollingListHelper
-  def scrolling_list_next_link(page_items, current_item, param_page, param_per_page, per_page_model, search_text)
+  def scrolling_list_next_link(page_items,
+      current_item,
+      param_page,
+      param_per_page,
+      per_page_model,
+      search_text,
+      parent_object,
+      parent_relationship)
     per_default    = per_page_model
     items_per_page = per_default
 
@@ -9,14 +16,18 @@ module ScrollingListHelper
 
     if page_items.length >= items_per_page
       route_params = {}
-      if (@parent_obj)
-        route_params[:params] = { use_route: "#{@parent_obj.class.name.underscore}_#{@parent_relationship}" }
+      if (parent_object)
+        route_params[:params] = { use_route: "#{parent_object.class.name.underscore}_#{parent_relationship}" }
       end
       if page_items == @current_page
         link_value = link_to_next_page(page_items, I18n.t("scrolling_list.picker.next_page"), route_params)
       else
         unless (page_items.last_page?)
-          link_value = "#{self.send("#{page_items.klass.name.tableize}_url")}/page/#{page_items.current_page+ 1}"
+          if (parent_object)
+            link_value = "#{self.send("#{parent_object.class.name.underscore}_#{parent_relationship}_url", parent_object)}/page/#{page_items.current_page + 1}"
+          else
+            link_value = "#{self.send("#{page_items.klass.name.tableize}_url")}/page/#{page_items.current_page+ 1}"
+          end
           link_value = link_to("Next Page", link_value, route_params)
         end
       end
@@ -46,7 +57,14 @@ module ScrollingListHelper
     return nil
   end
 
-  def scrolling_list_previous_link(page_items, current_item, param_page, param_per_page, per_page_model, search_text)
+  def scrolling_list_previous_link(page_items,
+      current_item,
+      param_page,
+      param_per_page,
+      per_page_model,
+      search_text,
+      parent_object,
+      parent_relationship)
     per_default    = per_page_model
     items_per_page = per_default
 
@@ -56,14 +74,18 @@ module ScrollingListHelper
 
     if page_items && page_items.current_page > 1
       route_params = {}
-      if (@parent_obj)
-        route_params[:params] = { use_route: "#{@parent_obj.class.name.underscore}_#{@parent_relationship}" }
+      if (parent_object)
+        route_params[:params] = { use_route: "#{parent_object.class.name.underscore}_#{parent_relationship}" }
       end
       if page_items == @current_page
         link_value = link_to_previous_page(page_items, I18n.t("scrolling_list.picker.previous_page"), route_params)
       else
         unless (page_items.first_page?)
-          link_value = "#{self.send("#{page_items.klass.name.tableize}_url")}/page/#{page_items.current_page- 1}"
+          if (parent_object)
+            link_value = "#{self.send("#{parent_object.class.name.underscore}_#{parent_relationship}_url", parent_object)}/page/#{page_items.current_page - 1}"
+          else
+            link_value = "#{self.send("#{page_items.klass.name.tableize}_url")}/page/#{page_items.current_page - 1}"
+          end
           link_value = link_to("Previous Page", link_value, route_params)
         end
       end
@@ -108,14 +130,24 @@ module ScrollingListHelper
     end
   end
 
-  def scrolling_list_link_to_item(description, link_item, page_items, current_item, param_page, param_per_page,
-      per_page_model, search_text)
+  def scrolling_list_link_to_item(description,
+      link_item,
+      page_items,
+      current_item,
+      param_page,
+      param_per_page,
+      per_page_model,
+      search_text,
+      parent_object,
+      parent_relationship)
     item_class = ""
 
-    link_item_id   = link_item.id
+    link_item_id = link_item.id
 
-    if (@parent_obj)
-      link_item = send("#{@parent_obj.class.name.underscore}_#{@parent_relationship.singularize}_path", @parent_obj, link_item)
+    if (parent_object)
+      link_item = send("#{parent_object.class.name.underscore}_#{parent_relationship.to_s.singularize}_path",
+                       parent_object,
+                       link_item)
     else
       link_item = url_for(link_item)
     end
@@ -151,8 +183,8 @@ module ScrollingListHelper
     end
 
     route_params = { class: "scroll-item-link" }
-    if (@parent_obj)
-      route_params[:params] = { use_route: "#{@parent_obj.class.name.underscore}_#{@parent_relationship}" }
+    if (parent_object)
+      route_params[:params] = { use_route: "#{parent_object.class.name.underscore}_#{parent_relationship}" }
     end
     Rails.logger.error("returned item = <li#{item_class}>#{link_to(description, link_item.html_safe, route_params)}</li>".html_safe)
     "<li#{item_class}>#{link_to(description, link_item.html_safe, route_params)}</li>".html_safe
@@ -167,7 +199,7 @@ module ScrollingListHelper
       i18n_name     = "admin.#{@model_class.name.to_s.singularize.underscore}.title"
       default_title = I18n.t("admin.default.title_format")
       title         = I18n.t(i18n_name, default: default_title)
-      title % { unit_type: @model_class.name.to_s.singularize.underscore.humanize.titleize,
+      title % { unit_type: @model_class.model_name.human.titleize,
                 unit_name: scroll_list_name(@selected_item) }
     else
       I18n.t("admin.default.title")

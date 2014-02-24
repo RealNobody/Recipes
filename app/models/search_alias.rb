@@ -24,8 +24,8 @@ class SearchAlias < ActiveRecord::Base
         end
 
         default_value = I18n.t("activerecord.search_alias.error.cannot_be_nil_default",
-                               table_name: aliased_class.name.underscore.humanize.titleize,
-                               aliased_field: aliased_class.initialize_field.to_s.underscore.humanize.titleize)
+                               table_name: aliased_class.model_name.human.titleize,
+                               aliased_field: aliased_class.human_attribute_name(aliased_class.initialize_field))
 
         errors.add(:alias, I18n.t("activerecord.#{self.aliased_type.underscore}.error.cannot_be_nil", default_value))
       end
@@ -42,7 +42,7 @@ class SearchAlias < ActiveRecord::Base
     unless (allow_delete_default_aliases)
       if (self.aliased.is_default_alias?("#{self.alias}"))
         default_value = I18n.t("activerecord.search_alias.error.cannot_delete_defaults_default",
-                               table_name: self.aliased.name.underscore.humanize.titleize)
+                               table_name: self.aliased.class.model_name.human.titleize)
         errors.add(:alias, I18n.t("activerecord.#{self.aliased_type.underscore}.error.cannot_delete_defaults", default_value))
         return false
       end
@@ -66,7 +66,7 @@ class SearchAlias < ActiveRecord::Base
 
     def is_class_aliased?(test_class)
       if test_class.is_a?(Symbol) || test_class.is_a?(String)
-        SearchAlias.is_class_aliased?(test_class.to_s.singularize.classify.constantize)
+        SearchAlias.is_class_aliased?(test_class.to_s.classify.constantize)
       else
         SearchAlias.aliased_tables.include?(test_class)
       end

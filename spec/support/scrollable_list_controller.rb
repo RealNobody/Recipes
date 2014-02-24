@@ -14,7 +14,7 @@ shared_examples "a scrollable list controller" do
   #   id
   #   id=new
   #
-  #@model_class    = self.controller_name.singularize.classify.constantize
+  #@model_class    = self.controller_name.classify.constantize
   #@model_per_page = @model_class.default_per_page
   #@selected_item  = nil
   #@current_page   = nil
@@ -45,7 +45,8 @@ shared_examples "a scrollable list controller" do
 
         expect(page_object.index_list).to have_no_selected_item
         expect(page_object.current_url).to match /\/#{described_class.controller_name}\/new/
-        expect(page_object.page_name.text).to eq described_class.controller_name.humanize.pluralize.titleize
+        expect(page_object.page_name.text).
+            to eq described_class.controller_name.classify.constantize.model_name.human.pluralize.titleize
       end
 
       it "should default to the first item when listing the index", :js do
@@ -53,14 +54,16 @@ shared_examples "a scrollable list controller" do
 
         expect(page_object.index_list.selected_item).to have_content(test_scroll_list_name(first_page[0]))
         expect(page_object.current_url).to match /\/#{described_class.controller_name}\/#{first_page[0].id}/
-        expect(page_object.page_name.text).to eq described_class.controller_name.humanize.pluralize.titleize
+        expect(page_object.page_name.text).
+            to eq described_class.controller_name.classify.constantize.model_name.human.pluralize.titleize
       end
 
       it "should default to the first page of data", :js do
         page_object.load item_id: first_page[0].id, edit: show_edit
 
         expect(page_object.index_list.selected_item).to have_content(test_scroll_list_name(first_page[0]))
-        expect(page_object.page_name.text).to eq described_class.controller_name.humanize.pluralize.titleize
+        expect(page_object.page_name.text).
+            to eq described_class.controller_name.classify.constantize.model_name.human.pluralize.titleize
       end
 
       it "should highlight the selected item", :js do
@@ -69,7 +72,8 @@ shared_examples "a scrollable list controller" do
 
         expect(page_object.index_list.selected_item).to have_content(test_scroll_list_name(test_page[0]))
         expect(page_object.index_list.items.first).to have_content(test_scroll_list_name(first_page[0]))
-        expect(page_object.page_name.text).to eq described_class.controller_name.humanize.pluralize.titleize
+        expect(page_object.page_name.text).
+            to eq described_class.controller_name.classify.constantize.model_name.human.pluralize.titleize
       end
 
       it "should start on the second page", :js do

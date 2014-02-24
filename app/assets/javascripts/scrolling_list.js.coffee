@@ -57,6 +57,7 @@ root.ScrollingList = class ScrollingList
   document_ready:  () ->
     this.bind_elements()
 
+    $(document).on("shown.bs.tab", "a[data-toggle=tab]", { scroll_class: this }, this.tab_shown)
     scrolling_lists = $(".scrolling-list")
 
     # for each scroll list on the page...
@@ -254,6 +255,12 @@ root.ScrollingList = class ScrollingList
   # This function is used to bind the elements on the screen that this class
   # effects to the functions that respond to those objects.
   bind_elements:   () ->
+    # When we bound the scroll event with $(document).on(...) it wouldn't work.
+    # The only way I could get the scroll event was to bind scroll to the object
+    # itself like this.
+    #
+    # This requires that we have things which change the page call the bind_elements
+    # function to find and re-bind the scrolling lists.
     $(".scrolling-list").unbind("scroll", this.scroll_event)
     $(".scrolling-list").bind("scroll", { scroll_class: this }, this.scroll_event)
 
@@ -279,6 +286,13 @@ root.ScrollingList = class ScrollingList
         scroll_list.removeClass("scrolling-fetching")
         scroll_list.trigger("scroll_load_finished")
       )
+
+  # When we show a tab, if there were any scrolling lists on the tab, we need to fire the scroll
+  # event for those items.  The scroll would not have been fired previously because it wasn't visible.
+  tab_shown: (eventData) ->
+    eventData.data.scroll_class.bind_elements()
+
+    eventData.data.scroll_class.fire_scroll($(eventData.target.getAttribute("href") + " .scrolling-list"))
 
 #  scrub_unseen_pages: function (scroll_div)
 #  {

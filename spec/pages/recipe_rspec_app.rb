@@ -49,7 +49,7 @@ class RecipeRspecApp
         element :page_name, "h1.page_title"
         section :index_list,
                 ScrollingListSection,
-                "#scroll-#{model_class.name.tableize} .scrolling-list-content"
+                ".scrolling-list-primary .scrolling-list-content"
         section model_class.name.tableize.to_sym,
                 "#{model_class.name}Section".constantize,
                 "\##{model_class.name.underscore}"

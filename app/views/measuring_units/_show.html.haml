@@ -5,7 +5,9 @@
     %li
       = link_to I18n.t("admin.measuring_unit.tabs.aliases"), "#aliases", data: { toggle: "tab" }
     %li
-      = link_to I18n.t("admin.measuring_unit.tabs.conversions"), "#conversions", data: { toggle: "tab" }
+      = link_to I18n.t("admin.measuring_unit.tabs.larger_conversions"), "#larger_conversions", data: { toggle: "tab" }
+    %li
+      = link_to I18n.t("admin.measuring_unit.tabs.smaller_conversions"), "#smaller_conversions", data: { toggle: "tab" }
     %li
       = link_to I18n.t("admin.measuring_unit.tabs.ingredients"), "#ingredients", data: { toggle: "tab" }
 
@@ -16,14 +18,77 @@
 
     #aliases.tab-pane
       .recipe-tab-content
-        = render partial: "search_aliases/tab_show", layout: false, locals: { search_aliases: @measuring_unit.search_aliases.page(1) }
+        - if @measuring_unit.search_aliases.first
+          = render(partial: "full_page",
+          layout: "scrollable_list/scrolling_list",
+          locals: { scroll_list_class: "scrolling-list-related",
+          model_class:                 SearchAlias,
+          list_item:                   @measuring_unit.search_aliases.first,
+          list_page:                   @measuring_unit.search_aliases.index_sort.page(1),
+          list_params:                 { page: 1 },
+          show_path:                   "search_aliases/tab_show",
+          list_content_name:           :search_alias_scroll_list,
+          item_content_name:           :search_alias_item,
+          list_parent_object:          @measuring_unit,
+          list_parent_relationship:    :search_aliases })
+        -else
+          No Aliases
+          %br/
 
-    #conversions.tab-pane
+    #larger_conversions.tab-pane
       .recipe-tab-content
-        The conversions page
-        %br/
+        - if @measuring_unit.larger_measurement_conversions.first
+          = render(partial: "full_page",
+          layout: "scrollable_list/scrolling_list",
+          locals: { scroll_list_class: "scrolling-list-related",
+          model_class:                 MeasurementConversion,
+          list_item:                   @measuring_unit.larger_measurement_conversions.first,
+          list_page:                   @measuring_unit.larger_measurement_conversions.index_sort.page(1),
+          list_params:                 { page: 1 },
+          show_path:                   "measurement_conversions/tab_show",
+          list_content_name:           :larger_measurement_conversion_scroll_list,
+          item_content_name:           :larger_measurement_conversion_item,
+          list_parent_object:          @measuring_unit,
+          list_parent_relationship:    :larger_measurement_conversions })
+        -else
+          No Larger Conversions
+          %br/
+
+    #smaller_conversions.tab-pane
+      .recipe-tab-content
+        - if @measuring_unit.smaller_measurement_conversions.first
+          = render(partial: "full_page",
+          layout: "scrollable_list/scrolling_list",
+          locals: { scroll_list_class: "scrolling-list-related",
+          model_class:                 MeasurementConversion,
+          list_item:                   @measuring_unit.smaller_measurement_conversions.first,
+          list_page:                   @measuring_unit.smaller_measurement_conversions.index_sort.page(1),
+          list_params:                 { page: 1 },
+          show_path:                   "measurement_conversions/tab_show",
+          list_content_name:           :smaller_measurement_conversion_scroll_list,
+          item_content_name:           :smaller_measurement_conversion_item,
+          list_parent_object:          @measuring_unit,
+          list_parent_relationship:    :smaller_measurement_conversions })
+        -else
+          No Smaller Conversions
+          %br/
 
     #ingredients.tab-pane
       .recipe-tab-content
-        The ingredients page
-        %br/
+        - if @measuring_unit.ingredients.first
+          .recipe-tab-content
+            = render(partial: "full_page",
+            layout: "scrollable_list/scrolling_list",
+            locals: { scroll_list_class: "scrolling-list-related",
+            model_class:                 Ingredient,
+            list_item:                   @measuring_unit.ingredients.first,
+            list_page:                   @measuring_unit.ingredients.index_sort.page(1),
+            list_params:                 { page: 1 },
+            show_path:                   "ingredients/tab_show",
+            list_content_name:           :ingredient_scroll_list,
+            item_content_name:           :ingredient_item,
+            list_parent_object:          @measuring_unit,
+            list_parent_relationship:    :ingredients })
+        - else
+          No Ingredients
+          %br/

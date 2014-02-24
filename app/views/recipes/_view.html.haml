@@ -1,41 +1,43 @@
-- if (@recipe.id)
-  %h1= @recipe.name
+- show_item = local_assigns[:show_item] unless show_item
+
+- if (show_item.id)
+  %h1= show_item.name
   %span.recipe-view-label= I18n.t("recipe.view.recipe_type")
   %span.recipe-view-data
-    = @recipe.recipe_type.name
+    = show_item.recipe_type.name
     %br/
 
   %span.recipe-view-label= I18n.t("recipe.view.prep_order")
   %span.recipe-view-data
-    = @recipe.prep_order.name
+    = show_item.prep_order.name
     %br/
 
   %span.recipe-view-label= I18n.t("recipe.view.meals")
   %span.recipe-view-data
-    = @recipe.meals
+    = show_item.meals
     %br/
 
   %span.recipe-view-label= I18n.t("recipe.view.servings")
   %span.recipe-view-data
-    = @recipe.servings
+    = show_item.servings
     %br/
 
   %span.recipe-view-label= I18n.t("recipe.view.day_before_instructions")
   %span.recipe-view-data
     %br/
-    = @recipe.prep_instructions
+    = show_item.prep_instructions
     %br/
 
   %span.recipe-view-label= I18n.t("recipe.view.instructions")
   %span.recipe-view-data
     %br/
-    = @recipe.cooking_instructions
+    = show_item.cooking_instructions
     %br/
 
   %span.recipe-view-label= I18n.t("recipe.view.label_instructions")
   %span.recipe-view-data
     %br/
-    = @recipe.label_instructions
+    = show_item.label_instructions
     %br/
 - else
   %h1= I18n.t("admin.recipe.new_recipe")

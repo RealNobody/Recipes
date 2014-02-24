@@ -1,4 +1,10 @@
-- content_for :scroll_list do
-  = render(partial: "scroll_content", layout: false)
-- content_for :first_item do
-  = render(partial: "#{@_controller.controller_name}/show", layout: false)
+- content_for list_content_name do
+  = render(partial: "scroll_content",
+  layout: false,
+  locals: { list_item:      list_item,
+  list_page:                list_page,
+  list_params:              list_params,
+  list_parent_object:       list_parent_object,
+  list_parent_relationship: list_parent_relationship })
+- content_for item_content_name do
+  = render(partial: show_path, layout: false, locals: { show_item: list_item })

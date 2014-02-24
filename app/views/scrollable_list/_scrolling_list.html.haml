@@ -2,13 +2,14 @@
   .row-fluid
     .span3
       .well
-        %div.scrolling-list.scrolling-list-primary{ id: "scroll-#{@_controller.controller_name}",
-        "data-content-id" => "scroll-content-#{@_controller.controller_name}" }
+        %div.scrolling-list{ id: "scroll-#{model_class.name.tableize}",
+        "data-content-id" => "scroll-content-#{model_class.name.tableize}",
+        class: scroll_list_class }
           %ul.scrolling-list-content.nav.nav-list
-            = content_for :scroll_list
+            = content_for local_assigns[:list_content_name]
       .scrolling-list-new-link
         = link_to(I18n.t("scrolling_list.new",
-        unit_type: @_controller.controller_name.humanize().singularize().titleize()),
-        self.send("new_#{@_controller.controller_name.singularize()}_path"))
-    %div.span9.scrolling-content{ id: "scroll-content-#{@_controller.controller_name}" }
-      = content_for :first_item
+        unit_type: model_class.model_name.human.titleize),
+        self.send("new_#{model_class.name.underscore}_path"))
+    %div.span9.scrolling-content{ id: "scroll-content-#{model_class.name.tableize}" }
+      = content_for local_assigns[:item_content_name]

@@ -43,6 +43,7 @@ en:
     delete:
       failure: "Could not delete %{resource_name}."
     create:
+      success: "%{resource_name} was successfully created."
       failure: "Could not create %{resource_name}."
   scrolling_list:
     save: "Save"
@@ -89,28 +90,34 @@ en:
       tabs:
         measuring_unit: "Measuring Unit"
         aliases: "Aliases"
-        conversions: "Conversions"
+        larger_conversions: "Larger Conversions"
+        smaller_conversions: "Smaller Conversions"
         ingredients: "Ingredients"
       has_abbreviation: "Show a default abbreviation"
     ingredient_category:
       tabs:
         ingredient_category: "Ingredient Category"
+        aliases: "Aliases"
         ingredients: "Ingredients"
     recipe_type:
       tabs:
         recipe_type: "Recipe Type"
+        aliases: "Aliases"
         recipes: "Recipes"
     container:
       tabs:
         container: "Container"
+        aliases: "Aliases"
         recipes: "Recipes"
     keyword:
       tabs:
         keyword: "Keyword"
+        aliases: "Aliases"
     prep_order:
       tabs:
         prep_order: "Prep Order"
-        ingredients: "Ingredients"
+        aliases: "Aliases"
+        recipes: "Recipes"
     measurement_conversion:
       tabs:
         measurement_conversion: "Measurement Conversion"
@@ -124,6 +131,7 @@ en:
         recipe: "Recipe"
         edit: "Edit"
         free_form: "Free-Form Entry"
+        aliases: "Aliases"
         ingredients: "Ingredients"
     ingredient:
       tabs:
@@ -138,3 +146,6 @@ en:
       instructions: "Instructions:"
       day_before_instructions: "Day before:"
       label_instructions: "Label text:"
+  search_alias:
+    view:
+      cannot_create:  "Cannot create a new search alias"

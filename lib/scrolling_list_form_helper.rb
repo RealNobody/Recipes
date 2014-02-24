@@ -73,8 +73,10 @@ module ActionView
       # Because the picker dialog is complicated, it is implemented as a form, so we just output it
       # and pass in parameters to drive how it works.
       def scroll_list_dialog(related_object_class_name, related_object)
-        render(partial: "scrollable_list/scroll_pick_list", layout: false,
-               locals:  { related_object: related_object, related_object_class_name: related_object_class_name })
+        render partial: "scrollable_list/scroll_pick_list",
+               layout:  false,
+               locals:  { related_object:            related_object,
+                          related_object_class_name: related_object_class_name }
       end
     end
 

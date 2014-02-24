@@ -10,13 +10,13 @@ root = exports ? this
 # "recipe-container", and the "debug_dump" object, and the "scrolling-list-new-link" object.
 
 root.ScrollingListAdmin = class ScrollingListAdmin
-  constructor:             () ->
+  constructor: () ->
     @minimum_max_height = 160
     @scrollingList = root.scrollingList
     @contentScrollingList = root.contentScrollList
 
   # Caclulate and return the minimum height of the administrative list
-  calculate_min_height:    ->
+  calculate_min_height: ->
     top_offset = 0
     min_height = 0
     debug_height = 0
@@ -44,7 +44,7 @@ root.ScrollingListAdmin = class ScrollingListAdmin
     min_height
 
   # actually set the max-height value for the control.
-  adjust_size:             ->
+  adjust_size: ->
     max_height = this.calculate_min_height()
     min_height = max_height
     scrolling_list = $(".scrolling-list-primary")
@@ -53,7 +53,8 @@ root.ScrollingListAdmin = class ScrollingListAdmin
     max_height -= root.RecipeApp.container_margin
 
     if (!scrolling_list.hasClass("scroll-list-do-not_adjust-height"))
-      scrolling_list.css("max-height", (max_height - new_link.height() - root.RecipeApp.container_margin).toString() + "px")
+      scrolling_list.css("max-height",
+        (max_height - new_link.height() - root.RecipeApp.container_margin).toString() + "px")
 
     @contentScrollingList.content_object(scrolling_list).css("min-height", min_height.toString() + "px")
 
@@ -62,33 +63,35 @@ root.ScrollingListAdmin = class ScrollingListAdmin
   # When content is displayed on the page, we may have to update the history.
   display_content_on_page: (eventData, scrolling_list_id, display_content, item_url, clicked_item_url, item_id, requestFailed) =>
     #If the history option is supported, use it to update the title and the URL.
-    if (@history_supported)
-      scrolling_list = $("##{scrolling_list_id}")
-      title_text = null
+    scrolling_list = $("##{scrolling_list_id}")
 
-      history_info =
-        scroll_id: scrolling_list.attr("id"),
-        link_url:  clicked_item_url,
-        ajax_url:  item_url
+    if (" #{scrolling_list[0].getAttribute("class")} ".indexOf(" scrolling-list-primary ") >= 0)
+      if (@history_supported)
+        title_text = null
 
-      title_text = @contentScrollingList.get_title(history_info.link_url)
-      if (requestFailed)
-        History.replaceState(history_info, title_text, history_info.link_url)
-      else
-        push_state = true
-        old_state = History.getState();
-        if (old_state.data.hasOwnProperty("link_url"))
-          push_state = false
-          push_state ||= history_info.link_url != old_state.data.link_url
-          push_state ||= history_info.scroll_id != old_state.data.scroll_id
-        if (push_state)
-          History.pushState(history_info, title_text, history_info.link_url)
+        history_info =
+          scroll_id: scrolling_list.attr("id"),
+          link_url: clicked_item_url,
+          ajax_url: item_url
 
-    $(window).trigger("resize")
+        title_text = @contentScrollingList.get_title(history_info.link_url)
+        if (requestFailed)
+          History.replaceState(history_info, title_text, history_info.link_url)
+        else
+          push_state = true
+          old_state = History.getState();
+          if (old_state.data.hasOwnProperty("link_url"))
+            push_state = false
+            push_state ||= history_info.link_url != old_state.data.link_url
+            push_state ||= history_info.scroll_id != old_state.data.scroll_id
+          if (push_state)
+            History.pushState(history_info, title_text, history_info.link_url)
+
+      $(window).trigger("resize")
 
   # This function tests to see if the browser supports the History API, and if it does
   # to setup event monitoring needed for history.
-  test_for_history:        ->
+  test_for_history: ->
     @history_supported = History.enabled
     if (@history_supported)
       active_link = $(".scrolling-list-primary .scrolling-list-content .active")
@@ -96,8 +99,8 @@ root.ScrollingListAdmin = class ScrollingListAdmin
         active_link = active_link.find("a")
         history_info =
           scroll_id: $(".scrolling-list-primary").attr("id"),
-          link_url:  active_link.attr("href"),
-          ajax_url:  @contentScrollingList.build_click_link(active_link.attr("href"))
+          link_url: active_link.attr("href"),
+          ajax_url: @contentScrollingList.build_click_link(active_link.attr("href"))
         History.replaceState(history_info, @contentScrollingList.get_title(history_info.link_url),
           history_info.link_url)
       this.window_history = window.History
@@ -186,7 +189,7 @@ root.ScrollingListAdmin = class ScrollingListAdmin
 
 root.adminScrollingList = null
 
-$(document).ready( ->
+$(document).ready(->
   if (!root.adminScrollingList)
     root.adminScrollingList = new root.ScrollingListAdmin()
 

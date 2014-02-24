@@ -2,8 +2,29 @@
   %ul.nav.nav-tabs.recipe-nav-tabs
     %li.active
       = link_to I18n.t("admin.keyword.tabs.keyword"), "#keyword", data: { toggle: "tab" }
+    %li
+      = link_to I18n.t("admin.keyword.tabs.aliases"), "#aliases", data: { toggle: "tab" }
 
   .tab-content.recipe-admin-tab-content
     #keyword.tab-pane.active
       .recipe-tab-content
         = render partial: "keyword", layout: false
+
+    #aliases.tab-pane
+      .recipe-tab-content
+        - if @keyword.search_aliases.first
+          = render(partial: "full_page",
+          layout: "scrollable_list/scrolling_list",
+          locals: { scroll_list_class: "scrolling-list-related",
+          model_class:                 SearchAlias,
+          list_item:                   @keyword.search_aliases.first,
+          list_page:                   @keyword.search_aliases.index_sort.page(1),
+          list_params:                 { page: 1 },
+          show_path:                   "search_aliases/tab_show",
+          list_content_name:           :search_alias_scroll_list,
+          item_content_name:           :search_alias_item,
+          list_parent_object:          @keyword,
+          list_parent_relationship:    :search_aliases })
+        -else
+          No Aliases
+          %br/
