@@ -103,9 +103,7 @@ class ScrollableListController < ApplicationController
 
     if (@selected_item.save())
       respond_to do |format|
-        flash[:error] =
-            format.html { redirect_to @selected_item,
-                                      notice: t("scrolling_list_controller.create.success",
+        format.html { redirect_to @selected_item, notice: t("scrolling_list_controller.create.success",
                                                 resource_name: @model_class.model_name.human) }
         format.json { render json: @selected_item, status: :created, location: @selected_item }
       end

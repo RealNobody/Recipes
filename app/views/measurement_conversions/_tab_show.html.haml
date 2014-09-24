@@ -4,10 +4,17 @@
   = page_title_field
 
   = form_object.label(:smaller_measuring_unit_id)
-  = link_to(show_item.smaller_measuring_unit.name, show_item.smaller_measuring_unit, target: "_blank")
+  = link_to(show_item.smaller_measuring_unit.name,
+  show_item.smaller_measuring_unit,
+  target: "_blank",
+  id: :link_ingredient_smaller_measuring_unit_id)
 
   = form_object.label(:larger_measuring_unit_id)
-  = link_to(show_item.larger_measuring_unit.name, show_item.larger_measuring_unit, target: "_blank")
+  = link_to(show_item.larger_measuring_unit.name,
+  show_item.larger_measuring_unit,
+  target: "_blank",
+  id: :link_ingredient_larger_measuring_unit_id)
 
   = form_object.label(:multiplier)
-  = show_item.multiplier
+  #measurement_conversion_day_before_prep_instructions
+    = show_item.multiplier

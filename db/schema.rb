@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140121022949) do
+ActiveRecord::Schema.define(version: 20140312030402) do
 
   create_table "container_aliases", force: true do |t|
     t.integer  "container_id"
@@ -28,6 +28,15 @@ ActiveRecord::Schema.define(version: 20140121022949) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  create_table "containers_recipes", id: false, force: true do |t|
+    t.integer "container_id"
+    t.integer "recipe_id"
+  end
+
+  add_index "containers_recipes", ["container_id"], name: "index_containers_recipes_on_container_id", using: :btree
+  add_index "containers_recipes", ["recipe_id", "container_id"], name: "index_containers_recipes_on_recipe_id_and_container_id", unique: true, using: :btree
+  add_index "containers_recipes", ["recipe_id"], name: "index_containers_recipes_on_recipe_id", using: :btree
 
   create_table "ingredient_aliases", force: true do |t|
     t.integer  "ingredient_id"

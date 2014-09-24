@@ -4,6 +4,8 @@ class Recipe < ActiveRecord::Base
   belongs_to :recipe_type
   belongs_to :prep_order
 
+  has_and_belongs_to_many :containers
+
   scope :index_sort, -> { order(:name) }
 
   validates :name,

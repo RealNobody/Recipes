@@ -1,24 +1,6 @@
 require "spec_helper"
 
 shared_examples "a scrollable list controller" do
-  #describe "#scrolling_list_next_link" do
-  #end
-  #
-  #describe "#scrolling_list_previous_link" do
-  #end
-  #
-  #parameters
-  #   page
-  #   per_page
-  #   search
-  #   id
-  #   id=new
-  #
-  #@model_class    = self.controller_name.classify.constantize
-  #@model_per_page = @model_class.default_per_page
-  #@selected_item  = nil
-  #@current_page   = nil
-
   let(:model_class) { described_class.name[0..-11].singularize.constantize }
   let(:first_page) { model_class.index_sort.page(1).to_a }
   let(:last_item) { model_class.index_sort.last }
@@ -109,6 +91,97 @@ shared_examples "a scrollable list controller" do
   describe ScrollableListController, type: :controller do
     before(:each) do
       sign_in test_user
+    end
+
+    parent_relations = []
+
+    temp_model_class = described_class.name[0..-11].singularize.constantize
+    (temp_model_class.reflect_on_all_associations(:belongs_to) +
+        temp_model_class.reflect_on_all_associations(:has_and_belongs_to_many)).
+        each do |belongs_to|
+      if belongs_to.options[:polymorphic]
+        ActiveRecord::Base.connection.tables.map do |table_name|
+          if Object.const_defined?(table_name.classify, false)
+            parent_class     = table_name.classify.constantize
+            parent_relations |= parent_class.reflect_on_all_associations(:has_many).select do |has_many|
+              has_many.klass == temp_model_class
+            end
+          end
+        end
+      else
+        parent_relations |= belongs_to.klass.reflect_on_all_associations(:has_many).select do |has_many|
+          has_many.klass == temp_model_class
+        end
+        parent_relations |= belongs_to.klass.reflect_on_all_associations(:has_and_belongs_to_many).select do |has_many|
+          has_many.klass == temp_model_class
+        end
+      end
+    end
+
+    parent_relations.each do |parent_relation|
+      describe "child index page for #{parent_relation.active_record.name}" do
+        let(:parent_obj) { FactoryGirl.create(parent_relation.active_record.name.underscore.to_sym) }
+        let(:not_parent_obj) { FactoryGirl.create(parent_relation.active_record.name.underscore.to_sym) }
+        let(:child_obj) { parent_obj.send(parent_relation.plural_name).to_a.sample }
+
+        before(:each) do
+          relationship = parent_relation
+          if (parent_relation.is_a?(ActiveRecord::Reflection::ThroughReflection))
+            relationship = parent_relation.through_reflection
+          end
+
+          parent_relation.class_name.constantize.paginates_per 2
+
+          # ensure that there are enough child objects
+          has_many_table_name = relationship.class_name.constantize.name
+          foreign_key         = relationship.foreign_key.to_sym
+
+          while parent_obj.send(parent_relation.plural_name).count < 2 do
+            if parent_relation.macro == :has_and_belongs_to_many
+              relation_name = parent_relation.plural_name
+
+              if (parent_relation.options[:join_table])
+                has_many_table_name = parent_relation.options[:join_table].to_s.classify.constantize.name
+                fk_field            = parent_relation.options[:foreign_key]
+
+                child_object = FactoryGirl.build(has_many_table_name.underscore.to_sym, fk_field => parent_obj.id)
+                child_object.save
+
+                child_object = FactoryGirl.build(has_many_table_name.underscore.to_sym, fk_field => not_parent_obj.id)
+                child_object.save
+              else
+                child_object = FactoryGirl.build(has_many_table_name.underscore.to_sym)
+                child_object.save
+                parent_obj.send(relation_name) << child_object
+
+                child_object = FactoryGirl.build(has_many_table_name.underscore.to_sym)
+                child_object.save
+                not_parent_obj.send(relation_name) << child_object
+              end
+            else
+              FactoryGirl.build(has_many_table_name.underscore.to_sym, foreign_key => parent_obj.id).save
+              FactoryGirl.build(has_many_table_name.underscore.to_sym, foreign_key => not_parent_obj.id).save
+            end
+          end
+        end
+
+        it "generates a child index page" do
+          attributes                                           = {}
+          attributes["#{parent_obj.class.name.underscore}_id"] = parent_obj.id
+          attributes[:id]                                      = child_obj.id
+
+          get :item, attributes
+          expect(response).to be_success
+        end
+
+        it "generates a child new page for #{parent_relation.active_record.name}" do
+          attributes                                           = {}
+          attributes["#{parent_obj.class.name.underscore}_id"] = parent_obj.id
+
+          get :new_item, attributes
+          expect(response).to be_success
+        end
+      end
     end
 
     describe "#create" do
@@ -487,6 +560,19 @@ shared_examples "a scrollable list controller" do
     end
   end
 
+  # describe ScrollingListHelper, type: :helper do
+  #   #@model_class    = self.controller_name.classify.constantize
+  #   #@model_per_page = @model_class.default_per_page
+  #   #@selected_item  = nil
+  #   #@current_page   = nil
+  #
+  #   #describe "#scrolling_list_next_link" do
+  #   #end
+  #   #
+  #   #describe "#scrolling_list_previous_link" do
+  #   #end
+  # end
+
   describe ScrollableListController, type: :request do
     describe "#page" do
       it "should return a partial page of data" do
@@ -616,7 +702,10 @@ shared_examples "a scrollable list controller" do
         expect(num_elements / page_size + ((num_elements % page_size) > 0 ? 1 : 0)).to eq prev_page_loop
       end
 
-      described_class.name[0..-11].singularize.constantize.reflect_on_all_associations(:has_many).each do |has_many|
+      temp_model_class = described_class.name[0..-11].singularize.constantize
+      (temp_model_class.reflect_on_all_associations(:has_many) +
+          temp_model_class.reflect_on_all_associations(:has_and_belongs_to_many)).
+          each do |has_many|
         relationship = has_many
         if (has_many.is_a?(ActiveRecord::Reflection::ThroughReflection))
           relationship = has_many.through_reflection
@@ -640,9 +729,32 @@ shared_examples "a scrollable list controller" do
             has_many_table_name = relationship.class_name.constantize.name
             foreign_key         = relationship.foreign_key.to_sym
 
-            while parent_obj.send(has_many.plural_name).count < 20 do
-              FactoryGirl.build(has_many_table_name.underscore.to_sym, foreign_key => parent_obj.id).save
-              FactoryGirl.build(has_many_table_name.underscore.to_sym, foreign_key => not_parent_obj.id).save
+            while parent_obj.send(has_many.plural_name).count < 10 do
+              if has_many.macro == :has_and_belongs_to_many
+                relation_name = has_many.plural_name
+
+                if (has_many.options[:join_table])
+                  has_many_table_name = has_many.options[:join_table].to_s.classify.constantize.name
+                  fk_field            = has_many.options[:foreign_key]
+
+                  child_object = FactoryGirl.build(has_many_table_name.underscore.to_sym, fk_field => parent_obj.id)
+                  child_object.save
+
+                  child_object = FactoryGirl.build(has_many_table_name.underscore.to_sym, fk_field => not_parent_obj.id)
+                  child_object.save
+                else
+                  child_object = FactoryGirl.build(has_many_table_name.underscore.to_sym)
+                  child_object.save
+                  parent_obj.send(relation_name) << child_object
+
+                  child_object = FactoryGirl.build(has_many_table_name.underscore.to_sym)
+                  child_object.save
+                  not_parent_obj.send(relation_name) << child_object
+                end
+              else
+                FactoryGirl.build(has_many_table_name.underscore.to_sym, foreign_key => parent_obj.id).save
+                FactoryGirl.build(has_many_table_name.underscore.to_sym, foreign_key => not_parent_obj.id).save
+              end
             end
           end
 

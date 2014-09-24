@@ -5,6 +5,7 @@ FactoryGirl.define do
   factory :measurement_conversion do
     smaller_measuring_unit_id { FactoryGirl.create(:measuring_unit).id }
     larger_measuring_unit_id { FactoryGirl.create(:measuring_unit).id }
+
     multiplier do
       value_1 = 1 + rand(499)
       value_2 = 1 + rand(499)

@@ -40,3 +40,4 @@ doc/
 .project
 .DS_Store
 .idea
+diagnostics_report/

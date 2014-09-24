@@ -4,9 +4,10 @@
   = page_title_field
 
   = form_object.label(show_item.aliased.class.model_name.human)
-  = link_to(show_item.aliased.name, show_item.aliased, target: "_blank")
+  = link_to(show_item.aliased.name, show_item.aliased, target: "_blank", id: :link_search_alias_aliased_id)
 
   %br/
   %br/
   = form_object.label(:alias)
-  = form_object.label(:alias, show_item.alias)
+  #search_alias_alias
+    = form_object.label(:alias, show_item.alias)

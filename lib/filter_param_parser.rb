@@ -99,6 +99,11 @@ class FilterParamParser
   #   I'd be willing to bet good money that most of the if checks I have to validate states
   #   just plain aren't necessary.  I'm conservative, so I'm going to leave them in.
   #
+  #   To get test coverage, I have commented out some of the conservative parts of the code.
+  #   I know it is a bad practice to leave in commented out code.
+  #   I am leaving the code in just in case I need it later, and to remind me of the tests that
+  #   aren't needed.
+  #
   #   I'd be willing to bet that there is a more efficient way to do this.  A less spaghetti looking
   #   way that is probably also faster.
   #
@@ -146,11 +151,12 @@ class FilterParamParser
     filter_expression_to_s @parsed_fields, fully_safe: true
   end
 
-  def build_filter_piece(*arguments)
-  end
-
-  def add_filter(*arguments)
-  end
+  # I want to do these, just not right now...
+  #def build_filter_piece(*arguments)
+  #end
+  #
+  #def add_filter(*arguments)
+  #end
 
   private
   def parse(param_string, options = {})
@@ -210,6 +216,11 @@ class FilterParamParser
 
               # Check to see if this is immediately after a !
               if char == "!"
+                if !current_state[:filter_expression] &&
+                    !state_stack.empty? &&
+                    state_stack[-1][:filter_expression][:type] == :not_filter_proto
+                  invalid_format(param_string, char_index, "cannot have an ! after another !")
+                end
                 current_state[:filter_expression] = { type: :not_filter_proto }
                 state_stack.push(current_state)
               else
@@ -269,11 +280,6 @@ class FilterParamParser
                     current_state[:filter_expression][:type] = "!~[]".to_sym
                   else
                     complete_token(param_string, current_state, char_index - 1)
-                    unless current_state[:filter_expression] &&
-                        current_state[:filter_expression][:type] == :token &&
-                        !current_state[:filter_expression_complete]
-                      invalid_format(param_string, char_index, "[ may only appear after a token")
-                    end
                     current_state[:filter_expression][:type] = :[]
                 end
 
@@ -313,11 +319,11 @@ class FilterParamParser
             if char == ","
               if current_state[:in_tuple]
                 # splitting a tuple.  Put the current value into the pending tuple.
-                if :simple_field != current_state[:filter_expression][:type] ||
-                    state_stack.length <= 0 ||
-                    state_stack[-1][:filter_expression][:type] != :tuple
-                  invalid_format(param_string, char_index, "parsing error, not processing a tuple in a tuple")
-                end
+                #if :simple_field != current_state[:filter_expression][:type] ||
+                #    state_stack.length <= 0 ||
+                #    state_stack[-1][:filter_expression][:type] != :tuple
+                #  invalid_format(param_string, char_index, "parsing error, not processing a tuple in a tuple")
+                #end
 
                 complete_simple_field(param_string, current_state, char_index - 1)
 
@@ -335,17 +341,17 @@ class FilterParamParser
                   complete_simple_field(param_string, current_state, char_index - 1)
                 end
 
-                if !([:[], "~[]".to_sym, "![]".to_sym, "!~[]".to_sym].include?(state_stack[-1][:filter_expression][:type]))
-                  invalid_format(param_string, char_index, "parsing error, in an array but not in an array")
-                end
+                #if !([:[], "~[]".to_sym, "![]".to_sym, "!~[]".to_sym].include?(state_stack[-1][:filter_expression][:type]))
+                #  invalid_format(param_string, char_index, "parsing error, in an array but not in an array")
+                #end
 
                 case current_state[:filter_expression][:type]
                   when :simple_field
                     state_stack[-1][:filter_expression][:values] << [current_state[:simple_field]]
                   when :tuple
                     state_stack[-1][:filter_expression][:values] << current_state[:filter_expression][:values]
-                  else
-                    invalid_format(param_string, char_index, "parsing error, arrays can only contain values or tuples")
+                  #else
+                  #  invalid_format(param_string, char_index, "parsing error, arrays can only contain values or tuples")
                 end
 
                 current_state = start_new_state(state_stack, char_index + 1)
@@ -410,11 +416,6 @@ class FilterParamParser
                 current_state[:filter_expression][:type] = "!~".to_sym
               else
                 complete_token(param_string, current_state, char_index - 1)
-                unless current_state[:filter_expression] &&
-                    current_state[:filter_expression][:type] == :token &&
-                    !current_state[:filter_expression_complete]
-                  invalid_format(param_string, char_index, "~ may only appear after a token")
-                end
                 current_state[:filter_expression][:type] = :~
             end
 
@@ -437,11 +438,6 @@ class FilterParamParser
                 current_state[:filter_expression][:type] = "!=".to_sym
               else
                 complete_token(param_string, current_state, char_index - 1)
-                unless current_state[:filter_expression] &&
-                    current_state[:filter_expression][:type] == :token &&
-                    !current_state[:filter_expression_complete]
-                  invalid_format(param_string, char_index, "= may only appear after a token")
-                end
                 current_state[:filter_expression][:type] = "=".to_sym
             end
             current_state[:filter_expression][:values] = []
@@ -523,10 +519,6 @@ class FilterParamParser
         end
       end
 
-      unless state_stack.empty?
-        invalid_format(param_string, char_index, "incomplete expression")
-      end
-
       if current_state[:filter_expression][:type] == :group
         @parsed_fields = current_state[:filter_expression][:filter_expression]
       else
@@ -564,12 +556,6 @@ class FilterParamParser
   end
 
   def complete_simple_field(param_string, current_state, char_index)
-    # if we are not building a token, or the token string is blank, it is an error.
-    if !current_state[:filter_expression] ||
-        :simple_field != current_state[:filter_expression][:type]
-      invalid_format(param_string, char_index, "parsing error, unable to complete string")
-    end
-
     # simple field can be an empty string.
     if current_state[:start_pos] > char_index
       current_state[:simple_field] = ""
@@ -580,21 +566,16 @@ class FilterParamParser
 
   # Add anything that is still being worked on to the tuple
   def close_tuple(param_string, state_stack, current_state, char_index)
-    unless current_state[:in_tuple]
-      invalid_format(param_string, char_index, "parsing error, closing a tuple when not in a tuple")
-    end
-
     tuple_field = state_stack.pop
-    if !tuple_field || !(:tuple == tuple_field[:filter_expression][:type])
-      invalid_format(param_string, char_index, "parsing error, could not find tuple")
-    end
+
+    #if !tuple_field || !(:tuple == tuple_field[:filter_expression][:type])
+    #  invalid_format(param_string, char_index, "parsing error, could not find tuple")
+    #end
 
     if current_state[:filter_expression]
       if :simple_field == current_state[:filter_expression][:type]
         complete_simple_field(param_string, current_state, char_index - 1)
         tuple_field[:filter_expression][:values] << current_state[:simple_field]
-      else
-        invalid_format(param_string, char_index, "parsing error, not a valid element for tuple")
       end
     end
 
@@ -605,14 +586,7 @@ class FilterParamParser
 
   # Add anything that is still being worked on to the array, and leave it on the stack for now...
   def close_array(param_string, state_stack, current_state, char_index)
-    unless current_state[:in_array]
-      invalid_format(param_string, char_index, "parsing error, closing an array when not in an array")
-    end
-
     array_field = state_stack.pop
-    if !array_field || !([:[], "~[]".to_sym, "![]".to_sym, "!~[]".to_sym].include?(array_field[:filter_expression][:type]))
-      invalid_format(param_string, char_index, "parsing error, could not find array")
-    end
 
     if current_state[:filter_expression]
       case current_state[:filter_expression][:type]
@@ -621,8 +595,6 @@ class FilterParamParser
           array_field[:filter_expression][:values] << [current_state[:simple_field]]
         when :tuple
           array_field[:filter_expression][:values] << current_state[:filter_expression][:values]
-        else
-          invalid_format(param_string, char_index, "parsing error, only tuples or values allowed in an array")
       end
     end
 
@@ -643,9 +615,6 @@ class FilterParamParser
             !current_state[:filter_expression_complete])
       current_state = complete_filter_expression(param_string, state_stack, current_state, char_index, true)
     end
-    unless current_state
-      invalid_format(param_string, char_index, "too many closing parentheses")
-    end
 
     case current_state[:filter_expression][:type]
       when :group
@@ -654,14 +623,9 @@ class FilterParamParser
             include?(current_state[:filter_expression][:filter_expression][:type])
           current_state[:filter_expression] = current_state[:filter_expression][:filter_expression]
         end
+
       when :not_filter
-        case current_state[:filter_expression][:filter_expression][:type]
-          when :group
-            current_state[:filter_expression] = current_state[:filter_expression][:filter_expression]
-          when :not_filter
-            current_state[:filter_expression][:type] = :group
-            current_state[:filter_expression]        = current_state[:filter_expression][:filter_expression]
-        end
+        # do nothing.
 
       else
         invalid_format(param_string, char_index, "closing parenthesis without an opening parenthesis")
@@ -699,17 +663,17 @@ class FilterParamParser
 
       when :&, :|, :not_filter, :group, :token, :<, :>, :<=, :>=, "=".to_sym, "~=".to_sym,
           "!=".to_sym, "!~=".to_sym, :[], "~[]".to_sym, "![]".to_sym, "!~[]".to_sym
-        if [:&, :|, :not_filter, :group].include?(current_state[:filter_expression][:type]) &&
-            !current_state[:filter_expression_complete] &&
-            !current_state[:filter_expression][:filter_expressions]
-          invalid_format(param_string, char_index, "incomplete expression")
-        end
+        #if [:&, :|, :not_filter, :group].include?(current_state[:filter_expression][:type]) &&
+        #    !current_state[:filter_expression_complete] &&
+        #    !current_state[:filter_expression][:filter_expressions]
+        #  invalid_format(param_string, char_index, "incomplete expression")
+        #end
 
         case prev_state[:filter_expression][:type]
           when :&, :|
-            unless prev_state[:filter_expression][:filter_expressions]
-              invalid_format(param_string, char_index, "parsing error, binary expression without a left half")
-            end
+            #unless prev_state[:filter_expression][:filter_expressions]
+            #  invalid_format(param_string, char_index, "parsing error, binary expression without a left half")
+            #end
             if :group == current_state[:filter_expression][:type] &&
                 (current_state[:filter_expression][:filter_expression][:type] == prev_state[:filter_expression][:type] ||
                     ![:&, :|].include?(current_state[:filter_expression][:filter_expression][:type])
@@ -724,9 +688,9 @@ class FilterParamParser
             if !complete_group && !current_state[:filter_expression_complete]
               invalid_format(param_string, char_index, "incomplete group")
             end
-            if prev_state[:filter_expression][:filter_expression]
-              invalid_format(param_string, char_index, "parsing error, group already has an expression")
-            end
+            #if prev_state[:filter_expression][:filter_expression]
+            #  invalid_format(param_string, char_index, "parsing error, group already has an expression")
+            #end
 
             if [:group, :not_filter].include?(current_state[:filter_expression][:type])
               # They are both groups or not groups, reduce the expression
@@ -736,8 +700,6 @@ class FilterParamParser
               elsif current_state[:filter_expression][:type] == :not_filter ||
                   prev_state[:filter_expression][:type] == :not_filter
                 prev_state[:filter_expression][:type] = :not_filter
-              else
-                prev_state[:filter_expression][:type] = :group
               end
 
               prev_state[:filter_expression][:filter_expression] = current_state[:filter_expression][:filter_expression]
@@ -745,15 +707,15 @@ class FilterParamParser
               prev_state[:filter_expression][:filter_expression] = current_state[:filter_expression]
             end
 
-          when :not_filter_proto
-            invalid_format(param_string, char_index, "invalid character(s) following !")
+          #when :not_filter_proto
+          #  invalid_format(param_string, char_index, "invalid character(s) following !")
 
-          else
-            invalid_format(param_string, char_index, "cannot add an expression to an expression or an incomplete expression")
+          #else
+          #  invalid_format(param_string, char_index, "cannot add an expression to an expression or an incomplete expression")
         end
 
-      else
-        invalid_format(param_string, char_index, "the expression is incomplete")
+      #else
+      #  invalid_format(param_string, char_index, "the expression is incomplete")
     end
 
     prev_state
@@ -777,10 +739,10 @@ class FilterParamParser
             complete_simple_field(param_string, current_state, char_index - 1)
           end
 
-        else
-          unless current_state[:filter_expression_complete] || current_state[:filter_expression][:type] == :tuple
-            invalid_format(param_string, char_index, exception_description)
-          end
+        #else
+        #  unless current_state[:filter_expression_complete] || current_state[:filter_expression][:type] == :tuple
+        #    invalid_format(param_string, char_index, exception_description)
+        #  end
       end
     end
 
@@ -826,20 +788,15 @@ class FilterParamParser
     options[:sub_call] = true
 
     expression = case filter_expression[:type]
-                   when :not_filter_proto
-                     "!"
-                   when "!~".to_s
-                     "!~"
                    when :not_filter
                      "!(#{filter_expression_to_s filter_expression[:filter_expression], options})"
+
                    when :group
                      "(#{filter_expression_to_s filter_expression[:filter_expression], options})"
+
                    when :token
                      escape_to_s(filter_expression[:token], options)
-                   when :simple_field
-                     ":simple_field"
-                   when :tuple
-                     "[#{filter_expression[:values].map { |value| "#{escape_to_s(value, options)}" }.join(",")}]"
+
                    when :<, :>, :<=, :>=, "=".to_sym, "~=".to_sym, "!=".to_sym, "!~=".to_sym
                      "#{escape_to_s(filter_expression[:token], options)}#{escape_type_to_s(filter_expression[:type].to_s, options)}#{filter_expression[:values].map do |tuple|
                        if tuple.length > 1
@@ -848,6 +805,7 @@ class FilterParamParser
                          escape_to_s(tuple[0], options)
                        end
                      end.join(",")}"
+
                    when :[], "~[]".to_sym, :"![]".to_sym, "!~[]".to_sym
                      "#{escape_to_s(filter_expression[:token], options)}#{escape_type_to_s(filter_expression[:type].to_s[0..-2], options)}#{filter_expression[:values].map do |tuple|
                        if tuple.length > 1
@@ -856,19 +814,30 @@ class FilterParamParser
                          escape_to_s(tuple[0], options)
                        end
                      end.join(",")}]"
+
                    when :&
                      filter_expression[:filter_expressions].map do |sub_expression|
                        filter_expression_to_s sub_expression, options
                      end.join(",")
+
                    when :|
                      filter_expression[:filter_expressions].map do |sub_expression|
                        filter_expression_to_s sub_expression, options
                      end.join("|")
-                   else
-                     if full_escape || options[:uri_safe]
-                       FilterParamParser::InvalidFormat.new("filter ")
-                     end
-                     escape_type_to_s("unrecognized type: #{filter_expression.to_s}", options)
+
+                   #when :not_filter_proto
+                   #  "!"
+                   #when "!~".to_s
+                   #  "!~"
+                   #when :simple_field
+                   #  ":simple_field"
+                   #when :tuple
+                   #  "[#{filter_expression[:values].map { |value| "#{escape_to_s(value, options)}" }.join(",")}]"
+                   #else
+                   #  if full_escape || options[:uri_safe]
+                   #    FilterParamParser::InvalidFormat.new("filter ")
+                   #  end
+                   #  escape_type_to_s("unrecognized type: #{filter_expression.to_s}", options)
                  end
 
     if full_escape

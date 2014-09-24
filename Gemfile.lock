@@ -1,8 +1,8 @@
-GIT
-  remote: git@github.com:demandchain/galaxy-test_support.git
-  revision: 3beaa4d5fbae4cee398b2c28e6db76634770dd62
+PATH
+  remote: ../../Deem/code/test_support
   specs:
-    galaxy-test_support (0.0.18)
+    test_support (0.0.35)
+      activesupport
 
 GEM
   remote: https://rubygems.org/
@@ -51,7 +51,7 @@ GEM
       xpath (~> 2.0)
     celluloid (0.15.2)
       timers (~> 1.1.0)
-    childprocess (0.3.9)
+    childprocess (0.5.3)
       ffi (~> 1.0, >= 1.0.11)
     coderay (1.1.0)
     coffee-rails (4.0.1)
@@ -126,7 +126,7 @@ GEM
     mime-types (1.25.1)
     mini_portile (0.5.2)
     minitest (4.7.5)
-    multi_json (1.8.2)
+    multi_json (1.9.3)
     mysql2 (0.3.14)
     nokogiri (1.6.0)
       mini_portile (~> 0.5.0)
@@ -174,16 +174,16 @@ GEM
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)
       rspec-mocks (~> 2.14.0)
-    rubyzip (1.0.0)
+    rubyzip (1.1.3)
     sass (3.2.12)
     sass-rails (4.0.1)
       railties (>= 4.0.0, < 5.0)
       sass (>= 3.1.10)
       sprockets-rails (~> 2.0.0)
-    selenium-webdriver (2.37.0)
-      childprocess (>= 0.2.5)
+    selenium-webdriver (2.41.0)
+      childprocess (>= 0.5.0)
       multi_json (~> 1.0)
-      rubyzip (~> 1.0.0)
+      rubyzip (~> 1.0)
       websocket (~> 1.0.4)
     simplecov (0.8.2)
       docile (~> 1.1.0)
@@ -241,7 +241,6 @@ DEPENDENCIES
   devise
   factory_girl_rails
   faker
-  galaxy-test_support (~> 0.0.18)!
   growl
   guard-rspec
   guard-spork
@@ -261,5 +260,6 @@ DEPENDENCIES
   simplecov
   site_prism
   spork
+  test_support (~> 0.0.33)!
   thin
   uglifier

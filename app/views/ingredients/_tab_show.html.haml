@@ -4,16 +4,25 @@
   = page_title_field
 
   = form_object.label(:name)
-  = show_item.name
+  #ingredient_category_name
+    = show_item.name
 
   = form_object.label(:measuring_unit)
-  = link_to(show_item.measuring_unit.name, show_item.measuring_unit, target: "_blank")
+  = link_to(show_item.measuring_unit.name,
+  show_item.measuring_unit,
+  target: "_blank",
+  id: "#link_ingredient_measuring_unit_id")
 
   = form_object.label(:ingredient_category)
-  = link_to(show_item.ingredient_category.name, show_item.ingredient_category, target: "_blank")
+  = link_to(show_item.ingredient_category.name,
+  show_item.ingredient_category,
+  target: "_blank",
+  id: "#link_ingredient_ingredient_category_id")
 
   = form_object.label(:prep_instructions)
-  = form_object.text_area(:prep_instructions, class: "ingredient_prep", readonly: "readonly")
+  #ingredient_category_prep_instructions
+    = form_object.text_area(:prep_instructions, class: "ingredient_prep", readonly: "readonly")
 
   = form_object.label(:day_before_prep_instructions)
-  = form_object.text_area(:day_before_prep_instructions, class: "ingredient_prep", readonly: "readonly")
+  #ingredient_category_day_before_prep_instructions
+    = form_object.text_area(:day_before_prep_instructions, class: "ingredient_prep", readonly: "readonly")

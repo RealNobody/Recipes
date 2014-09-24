@@ -4,7 +4,8 @@
   = page_title_field
 
   = form_object.label :name
-  = show_item.name
+  #measuring_unit_name
+    = show_item.name
 
   %label.checkbox
     = form_object.check_box(:has_abbreviation,
@@ -13,4 +14,5 @@
     enabled: false)
     = I18n.t("admin.measuring_unit.has_abbreviation")
   = form_object.label :abbreviation
-  = show_item.abbreviation
+  #measuring_unit_abbreviation
+    = show_item.abbreviation

@@ -1,0 +1,7 @@
+- show_item = local_assigns[:show_item] unless show_item
+
+= form_for show_item do |form_object|
+  = page_title_field
+
+  = form_object.label(:name)
+  = form_object.label(:name, form_object.name)

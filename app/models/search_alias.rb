@@ -105,7 +105,7 @@ class SearchAlias < ActiveRecord::Base
     def search_alias_full(search_string, search_class, options = {})
       offset            = options[:offset] || 0
       limit             = options[:limit] || search_class.default_per_page
-      search_type_table = options[:search_type_table] || search_class.name.tableize
+      search_type_table = options[:search_type_table] || search_class.table_name
       search_type       = options[:search_type] || ""
       parent_ref_field  = options[:parent_reference_field]
       parent_obj        = options[:parent_object]

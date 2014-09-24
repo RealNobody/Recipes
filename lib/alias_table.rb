@@ -20,25 +20,13 @@ end
 #
 #      t.timestamps
 #    end
-#
-#    create_table :<aliased_table>_aliases do |t|
-#      alias_of :<aliased_table_pleural>
-#
-#      t.timestamps
-#    end
-#
-#    add_alias_index :<aliased_table>_aliases, :<aliased_table_pleural>
 #  end
 #
 # The models are:
 #  class <AliasedTable> < ActiveRecord::Base
-#    aliased_by :<aliased_table>_aliases[, options...]
+#    aliased [options...]
 #
 #    ... rest of the model ...
-#  end
-#
-#  class <AliasedTable>Alias < ActiveRecord::Base
-#    aliases :<aliased_table>[, options...]
 #  end
 #
 #
@@ -64,6 +52,21 @@ end
 #   which might partially match the passed in search value.
 #
 #   The returned values are sorted in a best guess priority order.
+#
+#
+# The options you can pass in are:
+#   :alias_fields           - This is a list of the fields which when a record is created will be aliased.
+#                             The field will be singularized before it is aliased.
+#                             This field has a default alue of [:name]
+#   :pleural_alias_fields   - This is a list of the fields which when a record is created will be pluralized
+#                             before they are aliased.
+#                             This field has a default alue of [:name]
+#   :index_sort             - This is a lambda of the scope to create/use for the index sort.
+#                           - If this is not specified, the default sort will be the first aliased field.
+#   :allow_blank_aliases    - True if "" is a valid alias for one record.
+#                             The default value is false
+#   :allow_delete_defaults  - True if the system should allow the deletion of the default aliases.
+#                             The default value is true.
 
 module ActiveRecord
   module Associations # :nodoc:
@@ -83,7 +86,7 @@ module ActiveRecord
         allow_blank_aliases   = !!options[:allow_blank_aliases]
         allow_delete_defaults = options[:allow_delete_defaults].nil? ? true : options[:allow_delete_defaults]
         aliased_class         = self
-        aliased_table         = aliased_class.name.tableize
+        aliased_table         = aliased_class.table_name
 
         has_many :search_aliases, dependent: :delete_all, as: :aliased
 
@@ -112,7 +115,7 @@ module ActiveRecord
         SearchAlias.class_eval do
           scope "#{aliased_class.name.underscore}_index_sort".to_sym, -> { joins("LEFT JOIN `#{aliased_table}` ON (`#{aliased_table}`.`id` = `search_aliases`.`aliased_id`)").
               where(aliased_type: aliased_class.name).
-              order("#{aliased_class.name.tableize}.#{aliased_class.initialize_field}, search_aliases.alias") }
+              order("`#{aliased_class.table_name}`.`#{aliased_class.initialize_field}`, `search_aliases`.`alias`") }
         end
 
         define_method :list_name do
@@ -208,7 +211,7 @@ module ActiveRecord
           #
           # See #SearchAlias.search_alias for details on the parameters.
           define_method :search_alias do |search_string, options = {}|
-            search_type_table = options[:search_type_table] || self.name.tableize
+            search_type_table = options[:search_type_table] || self.table_name
             search_type       = options[:search_type] || self.name
             search_class      = options[:search_class] || self
 

@@ -191,7 +191,7 @@ module ScrollingListHelper
   end
 
   def page_title_field
-    hidden_field_tag("#{@model_class.name.to_s.tableize}-title", page_title)
+    hidden_field_tag("#{@model_class.name.tableize}-title", page_title)
   end
 
   def page_title

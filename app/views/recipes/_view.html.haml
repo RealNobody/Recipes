@@ -1,43 +1,51 @@
 - show_item = local_assigns[:show_item] unless show_item
 
 - if (show_item.id)
-  %h1= show_item.name
+  #recipe_name
+    %h1= show_item.name
   %span.recipe-view-label= I18n.t("recipe.view.recipe_type")
   %span.recipe-view-data
-    = show_item.recipe_type.name
+    #link_recipe_recipe_type_id
+      = show_item.recipe_type.name
     %br/
 
   %span.recipe-view-label= I18n.t("recipe.view.prep_order")
   %span.recipe-view-data
-    = show_item.prep_order.name
+    #link_recipe_prep_order_id
+      = show_item.prep_order.name
     %br/
 
   %span.recipe-view-label= I18n.t("recipe.view.meals")
   %span.recipe-view-data
-    = show_item.meals
+    #recipe_meals
+      = show_item.meals
     %br/
 
   %span.recipe-view-label= I18n.t("recipe.view.servings")
   %span.recipe-view-data
-    = show_item.servings
+    #recipe_servings
+      = show_item.servings
     %br/
 
   %span.recipe-view-label= I18n.t("recipe.view.day_before_instructions")
   %span.recipe-view-data
     %br/
-    = show_item.prep_instructions
+    #recipe_prep_instructions
+      = show_item.prep_instructions
     %br/
 
   %span.recipe-view-label= I18n.t("recipe.view.instructions")
   %span.recipe-view-data
     %br/
-    = show_item.cooking_instructions
+    #recipe_cooking_instructions
+      = show_item.cooking_instructions
     %br/
 
   %span.recipe-view-label= I18n.t("recipe.view.label_instructions")
   %span.recipe-view-data
     %br/
-    = show_item.label_instructions
+    #recipe_label_instructions
+      = show_item.label_instructions
     %br/
 - else
   %h1= I18n.t("admin.recipe.new_recipe")

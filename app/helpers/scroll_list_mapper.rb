@@ -9,10 +9,11 @@ module ActionDispatch
             get 'item/:id', action: :item, on: :collection
 
             resource_class = resource.to_s.classify.constantize
-            resource_class.reflect_on_all_associations(:has_many).each do |has_many|
-              resources has_many.class_name.constantize.name.tableize.to_sym,
+            (resource_class.reflect_on_all_associations(:has_many) +
+                resource_class.reflect_on_all_associations(:has_and_belongs_to_many)).each do |has_many|
+              resources has_many.class_name.constantize.table_name.to_sym,
                         path: has_many.plural_name.to_sym,
-                        as: has_many.plural_name.to_sym do
+                        as:   has_many.plural_name.to_sym do
                 get 'page/:page', action: :page, on: :collection
                 get 'item/new', action: :new_item, on: :collection
                 get 'item/:id', action: :item, on: :collection

@@ -6,11 +6,9 @@ module LoginMacros
   end
 
   def validate_page(page_user)
-    inputs = Capybara.page.all("input")
+    logged_in_user = Capybara.page.all("#login-state")
 
-    # I don't override the sign in view and i18n it.
-    # In the future when I do i18n, I need to update the test.
-    if (inputs && inputs.length > 0 && inputs[inputs.length - 1].value == "Sign in")
+    if logged_in_user && logged_in_user.length > 0 && " #{logged_in_user[0]["class"]} " =~ / not-logged-in /
       Capybara.page.fill_in("user_password", with: page_user.password)
       Capybara.page.fill_in("user_email", with: page_user.email)
       Capybara.page.click_button "Sign in"

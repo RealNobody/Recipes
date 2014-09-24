@@ -371,6 +371,10 @@ describe FilterParamParser do
       expect { basic_parse.send(:parse, "a)") }.to raise_exception FilterParamParser::InvalidFormat
     end
 
+    it "doesn't allow a ) without an opening (" do
+      expect { basic_parse.send(:parse, "a&b&c)") }.to raise_exception FilterParamParser::InvalidFormat
+    end
+
     it "requires a token" do
       expect { basic_parse.send(:parse, ">bgs") }.to raise_exception FilterParamParser::InvalidFormat
     end
@@ -385,6 +389,10 @@ describe FilterParamParser do
 
     it "doesn't allow a comparer in the wrong place" do
       expect { basic_parse.send(:parse, "a<b<gs") }.to raise_exception FilterParamParser::InvalidFormat
+    end
+
+    it "doesn't allow a !!" do
+      expect { basic_parse.send(:parse, "a<b&!!gs") }.to raise_exception FilterParamParser::InvalidFormat
     end
   end
 
@@ -406,7 +414,7 @@ describe FilterParamParser do
   end
 
   describe "complex built filter" do
-    (1..200).to_a.map do |index|
+    (1..100).to_a.map do |index|
       it "parses complex filters #{index}" do
         # This is an uncontrolled and uncontrollable test.
         # I just generate a ton of random, but valid, string and the
@@ -435,7 +443,7 @@ describe FilterParamParser do
   end
 
   describe "invalid filter strings" do
-    (1..200).to_a.map do |index|
+    (1..100).to_a.map do |index|
       it "catches random errors #{index}" do
         build_hash, build_string = build_complex_expression no_tokens: true
         basic_parse.send(:parse, build_string)
@@ -456,10 +464,10 @@ describe FilterParamParser do
             when "~"
               break if !["[", "="].include?(bad_string[bad_pos])
             when "="
-              break if !["!", "~", "<", ">"].include?(bad_string[bad_pos-1])
+              break if !["!", "~", "<", ">"].include?(bad_string[bad_pos-1]) && !["["].include?(bad_string[bad_pos])
             when ">", "<"
               break if [">", "<"].include?(bad_string[bad_pos-1])
-              break if !["="].include?(bad_string[bad_pos])
+              break if !["=", "["].include?(bad_string[bad_pos])
           end
           bad_pos+= 1
         end

@@ -3,13 +3,14 @@
     .span3
       .well
         %div.scrolling-list{ id: "scroll-#{model_class.name.tableize}",
-        "data-content-id" => "scroll-content-#{model_class.name.tableize}",
+        "data-content-id" => "scroll-content-#{list_parent_relationship}-#{model_class.name.tableize}",
         class: scroll_list_class }
           %ul.scrolling-list-content.nav.nav-list
             = content_for local_assigns[:list_content_name]
-      .scrolling-list-new-link
-        = link_to(I18n.t("scrolling_list.new",
-        unit_type: model_class.model_name.human.titleize),
-        self.send("new_#{model_class.name.underscore}_path"))
-    %div.span9.scrolling-content{ id: "scroll-content-#{model_class.name.tableize}" }
+      - unless list_parent_object
+        .scrolling-list-new-link
+          = link_to(I18n.t("scrolling_list.new",
+          unit_type: model_class.model_name.human.titleize),
+          self.send("new_#{model_class.name.underscore}_path"))
+    %div.span9.scrolling-content{ id: "scroll-content-#{list_parent_relationship}-#{model_class.name.tableize}" }
       = content_for local_assigns[:item_content_name]

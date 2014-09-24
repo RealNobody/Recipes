@@ -10,7 +10,6 @@ require 'capybara/rspec'
 require 'selenium-webdriver'
 require 'site_prism'
 require "cleaner"
-require "pages/recipe_rspec_app"
 require "support/utils"
 require "support/factory_helper"
 
@@ -73,6 +72,8 @@ require 'rspec/autorun'
 # in spec/support/ and its subdirectories.
 Dir[Rails.root.join("spec/support/**/*.rb")].each {|f| require f}
 
+require "pages/recipe_rspec_app"
+
 RSpec.configure do |config|
   # ## Mock Framework
   #
@@ -83,8 +84,8 @@ RSpec.configure do |config|
   # config.mock_with :rr
   config.mock_with :rspec
 
-  # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
-  config.fixture_path = "#{::Rails.root}/spec/fixtures"
+  # # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
+  # config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
   ## If you're not using ActiveRecord, or you'd prefer not to run each of your
   ## examples within a transaction, remove the following line or assign false
@@ -112,5 +113,5 @@ SitePrism.configure do |config|
   config.use_implicit_waits = true
 end
 
-require "galaxy/test_support/rspec_hooks"
-#Galaxy::TestSupport::Configuration.rspec_seed = 527890016468117410760660406697150438897
+require "test_support/rspec_hooks"
+#TestSupport::Configuration.rspec_seed = 527890016468117410760660406697150438897

@@ -7,7 +7,7 @@
         %span.icon-bar
       = link_to I18n.t("header.site_name"), "#", class: "brand"
       #recipe-button-menu.nav-collapse.collapse
-        %p#login-state.navbar-text.pull-right
+        %p#login-state{ class: ["navbar-text", "pull-right", "#{current_user ? "" : "not-" }logged-in"] }
           - if current_user == nil
             = I18n.t("header.not_logged_in")
           - else
