@@ -21,6 +21,27 @@ require "seedling"
 #   4)  Because we do a full reset when tests are run, we don't bother to do a full reset
 #       at the end of tests.
 
+class RspecCleaner
+  @@seedlings = nil
+  @@reset_seedlings = false
+
+  def self.seedlings
+    @@seedlings
+  end
+
+  def self.seedlings=(value)
+    @@seedlings = value
+  end
+
+  def self.reset_seedlings
+    @@reset_seedlings
+  end
+
+  def self.reset_seedlings=(value)
+    @@reset_seedlings = value
+  end
+end
+
 RSpec.configure do |config|
   config.before(:suite) do
     reset_database
@@ -29,26 +50,27 @@ RSpec.configure do |config|
   end
 
   config.before(:suite) do
-    @example.instance_variable_set("@seedlings", Seedling.suite_start)
-    @example.instance_variable_set("@reset_seedlings", false)
+    initialize_seedlings
   end
 
   config.after(:suite) do
-    if @example.instance_variable_get("@reset_seedlings")
-      @example.instance_variable_get("@seedlings").suite_end
+    if RspecCleaner.reset_seedlings
+      RspecCleaner.seedlings.suite_end
     end
   end
 
-  config.before(:each) do
-    if @example.metadata[:js]
-      unless @example.metadata[:no_truncate]
-        if @example.metadata[:full_reset]
+  config.before(:each) do |example|
+    example = example.example if example.respond_to?(:example)
+
+    if example.metadata[:js]
+      unless example.metadata[:no_truncate]
+        if example.metadata[:full_reset]
           DatabaseCleaner.strategy = :truncation
           DatabaseCleaner.start
         else
           DatabaseCleaner.strategy = :truncation
 
-          @test_seedlings = Seedling.test_start
+          example.instance_variable_set(:@test_seedlings, Seedling.test_start)
         end
       end
     else
@@ -57,23 +79,29 @@ RSpec.configure do |config|
     end
   end
 
-  config.after(:each) do
-    if @example.metadata[:js]
-      @example.instance_variable_set("@reset_seedlings", true)
+  config.after(:each) do |example|
+    example = example.example if example.respond_to?(:example)
 
-      unless @example.metadata[:no_truncate]
-        if @example.metadata[:full_reset]
+    if example.metadata[:js]
+      RspecCleaner.reset_seedlings = true
+
+      unless example.metadata[:no_truncate]
+        if example.metadata[:full_reset]
           reset_database
-
-          @example.instance_variable_set("@reset_seedlings", false)
+          initialize_seedlings
         else
-          @test_seedlings.test_end
+          example.instance_variable_get(:@test_seedlings).test_end
         end
       end
     else
       DatabaseCleaner.clean
     end
   end
+end
+
+def initialize_seedlings
+  RspecCleaner.seedlings = Seedling.suite_start
+  RspecCleaner.reset_seedlings = false
 end
 
 def reset_database

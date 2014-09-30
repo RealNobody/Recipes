@@ -105,11 +105,11 @@ describe Seedling do
 
     describe "aliased methods" do
       it "should respond to suite_start" do
-        expect(single_seedling.respond_to?(:suite_start)).to be_true
+        expect(single_seedling.respond_to?(:suite_start)).to be_truthy
       end
 
       it "should respond to suite_end" do
-        expect(single_seedling.respond_to?(:suite_end)).to be_true
+        expect(single_seedling.respond_to?(:suite_end)).to be_truthy
       end
     end
 

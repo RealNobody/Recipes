@@ -31,7 +31,7 @@ shared_examples "an aliased table" do
   let(:search_results_count) { described_class.search_alias(all_names[0], limit: described_class.count + 1)[0] }
 
   it "should respond to #aliased?" do
-    expect(described_class.respond_to?(:aliased?)).to be_true
+    expect(described_class.respond_to?(:aliased?)).to be_truthy
   end
 
   describe "SearchAlias" do
@@ -45,15 +45,15 @@ shared_examples "an aliased table" do
     end
 
     it "should be aliased" do
-      expect(SearchAlias.is_class_aliased?(described_class)).to be_true
+      expect(SearchAlias.is_class_aliased?(described_class)).to be_truthy
     end
 
     it "should be aliased as a symbol" do
-      expect(SearchAlias.is_class_aliased?(described_class_symbol)).to be_true
+      expect(SearchAlias.is_class_aliased?(described_class_symbol)).to be_truthy
     end
 
     it "should be aliased as a plural symbol" do
-      expect(SearchAlias.is_class_aliased?(described_class_symbol.to_s.pluralize)).to be_true
+      expect(SearchAlias.is_class_aliased?(described_class_symbol.to_s.pluralize)).to be_truthy
     end
 
     describe "does default alias deletions" do
@@ -98,7 +98,7 @@ shared_examples "an aliased table" do
 
   describe "#klass.initialize_field" do
     it "should respond to #initialize_field" do
-      expect(described_class.respond_to?(:initialize_field)).to be_true
+      expect(described_class.respond_to?(:initialize_field)).to be_truthy
     end
 
     it "should respond to #initialize_field" do
@@ -108,7 +108,7 @@ shared_examples "an aliased table" do
 
   describe "#klass.aliased_fields" do
     it "should respond to #aliased_fields" do
-      expect(described_class.respond_to?(:aliased_fields)).to be_true
+      expect(described_class.respond_to?(:aliased_fields)).to be_truthy
     end
 
     it "should have aliased_fields" do
@@ -118,7 +118,7 @@ shared_examples "an aliased table" do
 
   describe "#klass.pleural_aliased_fields " do
     it "should respond to #pleural_aliased_fields " do
-      expect(described_class.respond_to?(:pleural_aliased_fields)).to be_true
+      expect(described_class.respond_to?(:pleural_aliased_fields)).to be_truthy
     end
 
     it "should have pleural_aliased_fields" do
@@ -144,10 +144,10 @@ shared_examples "an aliased table" do
       end
 
       described_class.aliased_fields.each do |field_name|
-        expect(new_object.is_default_alias?(new_object[field_name].singularize)).to be_true
+        expect(new_object.is_default_alias?(new_object[field_name].singularize)).to be_truthy
         expect(described_class.find_by_alias(new_object[field_name].singularize).id).to eq(new_object.id)
         unless described_class.pleural_aliased_fields.include?(field_name)
-          expect(new_object.is_default_alias?(new_object[field_name].pluralize)).to_not be_true
+          expect(new_object.is_default_alias?(new_object[field_name].pluralize)).to_not be_truthy
           expect(described_class.find_by_alias(new_object[field_name].pluralize)).to_not be
         end
       end
@@ -170,10 +170,10 @@ shared_examples "an aliased table" do
       end
 
       described_class.pleural_aliased_fields.each do |field_name|
-        expect(new_object.is_default_alias?(new_object[field_name].pluralize)).to be_true
+        expect(new_object.is_default_alias?(new_object[field_name].pluralize)).to be_truthy
         expect(described_class.find_by_alias(new_object[field_name].pluralize).id).to eq(new_object.id)
         unless described_class.aliased_fields.include?(field_name)
-          expect(new_object.is_default_alias?(new_object[field_name].singularize)).to_not be_true
+          expect(new_object.is_default_alias?(new_object[field_name].singularize)).to_not be_truthy
           expect(described_class.find_by_alias(new_object[field_name].singularize)).to_not be
         end
       end
@@ -215,7 +215,7 @@ shared_examples "an aliased table" do
   end
 
   it "should respond to #search_aliases" do
-    expect(find_object.respond_to?(:search_aliases)).to be_true
+    expect(find_object.respond_to?(:search_aliases)).to be_truthy
   end
 
   describe "#find_by_alias" do
@@ -421,7 +421,7 @@ shared_examples "an aliased table" do
       expect(search_results_count).to be >= 9
       expect(search_results.count).to be >= 9
       all_names[0..8].each do |match_word|
-        expect(search_results.include?(match_word)).to be_true
+        expect(search_results.include?(match_word)).to be_truthy
       end
     end
 
@@ -432,13 +432,13 @@ shared_examples "an aliased table" do
 
     it "should find a mixed-up match" do
       described_class.search_alias(all_names[0], limit: 8)[1].to_a[0..3].each do |match_row|
-        expect(all_names[0..3].include?(match_row[init_field_name])).to be_true
+        expect(all_names[0..3].include?(match_row[init_field_name])).to be_truthy
       end
     end
 
     it "should ignore small words < 2" do
-      expect(search_results.include?(all_names[1])).to be_true
-      expect(search_results.include?(all_names[9])).to be_false
+      expect(search_results.include?(all_names[1])).to be_truthy
+      expect(search_results.include?(all_names[9])).to be_falsey
     end
 
     it "should search for small words exact match only if multiples" do
@@ -448,7 +448,7 @@ shared_examples "an aliased table" do
       expect(short_find_results.count).to eq(described_class_search_alias[0])
       expect(short_find_results.count).to be >= 2
       expect(short_find_results[0]).to eq(all_names[10])
-      expect(short_find_results.include?(all_names[11])).to be_true
+      expect(short_find_results.include?(all_names[11])).to be_truthy
     end
 
     it "should search for small words if they are the only thing entered" do
@@ -458,18 +458,18 @@ shared_examples "an aliased table" do
       expect(short_find_results.count).to be >= 6
       expect(short_find_results.count).to eq(described_class_search_alias[0])
 
-      expect(short_find_results.include?(all_names[0])).to be_true
-      expect(short_find_results.include?(all_names[1])).to be_true
-      expect(short_find_results.include?(all_names[2])).to be_true
-      expect(short_find_results.include?(all_names[3])).to be_true
-      expect(short_find_results.include?(all_names[6])).to be_true
-      expect(short_find_results.include?(all_names[9])).to be_true
+      expect(short_find_results.include?(all_names[0])).to be_truthy
+      expect(short_find_results.include?(all_names[1])).to be_truthy
+      expect(short_find_results.include?(all_names[2])).to be_truthy
+      expect(short_find_results.include?(all_names[3])).to be_truthy
+      expect(short_find_results.include?(all_names[6])).to be_truthy
+      expect(short_find_results.include?(all_names[9])).to be_truthy
     end
 
     it "should not find words that do not include the search words" do
       expect(search_results.count).to be >= 9
       all_names[9..-1].each do |match_word|
-        expect(search_results.include?(match_word)).to be_false
+        expect(search_results.include?(match_word)).to be_falsey
       end
     end
 
@@ -490,7 +490,7 @@ shared_examples "an aliased table" do
         end
 
         found_element.each do |found|
-          expect(found).to be_true
+          expect(found).to be_truthy
         end
       end
 
@@ -501,7 +501,7 @@ shared_examples "an aliased table" do
                                                                                       limit:  2)
           expect(sub_search_results_count).to be >= 9
           expect(sub_search_results.count).to be <= 2
-          expect(sub_search_results.map(&init_field_name).include?(all_names[9])).to be_false
+          expect(sub_search_results.map(&init_field_name).include?(all_names[9])).to be_falsey
         end
       end
 
@@ -513,7 +513,7 @@ shared_examples "an aliased table" do
           expect(sub_search_results_count).to be >= 9
           expect(sub_search_results.count).to be <= 2
           all_names[9..-1].each do |match_word|
-            expect(sub_search_results.map(&init_field_name).include?(match_word)).to be_false
+            expect(sub_search_results.map(&init_field_name).include?(match_word)).to be_falsey
           end
         end
       end
@@ -556,7 +556,7 @@ shared_examples "an aliased table" do
           expect(child_basic_results[0]).to be >= 9
           expect(child_basic_results[1].count).to be >= 9
           all_names[0..8].each do |match_word|
-            expect(child_result_values.include?(match_word)).to be_true
+            expect(child_result_values.include?(match_word)).to be_truthy
           end
         end
 
@@ -584,13 +584,13 @@ shared_examples "an aliased table" do
 
         it "should find a mixed-up match" do
           child_basic_results[1].to_a[0..3].each do |match_row|
-            expect(all_names[0..3].include?(match_row[child_init_field_name])).to be_true
+            expect(all_names[0..3].include?(match_row[child_init_field_name])).to be_truthy
           end
         end
 
         it "should ignore small words < 2" do
-          expect(child_result_values.include?(all_names[1])).to be_true
-          expect(child_result_values.include?(all_names[9])).to be_false
+          expect(child_result_values.include?(all_names[1])).to be_truthy
+          expect(child_result_values.include?(all_names[9])).to be_falsey
         end
 
         it "should search for small words exact match only if multiples" do
@@ -604,7 +604,7 @@ shared_examples "an aliased table" do
           expect(short_find_results.count).to eq(results[0])
           expect(short_find_results.count).to be >= 2
           expect(short_find_results[0]).to eq(all_names[10])
-          expect(short_find_results.include?(all_names[11])).to be_true
+          expect(short_find_results.include?(all_names[11])).to be_truthy
         end
 
         it "should search for small words if they are the only thing entered" do
@@ -617,19 +617,19 @@ shared_examples "an aliased table" do
           expect(short_find_results.count).to be >= 6
           expect(short_find_results.count).to eq(results[0])
 
-          expect(short_find_results.include?(all_names[0])).to be_true
-          expect(short_find_results.include?(all_names[1])).to be_true
-          expect(short_find_results.include?(all_names[2])).to be_true
-          expect(short_find_results.include?(all_names[3])).to be_true
-          expect(short_find_results.include?(all_names[6])).to be_true
-          expect(short_find_results.include?(all_names[9])).to be_true
+          expect(short_find_results.include?(all_names[0])).to be_truthy
+          expect(short_find_results.include?(all_names[1])).to be_truthy
+          expect(short_find_results.include?(all_names[2])).to be_truthy
+          expect(short_find_results.include?(all_names[3])).to be_truthy
+          expect(short_find_results.include?(all_names[6])).to be_truthy
+          expect(short_find_results.include?(all_names[9])).to be_truthy
         end
 
         it "should not find words that do not include the search words" do
           expect(child_basic_results[0]).to be >= 9
           expect(child_result_values.length).to be >= 9
           all_names[9..-1].each do |match_word|
-            expect(child_result_values.include?(match_word)).to be_false
+            expect(child_result_values.include?(match_word)).to be_falsey
           end
         end
 
@@ -653,7 +653,7 @@ shared_examples "an aliased table" do
             end
 
             found_element.each do |found|
-              expect(found).to be_true
+              expect(found).to be_truthy
             end
           end
 
@@ -667,7 +667,7 @@ shared_examples "an aliased table" do
 
               expect(sub_results[0]).to be >= 9
               expect(sub_results[1].count).to be <= 2
-              expect(sub_results[1].map(&child_init_field_name).include?(all_names[9])).to be_false
+              expect(sub_results[1].map(&child_init_field_name).include?(all_names[9])).to be_falsey
             end
           end
 
@@ -682,7 +682,7 @@ shared_examples "an aliased table" do
               expect(sub_results[0]).to be >= 9
               expect(sub_results[1].count).to be <= 2
               all_names[9..-1].each do |match_word|
-                expect(sub_results[1].map(&child_init_field_name).include?(match_word)).to be_false
+                expect(sub_results[1].map(&child_init_field_name).include?(match_word)).to be_falsey
               end
             end
           end
@@ -702,22 +702,22 @@ shared_examples "an aliased table" do
 
     it "should return true if the alias is a default alias" do
       described_class.aliased_fields.each do |field_name|
-        expect(find_object.is_default_alias?(initialize_fields_hash[field_name].singularize)).to be_true
-        expect(find_object.is_default_alias?(initialize_fields_hash[field_name].singularize.swapcase)).to be_true
+        expect(find_object.is_default_alias?(initialize_fields_hash[field_name].singularize)).to be_truthy
+        expect(find_object.is_default_alias?(initialize_fields_hash[field_name].singularize.swapcase)).to be_truthy
       end
     end
 
     it "should return true if the alias is a default pleural alias" do
       described_class.pleural_aliased_fields.each do |field_name|
-        expect(find_object.is_default_alias?(initialize_fields_hash[field_name].pluralize)).to be_true
-        expect(find_object.is_default_alias?(initialize_fields_hash[field_name].pluralize.swapcase)).to be_true
+        expect(find_object.is_default_alias?(initialize_fields_hash[field_name].pluralize)).to be_truthy
+        expect(find_object.is_default_alias?(initialize_fields_hash[field_name].pluralize.swapcase)).to be_truthy
       end
     end
 
     it "should return false if the alias is not a default alias" do
       additional_aliases.each do |alias_value|
-        expect(find_object.is_default_alias?(alias_value)).to be_false
-        expect(find_object.is_default_alias?(alias_value.swapcase)).to be_false
+        expect(find_object.is_default_alias?(alias_value)).to be_falsey
+        expect(find_object.is_default_alias?(alias_value.swapcase)).to be_falsey
       end
     end
   end

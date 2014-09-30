@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe MeasuringUnitsController do
+describe MeasuringUnitsController, type: :controller do
   let(:test_user) { FactoryGirl.create(:user) }
 
   before(:each) do

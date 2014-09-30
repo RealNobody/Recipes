@@ -102,23 +102,23 @@ describe MeasuringUnit do
       end
 
       it "should know immediate up conversions" do
-        expect(@smaller_unit.can_convert_to(@middle_unit)).to be_true
+        expect(@smaller_unit.can_convert_to(@middle_unit)).to be_truthy
       end
 
       it "should know immediate down conversions" do
-        expect(@larger_unit.can_convert_to(@middle_unit)).to be_true
+        expect(@larger_unit.can_convert_to(@middle_unit)).to be_truthy
       end
 
       it "should know skip up conversions" do
-        expect(@smaller_unit.can_convert_to(@larger_unit)).to be_true
+        expect(@smaller_unit.can_convert_to(@larger_unit)).to be_truthy
       end
 
       it "should know skip down conversions" do
-        expect(@larger_unit.can_convert_to(@smaller_unit)).to be_true
+        expect(@larger_unit.can_convert_to(@smaller_unit)).to be_truthy
       end
 
       it "should know unsupported conversions" do
-        expect(@smaller_unit.can_convert_to(@unrelated_unit)).to be_false
+        expect(@smaller_unit.can_convert_to(@unrelated_unit)).to be_falsey
       end
     end
 

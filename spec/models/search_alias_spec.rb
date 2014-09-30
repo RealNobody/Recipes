@@ -65,7 +65,7 @@ describe SearchAlias do
   end
 
   it "should sort by aliased_type index_sort" do
-    expect(SearchAlias.respond_to?("#{search_alias.aliased.class.name.underscore}_index_sort")).to be_true
+    expect(SearchAlias.respond_to?("#{search_alias.aliased.class.name.underscore}_index_sort")).to be_truthy
     expect(SearchAlias.send("#{search_alias.aliased.class.name.underscore}_index_sort").last).to be
   end
 end

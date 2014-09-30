@@ -279,7 +279,7 @@ describe FilterDataset do
 
       it "an ambiguous relationship through different relationship types with the proper name works" do
         expect { has_too_many_dataset.field_information(:larger_measurement_conversions, :multiplier) }.
-            not_to raise_error(FilterDataset::InvalidParseException)
+            not_to raise_error
       end
 
       it "an unknown relationship raises an error" do

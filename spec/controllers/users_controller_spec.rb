@@ -3,7 +3,7 @@ require "spec_helper"
 # The user pages are scaffolded, and I don't currently support users really, so these are just
 # basic tests to establish coverage.
 
-describe UsersController do
+describe UsersController, type: :controller do
   describe "an authenticated user" do
     before(:each) do
       @test_user = FactoryGirl.create(:user)

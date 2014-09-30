@@ -80,6 +80,6 @@ group :production do
 end
 
 group :test do
-  # gem 'test_support', '~> 0.0.33', :git => "git@github.com:demandchain/test_support.git"
-  gem 'test_support', '~> 0.0.33', :path => '../../Deem/code/test_support'
+  gem 'test_support', '~> 0.0.33', :git => "git@github.com:demandchain/test_support.git"
+  # gem 'test_support', '~> 0.0.33', :path => '../../Deem/code/test_support'
 end
