@@ -193,14 +193,14 @@ shared_examples "a scrollable list controller" do
         post :create, model_class.name.underscore => new_attributes
 
         expect(response).to be_redirect
-        response.should redirect_to(send("#{model_class.name.underscore}_path", assigns(:selected_item).id))
+        expect(response).to redirect_to(send("#{model_class.name.underscore}_path", assigns(:selected_item).id))
         expect(assigns(:selected_item).id).to eq(model_class.maximum(:id))
         expect(max_id).to_not eq(model_class.maximum(:id))
         expect(flash[:error]).to be_blank
       end
 
       it "handles a failure gracefully" do
-        subject.stub(:permitted_attributes) do |params|
+        allow(subject).to receive(:permitted_attributes) do |params|
           if params.respond_to? (:permit)
             params = params.permit(params.first)
           end
@@ -220,7 +220,7 @@ shared_examples "a scrollable list controller" do
       end
 
       it "handles an unknown failure gracefully" do
-        model_class.any_instance.stub(:save).and_return false
+        allow_any_instance_of(model_class).to receive(:save).and_return false
 
         max_id = model_class.maximum(:id)
         post :create, model_class.name.underscore => new_attributes
@@ -239,7 +239,7 @@ shared_examples "a scrollable list controller" do
               id:                         first_page[0].id,
               model_class.name.underscore => new_attributes
 
-        response.should be_success
+        expect(response).to be_success
         expect(response).to render_template("index")
         expect(flash[:error]).to be_blank
       end
@@ -252,19 +252,19 @@ shared_examples "a scrollable list controller" do
               id:                         first_page[0].id,
               model_class.name.underscore => new_attributes
 
-        response.should be_success
+        expect(response).to be_success
         expect(response).to render_template("index")
         expect(flash[:error]).to_not be_blank
       end
 
       it "handles an unknown failure gracefully" do
-        model_class.any_instance.stub(:save).and_return false
+        allow_any_instance_of(model_class).to receive(:save).and_return false
 
         patch :update,
               id:                         first_page[0].id,
               model_class.name.underscore => new_attributes
 
-        response.should be_success
+        expect(response).to be_success
         expect(response).to render_template("index")
         expect(flash[:error]).to_not be_blank
       end
@@ -285,7 +285,7 @@ shared_examples "a scrollable list controller" do
       end
 
       it "should not delete the item if it cannot" do
-        model_class.any_instance.stub(:destroy).and_return false
+        allow_any_instance_of(model_class).to receive(:destroy).and_return false
 
         deleted_id = delete_item.id
         delete :destroy, id: deleted_id
@@ -298,7 +298,7 @@ shared_examples "a scrollable list controller" do
       end
 
       it "should not delete an invalid id" do
-        model_class.any_instance.stub(:destroy).and_return false
+        allow_any_instance_of(model_class).to receive(:destroy).and_return false
 
         delete :destroy, id: -1
 
@@ -682,7 +682,7 @@ shared_examples "a scrollable list controller" do
           prev_scroll_link = scrolling_list_page.wait_previous[:href] unless scrolling_list_page.has_no_wait_previous?
           if (prev_scroll_link)
             expect(scrolling_list_page.displayed?).to be_truthy
-            prev_scroll_link.should(match(/\/page\/#{prev_page_loop}\?/))
+            expect(prev_scroll_link).to(match(/\/page\/#{prev_page_loop}\?/))
           end
 
           prev_page_loop += 1
@@ -693,7 +693,7 @@ shared_examples "a scrollable list controller" do
           else
             next_scroll_link = scrolling_list_page.wait_next[:href]
 
-            next_scroll_link.should(match(/\/page\/#{page_loop}\?/))
+            expect(next_scroll_link).to(match(/\/page\/#{page_loop}\?/))
             visit_page(next_scroll_link, @user)
           end
         end while (next_scroll_link != nil)
@@ -887,7 +887,7 @@ shared_examples "a scrollable list controller" do
               prev_scroll_link = child_scrolling_list_page.wait_previous[:href] unless child_scrolling_list_page.has_no_wait_previous?
               if (prev_scroll_link)
                 expect(child_scrolling_list_page.displayed?).to be_truthy
-                prev_scroll_link.should(match(/\/page\/#{prev_page_loop}\?/))
+                expect(prev_scroll_link).to(match(/\/page\/#{prev_page_loop}\?/))
               end
 
               prev_page_loop += 1
@@ -898,7 +898,7 @@ shared_examples "a scrollable list controller" do
               else
                 next_scroll_link = child_scrolling_list_page.wait_next[:href]
 
-                next_scroll_link.should(match(/\/page\/#{page_loop}\?/))
+                expect(next_scroll_link).to(match(/\/page\/#{page_loop}\?/))
                 visit_page(next_scroll_link, @user)
               end
             end while (next_scroll_link != nil)

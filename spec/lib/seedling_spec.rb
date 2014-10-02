@@ -21,40 +21,40 @@ describe Seedling do
 
   describe "class methods" do
     it "#seed_all should call #seed on all tables" do
-      Seedling.stub(create_order: [MeasuringUnit, User, PrepOrder])
+      allow(Seedling).to receive_messages(create_order: [MeasuringUnit, User, PrepOrder])
 
-      Seedling.should_receive(:seed).with(MeasuringUnit)
-      Seedling.should_receive(:seed).with(User)
-      Seedling.should_receive(:seed).with(PrepOrder)
+      expect(Seedling).to receive(:seed).with(MeasuringUnit)
+      expect(Seedling).to receive(:seed).with(User)
+      expect(Seedling).to receive(:seed).with(PrepOrder)
 
       Seedling.seed_all
     end
 
     it "#seed should call #seed on the table if it responds to #seed" do
-      User.should_receive(:respond_to?).with(:seed).and_return(true)
-      User.should_receive(:seed).and_return(nil)
+      expect(User).to receive(:respond_to?).with(:seed).and_return(true)
+      expect(User).to receive(:seed).and_return(nil)
       Seedling.seed(User)
     end
 
     it "#seed should not call #seed on the table if it does not respond to #seed" do
-      MeasuringUnit.should_receive(:respond_to?).with(:seed).and_return(false)
-      MeasuringUnit.should_not_receive(:seed)
+      expect(MeasuringUnit).to receive(:respond_to?).with(:seed).and_return(false)
+      expect(MeasuringUnit).not_to receive(:seed)
       Seedling.seed(MeasuringUnit)
     end
 
     it "#test_start should create a new seedling" do
-      Seedling.should_receive(:new).with(:test_start, :test_end).and_return(nil)
+      expect(Seedling).to receive(:new).with(:test_start, :test_end).and_return(nil)
       Seedling.test_start
     end
 
     it "#suite_start should create a new seedling" do
-      Seedling.should_receive(:new).with(:suite_start, :suite_end).and_return(nil)
+      expect(Seedling).to receive(:new).with(:suite_start, :suite_end).and_return(nil)
       Seedling.suite_start
     end
 
     it "#create_order should order tables" do
       Seedling.class_variable_set("@@create_order", nil)
-      ActiveRecord::Base.connection.stub(tables: ["measurement_conversions", "measuring_units"])
+      allow(ActiveRecord::Base.connection).to receive_messages(tables: ["measurement_conversions", "measuring_units"])
       ordered_tables = Seedling.create_order
       expect(ordered_tables).to eq([MeasuringUnit, MeasurementConversion])
     end
@@ -97,7 +97,7 @@ describe Seedling do
       end
 
       it "should call #test_start when initialized with a table" do
-        Seedling.any_instance.should_receive(:my_start_function).and_return "fred is silly"
+        expect_any_instance_of(Seedling).to receive(:my_start_function).and_return "fred is silly"
 
         seedling = Seedling.new :my_start_function, :test_end, MeasuringUnit
       end
@@ -121,7 +121,7 @@ describe Seedling do
       end
 
       it "should allow the table to do something special on test_start" do
-        MeasuringUnit.should_receive(:test_start).and_return("this is a test")
+        expect(MeasuringUnit).to receive(:test_start).and_return("this is a test")
 
         expect(single_seedling.instance_variable_get("@max_id")).to eq "this is a test"
       end
@@ -144,8 +144,8 @@ describe Seedling do
 
         seedling = Seedling.new :test_start, :test_end
         sub_seedlings = seedling.instance_variable_get("@seedlings")
-        sub_seedlings[0].should_receive(:test_end).and_call_original
-        sub_seedlings[1].should_receive(:test_end).and_call_original
+        expect(sub_seedlings[0]).to receive(:test_end).and_call_original
+        expect(sub_seedlings[1]).to receive(:test_end).and_call_original
 
         seedling.test_end
       end
@@ -155,7 +155,7 @@ describe Seedling do
 
         my_seedling.instance_variable_set("@max_id", "this is a test")
 
-        MeasuringUnit.should_receive(:test_end).with("this is a test")
+        expect(MeasuringUnit).to receive(:test_end).with("this is a test")
         my_seedling.test_end
       end
     end

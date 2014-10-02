@@ -470,12 +470,12 @@ describe ScrollingListHelper, type: :helper do
       end
 
       it "should use scroll_list_name" do
-        selected_item.stub(:list_name).and_return("Erik")
+        allow(selected_item).to receive(:list_name).and_return("Erik")
         expect(page_title).to eq("Erik - Measuring Unit | Recipes")
       end
 
       it "use a custom format if specified" do
-        selected_item.stub(:list_name).and_return("Erik")
+        allow(selected_item).to receive(:list_name).and_return("Erik")
         expect(page_title).to eq("Erik - Measuring Unit | Recipes")
       end
     end

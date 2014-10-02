@@ -1,7 +1,7 @@
 require 'spec_helper'
 require "factory_girl"
 
-describe "User Pages" do
+describe "User Pages", :type => :request do
   before do
     @user = FactoryGirl.create(:user)
   end
@@ -11,7 +11,7 @@ describe "User Pages" do
   describe "GET /user_pages" do
     it do
       visit_page(user_path(@user), @user)
-      should have_selector("p", text: @user.name)
+      is_expected.to have_selector("p", text: @user.name)
     end
   end
 end

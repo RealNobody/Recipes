@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe PrepOrder do
+describe PrepOrder, :type => :model do
   before do
     @prep_order = FactoryGirl.build(:prep_order)
   end
@@ -11,26 +11,26 @@ describe PrepOrder do
     it_behaves_like "an aliased table"
   end
 
-  it { should respond_to(:name) }
-  it { should respond_to(:order) }
-  it { should respond_to(:recipes) }
-  it { should respond_to(:search_aliases) }
+  it { is_expected.to respond_to(:name) }
+  it { is_expected.to respond_to(:order) }
+  it { is_expected.to respond_to(:recipes) }
+  it { is_expected.to respond_to(:search_aliases) }
 
   describe "validation" do
     it "should be valid" do
-      @prep_order.should be_valid
+      expect(@prep_order).to be_valid
     end
 
     it "should validate name" do
       @prep_order.name = ""
-      @prep_order.should_not be_valid
+      expect(@prep_order).not_to be_valid
     end
   end
 
   it "should have recipes" do
     @prep_order.save!()
     recipe_1 = FactoryGirl.create(:recipe, prep_order_id: @prep_order.id)
-    @prep_order.recipes.count.should eq 1
-    @prep_order.recipes[0].id.should eq recipe_1.id
+    expect(@prep_order.recipes.count).to eq 1
+    expect(@prep_order.recipes[0].id).to eq recipe_1.id
   end
 end

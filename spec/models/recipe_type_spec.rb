@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe RecipeType do
+describe RecipeType, :type => :model do
   before do
     @recipe_type = FactoryGirl.build(:recipe_type)
   end
@@ -11,25 +11,25 @@ describe RecipeType do
     it_behaves_like "an aliased table"
   end
 
-  it { should respond_to(:name) }
-  it { should respond_to(:recipes) }
-  it { should respond_to(:search_aliases) }
+  it { is_expected.to respond_to(:name) }
+  it { is_expected.to respond_to(:recipes) }
+  it { is_expected.to respond_to(:search_aliases) }
 
   describe "validation" do
     it "should be valid" do
-      @recipe_type.should be_valid
+      expect(@recipe_type).to be_valid
     end
 
     it "should validate name" do
       @recipe_type.name = ""
-      @recipe_type.should_not be_valid
+      expect(@recipe_type).not_to be_valid
     end
   end
 
   it "should have recipes" do
     @recipe_type.save!()
     recipe_1 = FactoryGirl.create(:recipe, recipe_type_id: @recipe_type.id)
-    @recipe_type.recipes.count.should eq 1
-    @recipe_type.recipes[0].id.should eq recipe_1.id
+    expect(@recipe_type.recipes.count).to eq 1
+    expect(@recipe_type.recipes[0].id).to eq recipe_1.id
   end
 end

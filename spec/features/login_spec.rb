@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe MeasuringUnitsController do
+describe MeasuringUnitsController, :type => :feature do
   describe "Logging into the site" do
     let(:first_item) { MeasuringUnit.index_sort.first }
     let(:test_user) { FactoryGirl.create(:user) }

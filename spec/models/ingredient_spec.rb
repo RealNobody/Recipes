@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Ingredient do
+describe Ingredient, :type => :model do
   before(:each) do
     @ingredient = FactoryGirl.build(:ingredient)
   end
@@ -11,41 +11,41 @@ describe Ingredient do
     it_behaves_like "an aliased table"
   end
 
-  it { should respond_to(:name) }
-  it { should respond_to(:measuring_unit_id) }
-  it { should respond_to(:ingredient_category_id) }
-  it { should respond_to(:prep_instructions) }
-  it { should respond_to(:day_before_prep_instructions) }
-  it { should respond_to(:measuring_unit) }
-  it { should respond_to(:ingredient_category) }
-  it { should respond_to(:search_aliases) }
+  it { is_expected.to respond_to(:name) }
+  it { is_expected.to respond_to(:measuring_unit_id) }
+  it { is_expected.to respond_to(:ingredient_category_id) }
+  it { is_expected.to respond_to(:prep_instructions) }
+  it { is_expected.to respond_to(:day_before_prep_instructions) }
+  it { is_expected.to respond_to(:measuring_unit) }
+  it { is_expected.to respond_to(:ingredient_category) }
+  it { is_expected.to respond_to(:search_aliases) }
 
   describe "basic validations" do
-    it { should be_valid }
+    it { is_expected.to be_valid }
 
     it "should not allow a blank name" do
       @ingredient.name = ""
-      @ingredient.should_not be_valid
+      expect(@ingredient).not_to be_valid
     end
 
     it "should not allow a missing category" do
       @ingredient.ingredient_category_id = nil
-      @ingredient.should_not be_valid
+      expect(@ingredient).not_to be_valid
     end
 
     it "should not allow an invalid category" do
       @ingredient.ingredient_category_id = -1
-      @ingredient.should_not be_valid
+      expect(@ingredient).not_to be_valid
     end
 
     it "should not allow a missing measuring unit" do
       @ingredient.measuring_unit_id = nil
-      @ingredient.should_not be_valid
+      expect(@ingredient).not_to be_valid
     end
 
     it "should not allow an invalid measuring unit" do
       @ingredient.measuring_unit_id = -1
-      @ingredient.should_not be_valid
+      expect(@ingredient).not_to be_valid
     end
   end
 
@@ -56,6 +56,6 @@ describe Ingredient do
       @ingredient.add_alias(@alias_text).save!
     end
 
-    it { should be_valid }
+    it { is_expected.to be_valid }
   end
 end

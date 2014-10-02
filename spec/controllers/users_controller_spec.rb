@@ -13,32 +13,32 @@ describe UsersController, type: :controller do
     describe "index" do
       it "should list all users" do
         get :index
-        response.should be_success
-        assigns(:users).should eq(User.all)
+        expect(response).to be_success
+        expect(assigns(:users)).to eq(User.all)
       end
     end
 
     describe "show" do
       it "should show the uer" do
         get :show, id: @test_user.id
-        response.should be_success
-        assigns(:user).should eq(@test_user)
+        expect(response).to be_success
+        expect(assigns(:user)).to eq(@test_user)
       end
     end
 
     describe "new" do
       it "should render a page" do
         get :new
-        response.should be_success
-        assigns(:user).id.should be_blank
+        expect(response).to be_success
+        expect(assigns(:user).id).to be_blank
       end
     end
 
     describe "edit" do
       it "should render a page" do
         get :edit, id: @test_user.id
-        response.should be_success
-        assigns(:user).should eq(@test_user)
+        expect(response).to be_success
+        expect(assigns(:user)).to eq(@test_user)
       end
     end
 
@@ -50,14 +50,14 @@ describe UsersController, type: :controller do
       it "should create a new user" do
         post :create, user: @new_user_information
 
-        response.should be_redirect
-        response.should redirect_to(user_path(assigns(:user).id))
-        flash[:notice].should eq(I18n.t("user.create.success"))
+        expect(response).to be_redirect
+        expect(response).to redirect_to(user_path(assigns(:user).id))
+        expect(flash[:notice]).to eq(I18n.t("user.create.success"))
 
         new_user = User.find(assigns(:user).id)
         @new_user_information.each do |key, value|
           unless (key == :password || key == :password_confirmation)
-            new_user.send(key).should eq(value)
+            expect(new_user.send(key)).to eq(value)
           end
         end
       end
@@ -67,13 +67,13 @@ describe UsersController, type: :controller do
 
         post :create, user: @new_user_information
 
-        response.should be_success
+        expect(response).to be_success
 
         new_user = assigns(:user)
-        new_user.id.should be_blank
+        expect(new_user.id).to be_blank
         @new_user_information.each do |key, value|
           unless (key == :password || key == :password_confirmation)
-            new_user.send(key).should eq(value)
+            expect(new_user.send(key)).to eq(value)
           end
         end
       end
@@ -87,14 +87,14 @@ describe UsersController, type: :controller do
       it "should render a page" do
         patch :update, id: @test_user.id, user: @new_user_information
 
-        response.should be_redirect
-        response.should redirect_to(user_path(assigns(:user).id))
-        flash[:notice].should eq(I18n.t("user.update.success"))
+        expect(response).to be_redirect
+        expect(response).to redirect_to(user_path(assigns(:user).id))
+        expect(flash[:notice]).to eq(I18n.t("user.update.success"))
 
         loaded_user = User.find(@test_user.id)
         @new_user_information.each do |key, value|
           unless (key == :password || key == :password_confirmation)
-            loaded_user.send(key).should eq(value)
+            expect(loaded_user.send(key)).to eq(value)
           end
         end
       end
@@ -105,13 +105,13 @@ describe UsersController, type: :controller do
 
         patch :update, id: @test_user.id, user: @new_user_information
 
-        response.should be_success
+        expect(response).to be_success
 
         new_user = User.find(@test_user.id)
-        new_user.name.should eq(original_name)
+        expect(new_user.name).to eq(original_name)
         @new_user_information.each do |key, value|
           unless (key == :password || key == :password_confirmation)
-            new_user.send(key).should_not eq(value)
+            expect(new_user.send(key)).not_to eq(value)
           end
         end
       end
@@ -123,22 +123,22 @@ describe UsersController, type: :controller do
 
         delete :destroy, id: new_user.id
 
-        response.should be_redirect
-        response.should redirect_to(users_path)
+        expect(response).to be_redirect
+        expect(response).to redirect_to(users_path)
 
         find_user = User.where(id: new_user.id).first
-        find_user.should be_blank
+        expect(find_user).to be_blank
       end
 
       it "should not delete self" do
         delete :destroy, id: @test_user.id
 
-        response.should be_redirect
-        response.should redirect_to(users_path)
-        flash[:notice].should eq(I18n.t("user.delete.self"))
+        expect(response).to be_redirect
+        expect(response).to redirect_to(users_path)
+        expect(flash[:notice]).to eq(I18n.t("user.delete.self"))
 
         find_user = User.where(id: @test_user.id).first
-        find_user.should eq(@test_user)
+        expect(find_user).to eq(@test_user)
       end
     end
   end
@@ -150,51 +150,51 @@ describe UsersController, type: :controller do
 
     it "should require a user for index" do
       get :index
-      response.should be_redirect
-      response.should redirect_to("/users/sign_in")
-      flash[:alert].should eq(I18n.t("devise.failure.unauthenticated"))
+      expect(response).to be_redirect
+      expect(response).to redirect_to("/users/sign_in")
+      expect(flash[:alert]).to eq(I18n.t("devise.failure.unauthenticated"))
     end
 
     it "should require a user for show"do
       get :show, id: @test_user.id
-      response.should be_redirect
-      response.should redirect_to("/users/sign_in")
-      flash[:alert].should eq(I18n.t("devise.failure.unauthenticated"))
+      expect(response).to be_redirect
+      expect(response).to redirect_to("/users/sign_in")
+      expect(flash[:alert]).to eq(I18n.t("devise.failure.unauthenticated"))
     end
 
     it "should require a user for new" do
       get :new
-      response.should be_redirect
-      response.should redirect_to("/users/sign_in")
-      flash[:alert].should eq(I18n.t("devise.failure.unauthenticated"))
+      expect(response).to be_redirect
+      expect(response).to redirect_to("/users/sign_in")
+      expect(flash[:alert]).to eq(I18n.t("devise.failure.unauthenticated"))
     end
 
     it "should require a user for edit" do
       get :edit, id: @test_user.id
-      response.should be_redirect
-      response.should redirect_to("/users/sign_in")
-      flash[:alert].should eq(I18n.t("devise.failure.unauthenticated"))
+      expect(response).to be_redirect
+      expect(response).to redirect_to("/users/sign_in")
+      expect(flash[:alert]).to eq(I18n.t("devise.failure.unauthenticated"))
     end
 
     it "should require a user for create" do
       post :create
-      response.should be_redirect
-      response.should redirect_to("/users/sign_in")
-      flash[:alert].should eq(I18n.t("devise.failure.unauthenticated"))
+      expect(response).to be_redirect
+      expect(response).to redirect_to("/users/sign_in")
+      expect(flash[:alert]).to eq(I18n.t("devise.failure.unauthenticated"))
     end
 
     it "should require a user for update" do
       patch :update, id: @test_user.id
-      response.should be_redirect
-      response.should redirect_to("/users/sign_in")
-      flash[:alert].should eq(I18n.t("devise.failure.unauthenticated"))
+      expect(response).to be_redirect
+      expect(response).to redirect_to("/users/sign_in")
+      expect(flash[:alert]).to eq(I18n.t("devise.failure.unauthenticated"))
     end
 
     it "should require a user for delete" do
       delete :destroy, id: @test_user.id
-      response.should be_redirect
-      response.should redirect_to("/users/sign_in")
-      flash[:alert].should eq(I18n.t("devise.failure.unauthenticated"))
+      expect(response).to be_redirect
+      expect(response).to redirect_to("/users/sign_in")
+      expect(flash[:alert]).to eq(I18n.t("devise.failure.unauthenticated"))
     end
   end
 end

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Keyword do
+describe Keyword, :type => :model do
   before do
     @keyword = FactoryGirl.build(:keyword)
   end
@@ -11,23 +11,23 @@ describe Keyword do
     it_behaves_like "an aliased table"
   end
 
-  it { should respond_to(:name) }
-  it { should respond_to(:search_aliases) }
+  it { is_expected.to respond_to(:name) }
+  it { is_expected.to respond_to(:search_aliases) }
 
   describe "validation" do
     it "should be valid" do
-      @keyword.should be_valid
+      expect(@keyword).to be_valid
     end
 
     it "should validate name" do
       @keyword.name = ""
-      @keyword.should_not be_valid
+      expect(@keyword).not_to be_valid
     end
   end
 
   it "supports validation" do
     @keyword.save!
 
-    @keyword.id.should_not be_nil
+    expect(@keyword.id).not_to be_nil
   end
 end

@@ -14,8 +14,8 @@ describe MeasuringUnitsController, type: :controller do
 
       post :create, measuring_unit: @test_measuring_unit
 
-      response.should be_redirect
-      response.should redirect_to(measuring_unit_path(assigns(:measuring_unit).id))
+      expect(response).to be_redirect
+      expect(response).to redirect_to(measuring_unit_path(assigns(:measuring_unit).id))
       expect(assigns(:measuring_unit)[:abbreviation]).to be_blank
     end
   end
@@ -30,7 +30,7 @@ describe MeasuringUnitsController, type: :controller do
             id:             @update_measuring_unit.id,
             measuring_unit: @test_measuring_unit
 
-      response.should be_success
+      expect(response).to be_success
       expect(MeasuringUnit.where(id: @update_measuring_unit.id).first[:abbreviation]).to_not be
     end
   end

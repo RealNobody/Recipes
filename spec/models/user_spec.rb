@@ -20,31 +20,31 @@
 
 require "spec_helper"
 
-describe User do
+describe User, :type => :model do
   before do
     @user = FactoryGirl.build(:user)
   end
 
   subject { @user }
 
-  it { should respond_to(:name) }
-  it { should respond_to(:email) }
-  it { should respond_to(:password) }
+  it { is_expected.to respond_to(:name) }
+  it { is_expected.to respond_to(:email) }
+  it { is_expected.to respond_to(:password) }
 
-  it { should be_valid }
+  it { is_expected.to be_valid }
 
   describe "when name is missing" do
     before do
       @user.name = ""
     end
-    it { should_not be_valid }
+    it { is_expected.not_to be_valid }
   end
 
   describe "when email is missing" do
     before do
       @user.email = ""
     end
-    it { should_not be_valid }
+    it { is_expected.not_to be_valid }
   end
 
   describe "when password is missing" do
@@ -52,7 +52,7 @@ describe User do
       @user.password = @user.password_confirmation = ""
     end
 
-    it { should_not be_valid }
+    it { is_expected.not_to be_valid }
   end
 
   describe "when password is too short" do
@@ -60,7 +60,7 @@ describe User do
       @user.password = @user.password_confirmation = "a"
     end
 
-    it { should_not be_valid }
+    it { is_expected.not_to be_valid }
   end
 
   describe "when password is too long" do
@@ -68,7 +68,7 @@ describe User do
       @user.password = @user.password_confirmation = "a" * 256
     end
 
-    it { should_not be_valid }
+    it { is_expected.not_to be_valid }
   end
 
   describe "when email is already in use" do
@@ -78,7 +78,7 @@ describe User do
       duplicate_user.save
     end
 
-    it { should_not be_valid }
+    it { is_expected.not_to be_valid }
   end
 
   describe "when username is already in use" do
@@ -88,7 +88,7 @@ describe User do
       duplicate_user.save
     end
 
-    it { should_not be_valid }
+    it { is_expected.not_to be_valid }
   end
 
   describe "when email case insensitive is already in use" do
@@ -99,7 +99,7 @@ describe User do
       duplicate_user.save
     end
 
-    it { should_not be_valid }
+    it { is_expected.not_to be_valid }
   end
 
   describe "when username is already in use" do
@@ -110,6 +110,6 @@ describe User do
       duplicate_user.save
     end
 
-    it { should_not be_valid }
+    it { is_expected.not_to be_valid }
   end
 end

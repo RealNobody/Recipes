@@ -1,21 +1,21 @@
 require 'spec_helper'
 
-describe SearchAlias do
+describe SearchAlias, :type => :model do
   let(:search_alias) { FactoryGirl.build(:search_alias) }
 
   subject { search_alias }
 
-  it { should respond_to :aliased_id }
-  it { should respond_to :aliased_type }
-  it { should respond_to :aliased }
-  it { should respond_to :list_name }
+  it { is_expected.to respond_to :aliased_id }
+  it { is_expected.to respond_to :aliased_type }
+  it { is_expected.to respond_to :aliased }
+  it { is_expected.to respond_to :list_name }
 
   it "should have an #initialize_field" do
     expect(SearchAlias.initialize_field).to eq(:alias)
   end
 
   describe "basic validation" do
-    it { should be_valid }
+    it { is_expected.to be_valid }
 
     it "should not allow a blank alias" do
       search_alias.alias = ""
@@ -36,12 +36,12 @@ describe SearchAlias do
 
     it "should require an aliased" do
       search_alias.aliased_id = nil
-      search_alias.should_not be_valid
+      expect(search_alias).not_to be_valid
     end
 
     it "should require a valid aliased" do
       search_alias.aliased_id = -1
-      search_alias.should_not be_valid
+      expect(search_alias).not_to be_valid
     end
 
     it "should be unique case insensitive" do
@@ -50,7 +50,7 @@ describe SearchAlias do
 
       search_alias.alias = search_alias.alias.upcase
 
-      search_alias.should_not be_valid
+      expect(search_alias).not_to be_valid
     end
   end
 
@@ -59,7 +59,7 @@ describe SearchAlias do
   end
 
   it "should have a list name" do
-    search_alias.list_name.should eq("%{alias} (%{name})" % {
+    expect(search_alias.list_name).to eq("%{alias} (%{name})" % {
         alias: search_alias.alias,
         name:  search_alias.aliased.name })
   end

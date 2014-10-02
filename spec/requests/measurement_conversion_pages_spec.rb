@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "MeasurementConversion pages" do
+describe "MeasurementConversion pages", :type => :request do
   before do
     @user = FactoryGirl.create(:user)
   end
@@ -13,8 +13,8 @@ describe "MeasurementConversion pages" do
     end
 
     describe "should have a list" do
-      it { should have_selector("h1", text: "Measurement Conversions") }
-      it { should have_selector(".scrolling-list") }
+      it { is_expected.to have_selector("h1", text: "Measurement Conversions") }
+      it { is_expected.to have_selector(".scrolling-list") }
     end
 
     describe "should self paginate" do
@@ -27,7 +27,7 @@ describe "MeasurementConversion pages" do
         begin
           prev_scroll_link = get_scroll_link(".scrolling-previous a")
           if (prev_scroll_link)
-            prev_scroll_link.should(match(/\/page\/#{prev_page_loop}\?/))
+            expect(prev_scroll_link).to(match(/\/page\/#{prev_page_loop}\?/))
           end
 
           prev_page_loop += 1
@@ -35,7 +35,7 @@ describe "MeasurementConversion pages" do
 
           next_scroll_link = get_scroll_link(".scrolling-next a")
           if (next_scroll_link)
-            next_scroll_link.should(match(/\/page\/#{page_loop}\?/))
+            expect(next_scroll_link).to(match(/\/page\/#{page_loop}\?/))
             visit_page(next_scroll_link, @user)
           end
         end while (next_scroll_link != nil)
@@ -46,8 +46,8 @@ describe "MeasurementConversion pages" do
   describe "list measurement conversion list" do
     it "should gracefully handle an invalid id" do
       visit_page("#{measurement_conversions_path}/999999?per_page=4", @user)
-      Capybara.page.should have_selector("h1", text: "Measurement Conversions")
-      Capybara.page.should have_selector(".scrolling-list")
+      expect(Capybara.page).to have_selector("h1", text: "Measurement Conversions")
+      expect(Capybara.page).to have_selector(".scrolling-list")
     end
   end
 

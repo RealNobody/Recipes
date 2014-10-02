@@ -12,7 +12,7 @@
 
 require 'spec_helper'
 
-describe MeasuringUnit do
+describe MeasuringUnit, :type => :model do
   before do
     @measuring_unit = FactoryGirl.build(:measuring_unit)
   end
@@ -23,14 +23,14 @@ describe MeasuringUnit do
     it_behaves_like "an aliased table"
   end
 
-  it { should respond_to(:name) }
-  it { should respond_to(:abbreviation) }
-  it { should_not respond_to(:search_name) }
-  it { should respond_to(:search_aliases) }
-  it { should respond_to(:can_delete) }
-  it { should respond_to(:larger_measurement_conversions) }
-  it { should respond_to(:smaller_measurement_conversions) }
-  it { should respond_to(:ingredients) }
+  it { is_expected.to respond_to(:name) }
+  it { is_expected.to respond_to(:abbreviation) }
+  it { is_expected.not_to respond_to(:search_name) }
+  it { is_expected.to respond_to(:search_aliases) }
+  it { is_expected.to respond_to(:can_delete) }
+  it { is_expected.to respond_to(:larger_measurement_conversions) }
+  it { is_expected.to respond_to(:smaller_measurement_conversions) }
+  it { is_expected.to respond_to(:ingredients) }
 
   describe "names should be unique and not case sensitive" do
     before do
@@ -39,51 +39,51 @@ describe MeasuringUnit do
       @dup_unit.save()
     end
 
-    it { should_not be_valid }
+    it { is_expected.not_to be_valid }
   end
 
   describe "abbreviation" do
     it "should default to name" do
       test_unit = MeasuringUnit.new(name: "Test Tablespoon")
-      test_unit.name.should == test_unit.abbreviation
+      expect(test_unit.name).to eq(test_unit.abbreviation)
     end
 
     it "should be able to be different" do
       test_unit = MeasuringUnit.new(name: "Test Tablespoon", abbreviation: "test Tbsp.")
-      test_unit.name.should_not == test_unit.abbreviation
+      expect(test_unit.name).not_to eq(test_unit.abbreviation)
     end
 
     it "should be able to be an empty string" do
       test_unit = MeasuringUnit.new(name: "Fred", abbreviation: "")
-      test_unit.name.should_not == test_unit.abbreviation
+      expect(test_unit.name).not_to eq(test_unit.abbreviation)
     end
   end
 
   describe "Should be deletable" do
     it do
       @measuring_unit.save!()
-      @measuring_unit.can_delete.should equal true
+      expect(@measuring_unit.can_delete).to equal true
       unit_destroyed = @measuring_unit.destroy()
-      unit_destroyed.should equal @measuring_unit
+      expect(unit_destroyed).to equal @measuring_unit
     end
   end
 
   it "seeds should not be deletable" do
     base_unit      = MeasuringUnit.find_or_initialize("cup")
     unit_destroyed = base_unit.destroy()
-    unit_destroyed.should == false
+    expect(unit_destroyed).to eq(false)
   end
 
   describe "has abbreviation" do
     it "should nil the abbreviation if set to false" do
       @measuring_unit.has_abbreviation = false
-      @measuring_unit[:abbreviation].should be_blank
+      expect(@measuring_unit[:abbreviation]).to be_blank
     end
 
     it "should not alter the abbreviation if set to true" do
       orig_abbreviation                = @measuring_unit[:abbreviation]
       @measuring_unit.has_abbreviation = true
-      @measuring_unit[:abbreviation].should eq(orig_abbreviation)
+      expect(@measuring_unit[:abbreviation]).to eq(orig_abbreviation)
     end
   end
 
@@ -126,26 +126,26 @@ describe MeasuringUnit do
       @smaller_unit.add_conversion(@larger_unit, 6)
       @middle_unit.add_conversion(@larger_unit, 3)
 
-      @smaller_unit.convert_to(@middle_unit).should eq(2)
+      expect(@smaller_unit.convert_to(@middle_unit)).to eq(2)
     end
 
     it "should allow skip conversions to larger units put in odd" do
       @smaller_unit.add_conversion(@larger_unit, 6)
       @smaller_unit.add_conversion(@middle_unit, 2)
 
-      @middle_unit.convert_to(@larger_unit).should eq(3)
+      expect(@middle_unit.convert_to(@larger_unit)).to eq(3)
     end
 
     it "should allow conversion to larger units" do
       @smaller_unit.add_conversion(@larger_unit, 2)
 
-      @smaller_unit.convert_to(@larger_unit).should eq(2)
+      expect(@smaller_unit.convert_to(@larger_unit)).to eq(2)
     end
 
     it "should allow conversion to smaller units" do
       @larger_unit.add_conversion(@smaller_unit, 2)
 
-      @smaller_unit.convert_to(@larger_unit).should eq(0.5)
+      expect(@smaller_unit.convert_to(@larger_unit)).to eq(0.5)
     end
 
     describe "intermediate conversions" do
@@ -153,20 +153,20 @@ describe MeasuringUnit do
         @smaller_unit.add_conversion(@middle_unit, 2)
         @middle_unit.add_conversion(@larger_unit, 3)
 
-        @smaller_unit.convert_to(@larger_unit).should eq(2 * 3)
+        expect(@smaller_unit.convert_to(@larger_unit)).to eq(2 * 3)
       end
 
       it "automatically add intermediate conversions down" do
         @middle_unit.add_conversion(@larger_unit, 3)
         @smaller_unit.add_conversion(@middle_unit, 2)
 
-        @larger_unit.convert_to(@smaller_unit).should eq(1.0 / (2 * 3))
+        expect(@larger_unit.convert_to(@smaller_unit)).to eq(1.0 / (2 * 3))
       end
 
       it "should return 1 for unsupported conversion" do
         @smaller_unit.add_conversion(@larger_unit, 2)
 
-        @smaller_unit.convert_to(@middle_unit).should eq(1)
+        expect(@smaller_unit.convert_to(@middle_unit)).to eq(1)
       end
 
       it "should test seeding" do

@@ -36,7 +36,7 @@ shared_examples "an aliased table" do
 
   describe "SearchAlias" do
     it "should index by klass_index_sort" do
-      SearchAlias.should respond_to "#{described_class_symbol}_index_sort"
+      expect(SearchAlias).to respond_to "#{described_class_symbol}_index_sort"
     end
 
     it "should not allow a nil alias" do

@@ -12,7 +12,7 @@ require "spec_helper"
     :recipe_type,
     :measurement_conversion
 ].each do |class_symbol|
-  describe "#{class_symbol.to_s.classify.pluralize}Controller".constantize do
+  describe "#{class_symbol.to_s.classify.pluralize}Controller".constantize, :type => :feature do
     describe "is a scrollable controller", type: :feature do
       it_behaves_like "a scrollable list controller"
     end
