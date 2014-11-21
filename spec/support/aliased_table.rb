@@ -71,7 +71,7 @@ shared_examples "an aliased table" do
 
       it "should not allow default aliases to be deleted as appropriate" do
         delete_alias = SearchAlias.where(alias: not_default_alias.aliased.
-                                                    send(not_default_alias.aliased.class.initialize_field).downcase()).
+                                             send(not_default_alias.aliased.class.initialize_field).downcase()).
             first()
         delete_id    = delete_alias.id
 
@@ -533,9 +533,9 @@ shared_examples "an aliased table" do
         let(:child_init_field_name) { has_many.class_name.constantize.initialize_field }
         let(:child_basic_results) do
           has_many.class_name.constantize.search_alias(all_names[0],
-                                      parent_object: parent_obj,
-                                      relationship:  has_many.plural_name,
-                                      limit:         has_many.class_name.constantize.count + 1)
+                                                       parent_object: parent_obj,
+                                                       relationship:  has_many.plural_name,
+                                                       limit:         has_many.class_name.constantize.count + 1)
         end
         let(:child_result_values) { child_basic_results[1].to_a.map { |row| row[child_init_field_name] } }
 
@@ -562,18 +562,18 @@ shared_examples "an aliased table" do
 
         it "should return everything if empty string passed" do
           results = has_many.class_name.constantize.search_alias("",
-                                                parent_object: parent_obj,
-                                                relationship:  has_many.plural_name,
-                                                limit:         has_many.class_name.constantize.count + 1)
+                                                                 parent_object: parent_obj,
+                                                                 relationship:  has_many.plural_name,
+                                                                 limit:         has_many.class_name.constantize.count + 1)
 
           expect(results[1].count).to eq(parent_obj.send(has_many.plural_name).count)
         end
 
         it "should return everything if nil is passed" do
           results = has_many.class_name.constantize.search_alias(nil,
-                                                parent_object: parent_obj,
-                                                relationship:  has_many.plural_name,
-                                                limit:         has_many.class_name.constantize.count + 1)
+                                                                 parent_object: parent_obj,
+                                                                 relationship:  has_many.plural_name,
+                                                                 limit:         has_many.class_name.constantize.count + 1)
 
           expect(results[1].count).to eq(parent_obj.send(has_many.plural_name).count)
         end
@@ -595,9 +595,9 @@ shared_examples "an aliased table" do
 
         it "should search for small words exact match only if multiples" do
           results = has_many.class_name.constantize.search_alias(all_names[10],
-                                                parent_object: parent_obj,
-                                                relationship:  has_many.plural_name,
-                                                limit:         has_many.class_name.constantize.count + 1)
+                                                                 parent_object: parent_obj,
+                                                                 relationship:  has_many.plural_name,
+                                                                 limit:         has_many.class_name.constantize.count + 1)
 
           short_find_results = results[1].to_a.map { |row| row[child_init_field_name] }
 
@@ -609,9 +609,9 @@ shared_examples "an aliased table" do
 
         it "should search for small words if they are the only thing entered" do
           results            = has_many.class_name.constantize.search_alias(short_set_1.sample,
-                                                           parent_object: parent_obj,
-                                                           relationship:  has_many.plural_name,
-                                                           limit:         has_many.class_name.constantize.count + 1)
+                                                                            parent_object: parent_obj,
+                                                                            relationship:  has_many.plural_name,
+                                                                            limit:         has_many.class_name.constantize.count + 1)
           short_find_results = results[1].to_a.map { |row| row[child_init_field_name] }
 
           expect(short_find_results.count).to be >= 6
@@ -638,10 +638,10 @@ shared_examples "an aliased table" do
             found_element = (1..9).map { false }
             (0..child_basic_results[0]).step(2) do |page|
               sub_results = has_many.class_name.constantize.search_alias(all_names[0],
-                                                        parent_object: parent_obj,
-                                                        relationship:  has_many.plural_name,
-                                                        limit:         2,
-                                                        offset:        page)
+                                                                         parent_object: parent_obj,
+                                                                         relationship:  has_many.plural_name,
+                                                                         limit:         2,
+                                                                         offset:        page)
 
               expect(sub_results[0]).to be >= 9
               expect(sub_results[1].count).to be <= 2
@@ -660,10 +660,10 @@ shared_examples "an aliased table" do
           it "should ignore small words < 2" do
             (0..child_basic_results[0]).step(2) do |page|
               sub_results = has_many.class_name.constantize.search_alias(all_names[0],
-                                                        parent_object: parent_obj,
-                                                        relationship:  has_many.plural_name,
-                                                        limit:         2,
-                                                        offset:        page)
+                                                                         parent_object: parent_obj,
+                                                                         relationship:  has_many.plural_name,
+                                                                         limit:         2,
+                                                                         offset:        page)
 
               expect(sub_results[0]).to be >= 9
               expect(sub_results[1].count).to be <= 2
@@ -674,10 +674,10 @@ shared_examples "an aliased table" do
           it "should not find words that do not include the search words" do
             (0..child_basic_results[0]).step(2) do |page|
               sub_results = has_many.class_name.constantize.search_alias(all_names[0],
-                                                        parent_object: parent_obj,
-                                                        relationship:  has_many.plural_name,
-                                                        limit:         2,
-                                                        offset:        page)
+                                                                         parent_object: parent_obj,
+                                                                         relationship:  has_many.plural_name,
+                                                                         limit:         2,
+                                                                         offset:        page)
 
               expect(sub_results[0]).to be >= 9
               expect(sub_results[1].count).to be <= 2

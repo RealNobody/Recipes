@@ -27,7 +27,6 @@ To do:
 * paging rspec tests
 * Generic aliases
 * Cucumber tests.  Add Poltergeist as well as Selenium support
-* * use galaxy-test_support as well.
 * * Page objects
 * Generic find for models
 * Picker scrolls to select item

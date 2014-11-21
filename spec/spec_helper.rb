@@ -9,7 +9,7 @@ require 'capybara'
 require 'capybara/rspec'
 require 'selenium-webdriver'
 require 'site_prism'
-require "cleaner"
+require "pseudo_cleaner/rspec"
 require "support/utils"
 require "support/factory_helper"
 
@@ -113,5 +113,12 @@ SitePrism.configure do |config|
   config.use_implicit_waits = true
 end
 
-require "test_support/rspec_hooks"
-#TestSupport::Configuration.rspec_seed = 527890016468117410760660406697150438897
+require "cornucopia"
+
+# PseudoCleaner::Configuration.current_instance.output_diagnostics = true
+if ENV['IDE_PROCESS_DISPATCHER'] && ENV['RM_INFO']
+  Cornucopia::Util::Configuration.auto_open_report_after_gerneration(true, "rspec_report")
+end
+# Cornucopia::Util::Configuration.seed = 846180077270723486430696101633142704209
+
+require "cornucopia/rspec_hooks"

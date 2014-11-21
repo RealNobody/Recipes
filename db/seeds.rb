@@ -8,6 +8,6 @@
 
 require "seedling"
 
-Seedling.seed_all
+Seedling::Seeder.seed_all
 
 puts("Finished Seeding.")

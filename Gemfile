@@ -2,8 +2,8 @@ source 'https://rubygems.org'
 
 gem 'rails', ">= 4.0"
 gem "bcrypt-ruby"
-gem 'devise'                # Login gem
-gem 'kaminari'              # Paging Gem
+gem 'devise' # Login gem
+gem 'kaminari' # Paging Gem
 gem 'thin'
 gem "haml-rails"
 
@@ -16,8 +16,8 @@ gem 'sass-rails', '>= 3.2' # sass-rails needs to be higher than 3.2
 
 group :development do
   gem 'annotate'
-  gem "better_errors"       # a prettier error page.
-  gem "binding_of_caller"   # used by better_errors for a better view.
+  gem "better_errors" # a prettier error page.
+  gem "binding_of_caller" # used by better_errors for a better view.
 end
 
 group :development, :test do
@@ -40,7 +40,7 @@ group :test do
   gem 'simplecov', :require => false
   gem 'capybara'
   gem "selenium-webdriver"
-  gem "site_prism"                    # page object model - https://github.com/natritmeyer/site_prism
+  gem "site_prism" # page object model - https://github.com/natritmeyer/site_prism
   # gem 'rb-fsevent', '0.9.1', require: false
   gem 'growl'
   gem 'factory_girl_rails'
@@ -79,7 +79,14 @@ group :production do
   gem 'pg'
 end
 
+gem 'seedling', '~> 0.0.7', :git => "git@github.com:RealNobody/seedling.git"
+# gem 'seedling', '~> 0.0.7', :path => '../seedling'
+
 group :test do
-  gem 'test_support', '~> 0.0.33', :git => "git@github.com:demandchain/test_support.git"
-  # gem 'test_support', '~> 0.0.33', :path => '../../Deem/code/test_support'
+  # gem 'cornucopia', '~> 0.1.4', :git => "git@github.com:RealNobody/cornucopia.git"
+  gem 'cornucopia', '~> 0.1.4', :path => '../cornucopia'
+
+  # gem 'pseudo_cleaner', '~> 0.0.15', :git => "git@github.com:RealNobody/pseudo_cleaner.git"
+  gem 'pseudo_cleaner', '~> 0.0.15', :path => '../pseudo_cleaner'
+  gem "colorize"
 end

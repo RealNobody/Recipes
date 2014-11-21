@@ -94,10 +94,10 @@ module ActiveRecord
 
         scope :index_sort, index_sort_scope
 
-        @alias_fields = @alias_fields.nil? ? alias_fields.clone : @alias_fields
-        @pleural_alias_fields = @pleural_alias_fields.nil? ? pleural_alias_fields.clone : @pleural_alias_fields
+        @alias_fields          = @alias_fields.nil? ? alias_fields.clone : @alias_fields
+        @pleural_alias_fields  = @pleural_alias_fields.nil? ? pleural_alias_fields.clone : @pleural_alias_fields
         @allow_delete_defaults = @allow_delete_defaults.nil? ? allow_delete_defaults : @allow_delete_defaults
-        @allow_blank_aliases = @allow_blank_aliases.nil? ? allow_blank_aliases : @allow_blank_aliases
+        @allow_blank_aliases   = @allow_blank_aliases.nil? ? allow_blank_aliases : @allow_blank_aliases
 
         validate do
           # alias_name = alias and id is not null
