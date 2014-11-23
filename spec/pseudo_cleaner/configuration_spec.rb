@@ -1,6 +1,6 @@
-require "spec_helper"
+require "rails_helper"
 
-describe PseudoCleaner::Configuration do
+RSpec.describe PseudoCleaner::Configuration do
   it "always has a #current_instance" do
     config = PseudoCleaner::Configuration.current_instance
     expect(config).to be

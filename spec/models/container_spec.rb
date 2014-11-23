@@ -1,6 +1,6 @@
-require 'spec_helper'
+require 'rails_helper'
 
-describe Container, :type => :model do
+RSpec.describe Container, :type => :model do
   before do
     @container = FactoryGirl.build(:container)
   end

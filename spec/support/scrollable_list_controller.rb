@@ -1,6 +1,6 @@
-require "spec_helper"
+require "rails_helper"
 
-shared_examples "a scrollable list controller" do
+RSpec.shared_examples "a scrollable list controller" do
   let(:model_class) { described_class.name[0..-11].singularize.constantize }
   let(:first_page) { model_class.index_sort.page(1).to_a }
   let(:last_item) { model_class.index_sort.last }
@@ -924,7 +924,7 @@ shared_examples "a scrollable list controller" do
   end
 end
 
-shared_examples "a searchable scrollable list controller" do
+RSpec.shared_examples "a searchable scrollable list controller" do
   #describe "#scrolling_list_next_link" do
   #end
   #

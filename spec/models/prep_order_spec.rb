@@ -1,6 +1,6 @@
-require 'spec_helper'
+require 'rails_helper'
 
-describe PrepOrder, :type => :model do
+RSpec.describe PrepOrder, :type => :model do
   before do
     @prep_order = FactoryGirl.build(:prep_order)
   end

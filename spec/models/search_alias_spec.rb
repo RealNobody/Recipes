@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe SearchAlias, :type => :model do
+RSpec.describe SearchAlias, :type => :model do
   let(:search_alias) { FactoryGirl.build(:search_alias) }
 
   subject { search_alias }

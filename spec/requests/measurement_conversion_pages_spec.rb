@@ -1,6 +1,6 @@
-require 'spec_helper'
+require 'rails_helper'
 
-describe "MeasurementConversion pages", :type => :request do
+RSpec.describe "MeasurementConversion pages", :type => :request do
   before do
     @user = FactoryGirl.create(:user)
   end

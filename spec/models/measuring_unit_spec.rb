@@ -10,9 +10,9 @@
 #  updated_at  :datetime        not null
 #
 
-require 'spec_helper'
+require 'rails_helper'
 
-describe MeasuringUnit, :type => :model do
+RSpec.describe MeasuringUnit, :type => :model do
   before do
     @measuring_unit = FactoryGirl.build(:measuring_unit)
   end

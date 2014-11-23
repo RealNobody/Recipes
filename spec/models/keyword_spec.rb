@@ -1,6 +1,6 @@
-require 'spec_helper'
+require 'rails_helper'
 
-describe Keyword, :type => :model do
+RSpec.describe Keyword, :type => :model do
   before do
     @keyword = FactoryGirl.build(:keyword)
   end

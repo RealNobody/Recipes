@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 class CompareGreater
   def self.<=>(right_object)
@@ -12,7 +12,7 @@ class CompareLesser
   end
 end
 
-describe PseudoCleaner::TableCleaner do
+RSpec.describe PseudoCleaner::TableCleaner do
   around(:each) do |example|
     orig_states      = PseudoCleaner::TableCleaner.class_variable_get(:@@initial_states)
     orig_diagnostics = PseudoCleaner::Configuration.current_instance.output_diagnostics
@@ -65,8 +65,11 @@ describe PseudoCleaner::TableCleaner do
         it "does nothing if the initial data is already saved" do
           cleaner = PseudoCleaner::TableCleaner.new(start_method, :test_end, MeasuringUnit)
 
-          expect(cleaner).not_to receive("#{start_method}_active_record".to_sym)
+          expect(cleaner).not_to receive(:test_start_active_record)
           cleaner.send(start_method, :pseudo_delete)
+
+          RSpec::Mocks.space.proxy_for(cleaner).verify
+          RSpec::Mocks.space.proxy_for(cleaner).reset
         end
       end
     end
@@ -128,17 +131,23 @@ describe PseudoCleaner::TableCleaner do
           it "does nothing if the strategy is #{strategy}" do
             cleaner = PseudoCleaner::TableCleaner.new(start_method, :test_end, MeasuringUnit)
 
-            expect(cleaner).not_to receive("#{start_method}_active_record".to_sym)
+            expect(cleaner).not_to receive(:test_start_active_record)
             cleaner.send(start_method, strategy)
+
+            RSpec::Mocks.space.proxy_for(cleaner).verify
+            RSpec::Mocks.space.proxy_for(cleaner).reset
           end
         end
 
         it "saves basic initialization information" do
           cleaner = PseudoCleaner::TableCleaner.new(start_method, :test_end, MeasuringUnit)
 
-          expect(PseudoCleaner::Logger).to receive(:write).and_call_original.exactly(6).times
+          expect(PseudoCleaner::Logger).to receive(:write).and_call_original.exactly(5).times
 
           cleaner.send(start_method, :pseudo_delete)
+
+          RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).verify
+          RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).reset
 
           initial_state = PseudoCleaner::TableCleaner.class_variable_get(:@@initial_states)[MeasuringUnit]
 
@@ -156,9 +165,12 @@ describe PseudoCleaner::TableCleaner do
         it "saves basic initialization information for symbols" do
           cleaner = PseudoCleaner::TableCleaner.new(start_method, :test_end, :measuring_units)
 
-          expect(PseudoCleaner::Logger).to receive(:write).and_call_original.exactly(6).times
+          expect(PseudoCleaner::Logger).to receive(:write).and_call_original.exactly(5).times
 
           cleaner.send(start_method, :pseudo_delete)
+
+          RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).verify
+          RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).reset
 
           initial_state = PseudoCleaner::TableCleaner.class_variable_get(:@@initial_states)[:measuring_units]
 
@@ -228,159 +240,177 @@ describe PseudoCleaner::TableCleaner do
     end
   end
 
-  # [:test, :suite].each do |start_method|
-  #   describe "##{start_method}_end" do
-  #     (PseudoCleaner::MasterCleaner::CLEANING_STRATEGIES - [:pseudo_delete]).each do |strategy|
-  #       (PseudoCleaner::MasterCleaner::CLEANING_STRATEGIES - [:pseudo_delete, strategy]).each do |end_strategy|
-  #         it "does not allow mis-matched end strategy #{end_strategy} with start strategy #{strategy}" do
-  #           cleaner = PseudoCleaner::TableCleaner.new("#{start_method}_start".to_sym,
-  #                                                     "#{start_method}_end".to_sym,
-  #                                                     MeasuringUnit)
-  #
-  #           expect(cleaner).not_to receive("#{start_method}_start_active_record".to_sym)
-  #           expect(cleaner).not_to receive("#{start_method}_end_active_record".to_sym)
-  #           cleaner.send("#{start_method}_start", strategy)
-  #
-  #           expect(PseudoCleaner::Logger).not_to receive(:write)
-  #           cleaner.send("#{start_method}_end", end_strategy)
-  #         end
-  #       end
-  #     end
-  #
-  #     (PseudoCleaner::MasterCleaner::CLEANING_STRATEGIES).each do |strategy|
-  #       (PseudoCleaner::MasterCleaner::CLEANING_STRATEGIES - [:pseudo_delete, strategy]).each do |end_strategy|
-  #         next unless end_strategy == :pseudo_delete
-  #
-  #         it "does nothing if strategy is #{strategy} and end_strategy #{end_strategy}" do
-  #           cleaner = PseudoCleaner::TableCleaner.new("#{start_method}_start".to_sym,
-  #                                                     "#{start_method}_end".to_sym,
-  #                                                     MeasuringUnit)
-  #
-  #           cleaner.send("#{start_method}_start", strategy)
-  #
-  #           expect_count = 2
-  #           expect_count += 1 if strategy == end_strategy
-  #
-  #           expect(cleaner).not_to receive("#{start_method}_end_active_record".to_sym)
-  #           expect(PseudoCleaner::Logger).to receive(:write).and_call_original.exactly(expect_count).times
-  #           cleaner.send("#{start_method}_end", end_strategy)
-  #         end
-  #       end
-  #     end
-  #
-  #     it "deletes new records if id is larger" do
-  #       alias_id = SearchAlias.maximum(:id)
-  #       cleaner  = PseudoCleaner::TableCleaner.new("#{start_method}_start".to_sym,
-  #                                                  "#{start_method}_end".to_sym,
-  #                                                  MeasuringUnit)
-  #
-  #       cleaner.send("#{start_method}_start", :pseudo_delete)
-  #       test_mu = FactoryGirl.create(:measuring_unit)
-  #       cleaner.send("#{start_method}_end", :pseudo_delete)
-  #
-  #       new_mu = MeasuringUnit.where(id: test_mu.id).first
-  #       expect(new_mu).not_to be
-  #       expect(SearchAlias.maximum(:id)).to be > alias_id
-  #     end
-  #
-  #     it "deletes new records if created_at is larger" do
-  #       alias_id = SearchAlias.maximum(:id)
-  #       cleaner  = PseudoCleaner::TableCleaner.new("#{start_method}_start".to_sym,
-  #                                                  "#{start_method}_end".to_sym,
-  #                                                  MeasuringUnit)
-  #
-  #       cleaner.send("#{start_method}_start", :pseudo_delete)
-  #       FactoryGirl.create(:measuring_unit, id: -2)
-  #       test_mu = FactoryGirl.create(:measuring_unit)
-  #       cleaner.send("#{start_method}_end", :pseudo_delete)
-  #
-  #       new_mu = MeasuringUnit.where(id: test_mu.id).first
-  #       expect(new_mu).not_to be
-  #
-  #       new_mu = MeasuringUnit.where(id: -2).first
-  #       expect(new_mu).not_to be
-  #       expect(SearchAlias.maximum(:id)).to be > alias_id
-  #     end
-  #
-  #     it "warns if existing records updated" do
-  #       cleaner = PseudoCleaner::TableCleaner.new("#{start_method}_start".to_sym,
-  #                                                 "#{start_method}_end".to_sym,
-  #                                                 MeasuringUnit)
-  #
-  #       cleaner.send("#{start_method}_start", :pseudo_delete)
-  #
-  #       mu            = MeasuringUnit.first
-  #       mu.updated_at = Time.now + 2.seconds
-  #       mu.save
-  #
-  #       expect(PseudoCleaner::Logger).to receive(:write).and_call_original.exactly(2).times
-  #       cleaner.send("#{start_method}_end", :pseudo_delete)
-  #     end
-  #
-  #     it "warns if a new record was added that it can't determine" do
-  #       alias_id = SearchAlias.maximum(:id)
-  #       cleaner  = PseudoCleaner::TableCleaner.new("#{start_method}_start".to_sym,
-  #                                                  "#{start_method}_end".to_sym,
-  #                                                  MeasuringUnit)
-  #
-  #       cleaner.send("#{start_method}_start", :pseudo_delete)
-  #       initial_states = PseudoCleaner::TableCleaner.class_variable_get(:@@initial_states)
-  #       initial_state  = initial_states[MeasuringUnit]
-  #
-  #       new_state = initial_state.clone
-  #       new_state.delete(:max_id)
-  #       new_state.delete(:updated)
-  #       new_state.delete(:created)
-  #       new_state[:count]             = MeasuringUnit.count
-  #       initial_states[MeasuringUnit] = new_state
-  #
-  #       test_mu = FactoryGirl.create(:measuring_unit)
-  #
-  #       expect(PseudoCleaner::Logger).to receive(:write).and_call_original.exactly(2).times
-  #       cleaner.send("#{start_method}_end", :pseudo_delete)
-  #
-  #       new_mu = MeasuringUnit.where(id: test_mu.id).first
-  #       expect(new_mu).to be
-  #       expect(SearchAlias.maximum(:id)).to be > alias_id
-  #
-  #       test_mu.destroy
-  #       initial_states[MeasuringUnit] = initial_state
-  #       expect(SearchAlias.maximum(:id)).to eq alias_id
-  #     end
-  #
-  #     it "deletes all records if record was added that it can't determine but was previously empty",
-  #        strategy: :pseudo_delete do
-  #       alias_id = SearchAlias.maximum(:id)
-  #       cleaner  = PseudoCleaner::TableCleaner.new("#{start_method}_start".to_sym,
-  #                                                  "#{start_method}_end".to_sym,
-  #                                                  :recipes)
-  #
-  #       cleaner.send("#{start_method}_start", :pseudo_delete)
-  #       initial_states = PseudoCleaner::TableCleaner.class_variable_get(:@@initial_states)
-  #       initial_state  = initial_states[:recipes]
-  #       new_state      = initial_state.clone
-  #
-  #       new_state.delete(:max_id)
-  #       new_state.delete(:updated)
-  #       new_state.delete(:created)
-  #       new_state[:count]        = Recipe.count
-  #       initial_states[:recipes] = new_state
-  #
-  #       expect(new_state[:count]).to eq 0
-  #
-  #       test_mu = FactoryGirl.create(:recipe)
-  #
-  #       expect(PseudoCleaner::Logger).to receive(:write).and_call_original.exactly(2).times
-  #       cleaner.send("#{start_method}_end", :pseudo_delete)
-  #
-  #       new_mu = Recipe.where(id: test_mu.id).first
-  #       expect(new_mu).not_to be
-  #       expect(SearchAlias.maximum(:id)).to be > alias_id
-  #
-  #       initial_states[:recipes] = initial_state
-  #     end
-  #   end
-  # end
+  [:test, :suite].each do |start_method|
+    describe "##{start_method}_end" do
+      (PseudoCleaner::MasterCleaner::CLEANING_STRATEGIES - [:pseudo_delete]).each do |strategy|
+        (PseudoCleaner::MasterCleaner::CLEANING_STRATEGIES - [:pseudo_delete, strategy]).each do |end_strategy|
+          it "does not allow mis-matched end strategy #{end_strategy} with start strategy #{strategy}" do
+            cleaner = PseudoCleaner::TableCleaner.new("#{start_method}_start".to_sym,
+                                                      "#{start_method}_end".to_sym,
+                                                      MeasuringUnit)
+
+            expect(cleaner).not_to receive(:test_start_active_record)
+            expect(cleaner).not_to receive(:test_end_active_record)
+            cleaner.send("#{start_method}_start", strategy)
+
+            expect(PseudoCleaner::Logger).not_to receive(:write)
+            cleaner.send("#{start_method}_end", end_strategy)
+
+            RSpec::Mocks.space.proxy_for(cleaner).verify
+            RSpec::Mocks.space.proxy_for(cleaner).reset
+            RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).verify
+            RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).reset
+          end
+        end
+      end
+
+      (PseudoCleaner::MasterCleaner::CLEANING_STRATEGIES).each do |strategy|
+        (PseudoCleaner::MasterCleaner::CLEANING_STRATEGIES - [:pseudo_delete, strategy]).each do |end_strategy|
+          next unless end_strategy == :pseudo_delete
+
+          it "does nothing if strategy is #{strategy} and end_strategy #{end_strategy}" do
+            cleaner = PseudoCleaner::TableCleaner.new("#{start_method}_start".to_sym,
+                                                      "#{start_method}_end".to_sym,
+                                                      MeasuringUnit)
+
+            cleaner.send("#{start_method}_start", strategy)
+
+            expect_count = 2
+            expect_count += 1 if strategy == end_strategy
+
+            expect(cleaner).not_to receive("#{start_method}_end_active_record".to_sym)
+            expect(PseudoCleaner::Logger).to receive(:write).and_call_original.exactly(expect_count).times
+            cleaner.send("#{start_method}_end", end_strategy)
+
+            RSpec::Mocks.space.proxy_for(cleaner).verify
+            RSpec::Mocks.space.proxy_for(cleaner).reset
+          end
+        end
+      end
+
+      it "deletes new records if id is larger" do
+        alias_id = SearchAlias.maximum(:id)
+        cleaner  = PseudoCleaner::TableCleaner.new("#{start_method}_start".to_sym,
+                                                   "#{start_method}_end".to_sym,
+                                                   MeasuringUnit)
+
+        cleaner.send("#{start_method}_start", :pseudo_delete)
+        test_mu = FactoryGirl.create(:measuring_unit)
+        cleaner.send("#{start_method}_end", :pseudo_delete)
+
+        new_mu = MeasuringUnit.where(id: test_mu.id).first
+        expect(new_mu).not_to be
+        expect(SearchAlias.maximum(:id)).to be > alias_id
+      end
+
+      it "deletes new records if created_at is larger" do
+        alias_id = SearchAlias.maximum(:id)
+        cleaner  = PseudoCleaner::TableCleaner.new("#{start_method}_start".to_sym,
+                                                   "#{start_method}_end".to_sym,
+                                                   MeasuringUnit)
+
+        cleaner.send("#{start_method}_start", :pseudo_delete)
+        FactoryGirl.create(:measuring_unit, id: -2)
+        test_mu = FactoryGirl.create(:measuring_unit)
+        cleaner.send("#{start_method}_end", :pseudo_delete)
+
+        new_mu = MeasuringUnit.where(id: test_mu.id).first
+        expect(new_mu).not_to be
+
+        new_mu = MeasuringUnit.where(id: -2).first
+        expect(new_mu).not_to be
+        expect(SearchAlias.maximum(:id)).to be > alias_id
+      end
+
+      it "warns if existing records updated" do
+        cleaner = PseudoCleaner::TableCleaner.new("#{start_method}_start".to_sym,
+                                                  "#{start_method}_end".to_sym,
+                                                  MeasuringUnit)
+
+        cleaner.send("#{start_method}_start", :pseudo_delete)
+
+        mu            = MeasuringUnit.first
+        mu.updated_at = Time.now + 2.seconds
+        mu.save
+
+        expect(PseudoCleaner::Logger).to receive(:write).and_call_original.exactly(2).times
+        cleaner.send("#{start_method}_end", :pseudo_delete)
+
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).verify
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).reset
+      end
+
+      it "warns if a new record was added that it can't determine" do
+        alias_id = SearchAlias.maximum(:id)
+        cleaner  = PseudoCleaner::TableCleaner.new("#{start_method}_start".to_sym,
+                                                   "#{start_method}_end".to_sym,
+                                                   MeasuringUnit)
+
+        cleaner.send("#{start_method}_start", :pseudo_delete)
+        initial_states = PseudoCleaner::TableCleaner.class_variable_get(:@@initial_states)
+        initial_state  = initial_states[MeasuringUnit]
+
+        new_state = initial_state.clone
+        new_state.delete(:max_id)
+        new_state.delete(:updated)
+        new_state.delete(:created)
+        new_state[:count]             = MeasuringUnit.count
+        new_state[:blank]             = true
+        initial_states[MeasuringUnit] = new_state
+
+        test_mu = FactoryGirl.create(:measuring_unit)
+
+        expect(PseudoCleaner::Logger).to receive(:write).and_call_original.exactly(2).times
+        cleaner.send("#{start_method}_end", :pseudo_delete)
+
+        new_mu = MeasuringUnit.where(id: test_mu.id).first
+        expect(new_mu).to be
+        expect(SearchAlias.maximum(:id)).to be > alias_id
+
+        test_mu.destroy
+        initial_states[MeasuringUnit] = initial_state
+
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).verify
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).reset
+      end
+
+      it "deletes all records if record was added that it can't determine but was previously empty",
+         strategy: :pseudo_delete do
+        alias_id = SearchAlias.maximum(:id)
+        cleaner  = PseudoCleaner::TableCleaner.new("#{start_method}_start".to_sym,
+                                                   "#{start_method}_end".to_sym,
+                                                   :recipes)
+
+        cleaner.send("#{start_method}_start", :pseudo_delete)
+        initial_states = PseudoCleaner::TableCleaner.class_variable_get(:@@initial_states)
+        initial_state  = initial_states[:recipes]
+        new_state      = initial_state.clone
+
+        new_state.delete(:max_id)
+        new_state.delete(:updated)
+        new_state.delete(:created)
+        new_state[:count]        = Recipe.count
+        new_state[:blank]        = true
+        initial_states[:recipes] = new_state
+
+        expect(new_state[:count]).to eq 0
+
+        test_mu = FactoryGirl.create(:recipe)
+
+        expect(PseudoCleaner::Logger).to receive(:write).and_call_original.exactly(2).times
+        cleaner.send("#{start_method}_end", :pseudo_delete)
+
+        new_mu = Recipe.where(id: test_mu.id).first
+        expect(new_mu).not_to be
+        expect(SearchAlias.maximum(:id)).to be > alias_id
+
+        initial_states[:recipes] = initial_state
+
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).verify
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).reset
+      end
+    end
+  end
 
   describe "#reset_auto_increment" do
     it "does nothing if test_start is false" do
@@ -394,6 +424,9 @@ describe PseudoCleaner::TableCleaner do
       expect(cleaner).to receive(:reset_auto_increment_active_record).and_call_original
       expect(PseudoCleaner::Logger).to receive(:write).and_call_original.exactly(1).times
       cleaner.reset_auto_increment(true)
+
+      RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).verify
+      RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).reset
     end
 
     it "does not reset the auto increment if there is not an id" do
@@ -405,6 +438,9 @@ describe PseudoCleaner::TableCleaner do
       expect(PseudoCleaner::Logger).not_to receive(:write)
 
       cleaner.reset_auto_increment(true)
+
+      RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).verify
+      RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).reset
 
       initial_state[:max_id] = id
     end

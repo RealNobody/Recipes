@@ -1,6 +1,6 @@
-require 'spec_helper'
+require 'rails_helper'
 
-describe Ingredient, :type => :model do
+RSpec.describe Ingredient, :type => :model do
   before(:each) do
     @ingredient = FactoryGirl.build(:ingredient)
   end

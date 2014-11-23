@@ -1,4 +1,4 @@
-shared_examples "an aliased table" do
+RSpec.shared_examples "an aliased table" do
   let(:initialize_fields_hash) do
     initialize_fields_hash = {}
     described_class.aliased_fields.each do |field_name|

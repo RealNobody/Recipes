@@ -1,7 +1,7 @@
-require 'spec_helper'
+require 'rails_helper'
 require "filter_param_parser"
 
-describe FilterParamParser do
+RSpec.describe FilterParamParser do
   let(:basic_parse) { FilterParamParser.new(nil) }
 
   describe "reducing booleans" do

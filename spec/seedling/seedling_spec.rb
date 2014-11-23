@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 class CompareGreater
   def self.<=>(right_object)
@@ -12,7 +12,7 @@ class CompareLesser
   end
 end
 
-describe Seedling::Seeder do
+RSpec.describe Seedling::Seeder do
   before(:each) do
     FileUtils.rm_rf(File.join(Rails.root, "/db/seeders/rspec_fixture"))
   end

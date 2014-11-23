@@ -20,7 +20,7 @@
 
 require "spec_helper"
 
-describe User, :type => :model do
+RSpec.describe User, :type => :model do
   before do
     @user = FactoryGirl.build(:user)
   end

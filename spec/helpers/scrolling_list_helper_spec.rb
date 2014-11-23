@@ -1,6 +1,6 @@
-require "spec_helper"
+require "rails_helper"
 
-describe ScrollingListHelper, type: :helper do
+RSpec.describe ScrollingListHelper, type: :helper do
   let(:description) { "<a>n odd & weird descrip>tion" }
   let(:link_item) { MeasuringUnit.index_sort.page(2).last }
   let(:page_items) { MeasuringUnit.index_sort.page(2) }

@@ -1,6 +1,6 @@
-require "spec_helper"
+require "rails_helper"
 
-describe SearchAliasesController, type: :controller do
+RSpec.describe SearchAliasesController, type: :controller do
   let(:test_user) { FactoryGirl.create(:user) }
 
   before(:each) do

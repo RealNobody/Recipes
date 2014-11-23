@@ -1,20 +1,22 @@
 GIT
-  remote: git@github.com:RealNobody/seedling.git
-  revision: 22cf11bc84bcc814295df7eda098d9d02829fbf7
-  specs:
-    seedling (0.0.7)
-
-PATH
-  remote: ../cornucopia
+  remote: git@github.com:RealNobody/cornucopia.git
+  revision: 58fd0b5faf316b5ea5a6f4d34a3751dd18865b51
   specs:
     cornucopia (0.1.4)
 
-PATH
-  remote: ../pseudo_cleaner
+GIT
+  remote: git@github.com:RealNobody/pseudo_cleaner.git
+  revision: c8e0c3dc4a10b4db4d1a99acc9f78426dc8b0a6b
   specs:
     pseudo_cleaner (0.0.15)
       colorize
       database_cleaner
+
+GIT
+  remote: git@github.com:RealNobody/seedling.git
+  revision: 22cf11bc84bcc814295df7eda098d9d02829fbf7
+  specs:
+    seedling (0.0.7)
 
 GEM
   remote: https://rubygems.org/

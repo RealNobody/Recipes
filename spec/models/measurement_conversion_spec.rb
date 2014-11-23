@@ -1,6 +1,6 @@
-require 'spec_helper'
+require 'rails_helper'
 
-describe MeasurementConversion, :type => :model do
+RSpec.describe MeasurementConversion, :type => :model do
   before(:each) do
     @smaller_measuring_unit = FactoryGirl.create(:measuring_unit)
     @larger_measuring_unit  = FactoryGirl.create(:measuring_unit)

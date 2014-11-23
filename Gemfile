@@ -83,10 +83,10 @@ gem 'seedling', '~> 0.0.7', :git => "git@github.com:RealNobody/seedling.git"
 # gem 'seedling', '~> 0.0.7', :path => '../seedling'
 
 group :test do
-  # gem 'cornucopia', '~> 0.1.4', :git => "git@github.com:RealNobody/cornucopia.git"
-  gem 'cornucopia', '~> 0.1.4', :path => '../cornucopia'
+  gem 'cornucopia', '~> 0.1.4', :git => "git@github.com:RealNobody/cornucopia.git"
+  # gem 'cornucopia', '~> 0.1.4', :path => '../cornucopia'
 
-  # gem 'pseudo_cleaner', '~> 0.0.15', :git => "git@github.com:RealNobody/pseudo_cleaner.git"
-  gem 'pseudo_cleaner', '~> 0.0.15', :path => '../pseudo_cleaner'
+  gem 'pseudo_cleaner', '~> 0.0.15', :git => "git@github.com:RealNobody/pseudo_cleaner.git"
+  # gem 'pseudo_cleaner', '~> 0.0.15', :path => '../pseudo_cleaner'
   gem "colorize"
 end

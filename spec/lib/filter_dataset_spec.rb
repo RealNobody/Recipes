@@ -1,4 +1,4 @@
-require 'spec_helper'
+require 'rails_helper'
 require "filter_dataset"
 
 ################################################################################
@@ -72,7 +72,7 @@ end
 
 ################################################################################
 
-describe FilterDataset do
+RSpec.describe FilterDataset do
   let(:mu_dataset) { FilterDataset.new(:measuring_units, nil) }
   let(:mu_through_dataset) { FilterDataset.new(:has_many_through_measuring_units, nil) }
   let(:ig_dataset) { FilterDataset.new(:ingredients, nil) }

@@ -1,4 +1,4 @@
-require "spec_helper"
+require "rails_helper"
 
 [
     :search_alias,
@@ -11,7 +11,7 @@ require "spec_helper"
     :recipe,
     :recipe_type
 ].each do |class_symbol|
-  describe "#{class_symbol.to_s.classify.pluralize}Controller".constantize, :type => :feature do
+  RSpec.describe "#{class_symbol.to_s.classify.pluralize}Controller".constantize, :type => :feature do
     describe "is a searchable scrollable controller", type: :feature do
       it_behaves_like "a searchable scrollable list controller"
     end
