@@ -6,9 +6,9 @@ GIT
 
 GIT
   remote: git@github.com:RealNobody/pseudo_cleaner.git
-  revision: c8e0c3dc4a10b4db4d1a99acc9f78426dc8b0a6b
+  revision: f9e8a7617c12a06d60a27695e60c715bf6501e97
   specs:
-    pseudo_cleaner (0.0.15)
+    pseudo_cleaner (0.0.18)
       colorize
       database_cleaner
 
@@ -256,7 +256,6 @@ DEPENDENCIES
   binding_of_caller
   capybara
   coffee-rails
-  colorize
   cornucopia (~> 0.1.4)!
   database_cleaner
   devise
@@ -271,7 +270,7 @@ DEPENDENCIES
   listen
   mysql2
   pg
-  pseudo_cleaner (~> 0.0.15)!
+  pseudo_cleaner (~> 0.0.18)!
   rails (>= 4.0)
   rb-fchange
   rb-fsevent
