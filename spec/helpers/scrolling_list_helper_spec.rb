@@ -291,7 +291,7 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/1?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
     end
 
     it "doesn't care about the page_items" do
@@ -306,7 +306,7 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/1?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
     end
 
     it "doesn't care about the current_item" do
@@ -321,7 +321,7 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/1?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
     end
 
     it "makes the item active if the current_item == link_item" do
@@ -336,7 +336,7 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li class=\"active\"><a class=\"scroll-item-link\" href=\"/measuring_units/1?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=1\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      expect(test_value).to eq("<li class=\"active\"><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{link_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
     end
 
     it "allows param_page to be nil" do
@@ -351,7 +351,7 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/1?per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
     end
 
     it "allows param_per_page to be nil" do
@@ -366,7 +366,7 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/1?page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
     end
 
     it "does not output per_page if it matches per_page_model" do
@@ -381,7 +381,7 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/1?page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
     end
 
     it "allows per_page_model to be nil" do
@@ -396,7 +396,7 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/1?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
     end
 
     it "does not require search text" do
@@ -411,7 +411,7 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/1?page=2&per_page=2&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
     end
 
     it "handles a new current_item" do
@@ -426,7 +426,7 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/1?page=2&per_page=2&id=new\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&id=new\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
     end
 
     it "outputs a basic link with minimal information" do
@@ -441,7 +441,7 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/1\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
     end
   end
 

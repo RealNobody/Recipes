@@ -138,9 +138,9 @@ end
 
 require "cornucopia"
 
-PseudoCleaner::Configuration.current_instance.output_diagnostics = true
+# PseudoCleaner::Configuration.current_instance.output_diagnostics = true
 if ENV['IDE_PROCESS_DISPATCHER'] && ENV['RM_INFO']
-  Cornucopia::Util::Configuration.auto_open_report_after_gerneration(true, "rspec_report")
+  Cornucopia::Util::Configuration.auto_open_report_after_generation(true, "rspec_report")
 end
 # Cornucopia::Util::Configuration.seed = 846180077270723486430696101633142704209
 

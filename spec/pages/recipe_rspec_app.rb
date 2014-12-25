@@ -4,43 +4,7 @@ Dir[File.absolute_path(File.join(File.dirname(__FILE__), "**/*.rb"))].each do |f
   end
 end
 
-# require "pages/recipe_app_page"
-# require "pages/container_section"
-# require "pages/ingredient_category_section"
-# require "pages/ingredient_section"
-# require "pages/keyword_section"
-# require "pages/measurement_conversion_section"
-# require "pages/measuring_unit_section"
-# require "pages/prep_order_section"
-# require "pages/recipe_section"
-# require "pages/recipe_type_section"
-# require "pages/search_alias_section"
-
-class RecipeRspecApp < PageApplication
-  # @@current_app = nil
-  #
-  # class << self
-  #   def current_instance
-  #     @@current_app ||= RecipeRspecApp.new
-  #   end
-  #
-  #   def method_missing(method_sym, *arguments, &block)
-  #     if RecipeRspecApp.current_instance.respond_to?(method_sym, true)
-  #       RecipeRspecApp.current_instance.send(method_sym, *arguments)
-  #     else
-  #       super
-  #     end
-  #   end
-  #
-  #   def respond_to?(method_sym, include_private = false)
-  #     if RecipeRspecApp.current_instance.respond_to?(method_sym, include_private)
-  #       true
-  #     else
-  #       super
-  #     end
-  #   end
-  # end
-
+class RecipeRspecApp < Cornucopia::SitePrism::PageApplication
   def pages_module
     RecipePages
   end
