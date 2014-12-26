@@ -322,6 +322,8 @@ RSpec.shared_examples "a scrollable list controller" do
           expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_truthy
           expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_truthy
           expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_truthy
+          expect(assigns(described_class.controller_name).respond_to?(:next_page)).to be_truthy
+          expect(assigns(described_class.controller_name).respond_to?(:prev_page)).to be_truthy
 
           expect(assigns(described_class.controller_name.singularize)).to eq(first_page[0])
           expect(assigns(described_class.controller_name).count).to eq(2)
@@ -347,6 +349,8 @@ RSpec.shared_examples "a scrollable list controller" do
           expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_truthy
           expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_truthy
           expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_truthy
+          expect(assigns(described_class.controller_name).respond_to?(:next_page)).to be_truthy
+          expect(assigns(described_class.controller_name).respond_to?(:prev_page)).to be_truthy
 
           expect(assigns(described_class.controller_name.singularize).id).to be_blank
           expect(assigns(described_class.controller_name).count).to eq(2)
@@ -371,6 +375,8 @@ RSpec.shared_examples "a scrollable list controller" do
           expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_truthy
           expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_truthy
           expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_truthy
+          expect(assigns(described_class.controller_name).respond_to?(:next_page)).to be_truthy
+          expect(assigns(described_class.controller_name).respond_to?(:prev_page)).to be_truthy
 
           expect(assigns(described_class.controller_name.singularize)).to eq(first_page[0])
           expect(assigns(described_class.controller_name).count).to eq(2)
@@ -395,6 +401,8 @@ RSpec.shared_examples "a scrollable list controller" do
           expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_truthy
           expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_truthy
           expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_truthy
+          expect(assigns(described_class.controller_name).respond_to?(:next_page)).to be_truthy
+          expect(assigns(described_class.controller_name).respond_to?(:prev_page)).to be_truthy
 
           expect(assigns(described_class.controller_name.singularize)).to eq(last_item)
           expect(assigns(described_class.controller_name).count).to eq(2)
@@ -419,6 +427,8 @@ RSpec.shared_examples "a scrollable list controller" do
           expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_truthy
           expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_truthy
           expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_truthy
+          expect(assigns(described_class.controller_name).respond_to?(:next_page)).to be_truthy
+          expect(assigns(described_class.controller_name).respond_to?(:prev_page)).to be_truthy
 
           expect(assigns(described_class.controller_name.singularize)).to eq(first_page[0])
           expect(assigns(described_class.controller_name).count).to eq(0)
@@ -444,6 +454,8 @@ RSpec.shared_examples "a scrollable list controller" do
             expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_truthy
             expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_truthy
             expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_truthy
+            expect(assigns(described_class.controller_name).respond_to?(:next_page)).to be_truthy
+            expect(assigns(described_class.controller_name).respond_to?(:prev_page)).to be_truthy
 
             if [:new, :new_item].include? item_action
               expect(assigns(described_class.controller_name.singularize).id).to be_blank
@@ -475,6 +487,8 @@ RSpec.shared_examples "a scrollable list controller" do
             expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_truthy
             expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_truthy
             expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_truthy
+            expect(assigns(described_class.controller_name).respond_to?(:next_page)).to be_truthy
+            expect(assigns(described_class.controller_name).respond_to?(:prev_page)).to be_truthy
 
             if [:new, :new_item].include? item_action
               expect(assigns(described_class.controller_name.singularize).id).to be_blank
@@ -501,6 +515,8 @@ RSpec.shared_examples "a scrollable list controller" do
             expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_truthy
             expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_truthy
             expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_truthy
+            expect(assigns(described_class.controller_name).respond_to?(:next_page)).to be_truthy
+            expect(assigns(described_class.controller_name).respond_to?(:prev_page)).to be_truthy
 
             if [:new, :new_item].include? item_action
               expect(assigns(described_class.controller_name.singularize).id).to be_blank
@@ -531,6 +547,8 @@ RSpec.shared_examples "a scrollable list controller" do
             expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_truthy
             expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_truthy
             expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_truthy
+            expect(assigns(described_class.controller_name).respond_to?(:next_page)).to be_truthy
+            expect(assigns(described_class.controller_name).respond_to?(:prev_page)).to be_truthy
 
             if [:new, :new_item].include? item_action
               expect(assigns(described_class.controller_name.singularize).id).to be_blank
@@ -976,6 +994,8 @@ RSpec.shared_examples "a searchable scrollable list controller" do
           expect(assigns(described_class.controller_name).respond_to?(:current_page)).to be_truthy
           expect(assigns(described_class.controller_name).respond_to?(:first_page?)).to be_truthy
           expect(assigns(described_class.controller_name).respond_to?(:last_page?)).to be_truthy
+          expect(assigns(described_class.controller_name).respond_to?(:next_page)).to be_truthy
+          expect(assigns(described_class.controller_name).respond_to?(:prev_page)).to be_truthy
 
           expect(assigns(described_class.controller_name.singularize)).to eq(last_item)
           expect(assigns(described_class.controller_name).count).to be >= 1

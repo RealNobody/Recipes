@@ -222,6 +222,12 @@ class ScrollableListController < ApplicationController
       @current_page.define_singleton_method :last_page? do
         cur_page >= ((my_count / per_page) + (((my_count % per_page) == 0) ? 0 : 1))
       end
+      @current_page.define_singleton_method :next_page do
+        cur_page + 1 unless cur_page >= ((my_count / per_page) + (((my_count % per_page) == 0) ? 0 : 1))
+      end
+      @current_page.define_singleton_method :prev_page do
+        cur_page - 1 unless cur_page <= 1
+      end
     else
       @current_page  = @current_page.index_sort
       @selected_item = @selected_item.index_sort.limit(1).first

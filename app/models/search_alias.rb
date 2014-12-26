@@ -38,17 +38,18 @@ class SearchAlias < ActiveRecord::Base
   end
 
   before_destroy do
+    return_value = true
     allow_delete_default_aliases = self.aliased_type.try(:constantize).try(:allow_delete_defaults)
     unless (allow_delete_default_aliases)
       if (self.aliased.is_default_alias?("#{self.alias}"))
         default_value = I18n.t("activerecord.search_alias.error.cannot_delete_defaults_default",
                                table_name: self.aliased.class.model_name.human.titleize)
         errors.add(:alias, I18n.t("activerecord.#{self.aliased_type.underscore}.error.cannot_delete_defaults", default_value))
-        return false
+        return_value = false
       end
     end
 
-    true
+    return_value
   end
 
   class << self

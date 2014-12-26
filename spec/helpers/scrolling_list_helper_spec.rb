@@ -15,6 +15,26 @@ RSpec.describe ScrollingListHelper, type: :helper do
     SearchAlias.paginates_per 2
   end
 
+  def test_list_link(test_value, link_params, link_text)
+    test_generic_link test_value, link_params, link_text, "<li><a", "</a></li>"
+  end
+
+  def test_active_list_link(test_value, link_params, link_text)
+    test_generic_link test_value, link_params, link_text, "<li class=\"active\"><a", "</a></li>"
+  end
+
+  def test_link(test_value, link_params, link_text)
+    test_generic_link test_value, link_params, link_text, "<a", "</a>"
+  end
+
+  def test_generic_link(test_value, link_params, link_text, prefix, postfix)
+    expect(test_value.length).to eq("#{prefix} #{link_params.join(" ")}>#{link_text}#{postfix}".length)
+
+    link_params.each do |link_param|
+      expect(test_value).to match /#{prefix} .*#{link_param.gsub("?", "\\?").gsub(".", "\\.")}.*\>#{link_text}#{postfix}/
+    end
+  end
+
   describe "#scrolling_list_next_link" do
     define_method(:link_to_next_page) do |param_1, param_2|
       "<a href=\"http://test.host/measuring_units/8/edit?page=3\">Next Page</a>"
@@ -30,7 +50,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                             nil,
                                             nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/3?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">Next Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/3?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\""],
+                "Next Page"
     end
 
     it "outputs new if the current item is nil" do
@@ -42,8 +64,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                             search_text,
                                             nil,
                                             nil
-
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/3?id=new&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">Next Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/3?id=new&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\""],
+                "Next Page"
     end
 
     it "uses the recordset page value" do
@@ -56,7 +79,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                             nil,
                                             nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/3?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">Next Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/3?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\""],
+                "Next Page"
     end
 
     it "doesn't output per page if it isn't specified" do
@@ -69,7 +94,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                             nil,
                                             nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/3?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">Next Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/3?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\""],
+                "Next Page"
     end
 
     it "doesn't outputs per page if it matches the models per-page" do
@@ -82,7 +109,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                             nil,
                                             nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/3?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">Next Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/3?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\""],
+                "Next Page"
     end
 
     it "doesn't output the search text if not specified" do
@@ -95,7 +124,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                             nil,
                                             nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/3?id=#{current_item.id}&per_page=2\">Next Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/3?id=#{current_item.id}&per_page=2\""],
+                "Next Page"
     end
 
     it "outputs a simple link if nothing is specified" do
@@ -108,7 +139,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                             nil,
                                             nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/3?id=new\">Next Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/3?id=new\""],
+                "Next Page"
     end
 
     it "returns nil if it is the last page" do
@@ -134,7 +167,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                             nil,
                                             nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/3?id=new\">Next Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/3?id=new\""],
+                "Next Page"
     end
   end
 
@@ -153,7 +188,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 nil,
                                                 nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/1?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">Previous Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/1?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\""],
+                "Previous Page"
     end
 
     it "outputs new if the current item is nil" do
@@ -166,7 +203,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 nil,
                                                 nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/1?id=new&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">Previous Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/1?id=new&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\""],
+                "Previous Page"
     end
 
     it "uses the recordset page value" do
@@ -179,7 +218,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 nil,
                                                 nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/1?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">Previous Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/1?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\""],
+                "Previous Page"
     end
 
     it "doesn't output per page if it isn't specified" do
@@ -192,7 +233,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 nil,
                                                 nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/1?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">Previous Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/1?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\""],
+                "Previous Page"
     end
 
     it "doesn't outputs per page if it matches the models per-page" do
@@ -205,7 +248,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 nil,
                                                 nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/1?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">Previous Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/1?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\""],
+                "Previous Page"
     end
 
     it "doesn't output the search text if not specified" do
@@ -218,7 +263,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 nil,
                                                 nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/1?id=#{current_item.id}&per_page=2\">Previous Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/1?id=#{current_item.id}&per_page=2\""],
+                "Previous Page"
     end
 
     it "outputs a simple link if nothing is specified" do
@@ -231,7 +278,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 nil,
                                                 nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/1?id=new\">Previous Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/1?id=new\""],
+                "Previous Page"
     end
 
     it "returns nil if it is the last page" do
@@ -257,7 +306,9 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 nil,
                                                 nil
 
-      expect(test_value).to eq("<a href=\"http://test.host/measuring_units/page/1?id=new\">Previous Page</a>")
+      test_link test_value,
+                ["href=\"http://test.host/measuring_units/page/1?id=new\""],
+                "Previous Page"
     end
   end
 
@@ -291,7 +342,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      test_list_link test_value,
+                     [
+                         "class=\"scroll-item-link\"",
+                         "href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\""
+                     ],
+                     "&lt;a&gt;n odd &amp; weird descrip&gt;tion"
     end
 
     it "doesn't care about the page_items" do
@@ -306,7 +362,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      test_list_link test_value,
+                     [
+                         "class=\"scroll-item-link\"",
+                         "href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\""
+                     ],
+                     "&lt;a&gt;n odd &amp; weird descrip&gt;tion"
     end
 
     it "doesn't care about the current_item" do
@@ -321,7 +382,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      test_list_link test_value,
+                     [
+                         "class=\"scroll-item-link\"",
+                         "href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\""
+                     ],
+                     "&lt;a&gt;n odd &amp; weird descrip&gt;tion"
     end
 
     it "makes the item active if the current_item == link_item" do
@@ -336,7 +402,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li class=\"active\"><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{link_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      test_active_list_link test_value,
+                            [
+                                "class=\"scroll-item-link\"",
+                                "href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{link_item.id}\""
+                            ],
+                            "&lt;a&gt;n odd &amp; weird descrip&gt;tion"
     end
 
     it "allows param_page to be nil" do
@@ -351,7 +422,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      test_list_link test_value,
+                     [
+                         "class=\"scroll-item-link\"",
+                         "href=\"/measuring_units/#{link_item.id}?per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\""
+                     ],
+                     "&lt;a&gt;n odd &amp; weird descrip&gt;tion"
     end
 
     it "allows param_per_page to be nil" do
@@ -366,7 +442,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      test_list_link test_value,
+                     [
+                         "class=\"scroll-item-link\"",
+                         "href=\"/measuring_units/#{link_item.id}?page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\""
+                     ],
+                     "&lt;a&gt;n odd &amp; weird descrip&gt;tion"
     end
 
     it "does not output per_page if it matches per_page_model" do
@@ -381,7 +462,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      test_list_link test_value,
+                     [
+                         "class=\"scroll-item-link\"",
+                         "href=\"/measuring_units/#{link_item.id}?page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\""
+                     ],
+                     "&lt;a&gt;n odd &amp; weird descrip&gt;tion"
     end
 
     it "allows per_page_model to be nil" do
@@ -396,7 +482,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      test_list_link test_value,
+                     [
+                         "class=\"scroll-item-link\"",
+                         "href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F&id=#{current_item.id}\""
+                     ],
+                     "&lt;a&gt;n odd &amp; weird descrip&gt;tion"
     end
 
     it "does not require search text" do
@@ -411,7 +502,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&id=#{current_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      test_list_link test_value,
+                     [
+                         "class=\"scroll-item-link\"",
+                         "href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&id=#{current_item.id}\""
+                     ],
+                     "&lt;a&gt;n odd &amp; weird descrip&gt;tion"
     end
 
     it "handles a new current_item" do
@@ -426,7 +522,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&id=new\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      test_list_link test_value,
+                     [
+                         "class=\"scroll-item-link\"",
+                         "href=\"/measuring_units/#{link_item.id}?page=2&per_page=2&id=new\""
+                     ],
+                     "&lt;a&gt;n odd &amp; weird descrip&gt;tion"
     end
 
     it "outputs a basic link with minimal information" do
@@ -441,7 +542,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                nil,
                                                nil
 
-      expect(test_value).to eq("<li><a class=\"scroll-item-link\" href=\"/measuring_units/#{link_item.id}\">&lt;a&gt;n odd &amp; weird descrip&gt;tion</a></li>")
+      test_list_link test_value,
+                     [
+                         "class=\"scroll-item-link\"",
+                         "href=\"/measuring_units/#{link_item.id}\""
+                     ],
+                     "&lt;a&gt;n odd &amp; weird descrip&gt;tion"
     end
   end
 
@@ -501,7 +607,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Next Page"
         end
 
         it "outputs new if the current item is nil" do
@@ -514,7 +625,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=new&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=new&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Next Page"
         end
 
         it "uses the recordset page value" do
@@ -527,7 +643,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Next Page"
         end
 
         it "doesn't output per page if it isn't specified" do
@@ -540,7 +661,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Next Page"
         end
 
         it "doesn't outputs per page if it matches the models per-page" do
@@ -553,7 +679,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Next Page"
         end
 
         it "doesn't output the search text if not specified" do
@@ -566,7 +697,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=#{current_item.id}&per_page=2\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=#{current_item.id}&per_page=2\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Next Page"
         end
 
         it "outputs a simple link if nothing is specified" do
@@ -579,7 +715,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=new\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=new\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Next Page"
         end
 
         it "returns nil if it is the last page" do
@@ -605,7 +746,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=new\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/3?id=new\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Next Page"
         end
       end
 
@@ -620,7 +766,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Previous Page"
         end
 
         it "outputs new if the current item is nil" do
@@ -633,7 +784,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=new&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=new&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Previous Page"
         end
 
         it "uses the recordset page value" do
@@ -646,7 +802,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Previous Page"
         end
 
         it "doesn't output per page if it isn't specified" do
@@ -659,7 +820,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Previous Page"
         end
 
         it "doesn't outputs per page if it matches the models per-page" do
@@ -672,7 +838,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Previous Page"
         end
 
         it "doesn't output the search text if not specified" do
@@ -685,7 +856,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=#{current_item.id}&per_page=2\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=#{current_item.id}&per_page=2\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Previous Page"
         end
 
         it "outputs a simple link if nothing is specified" do
@@ -698,7 +874,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=new\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=new\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Previous Page"
         end
 
         it "returns nil if it is the last page" do
@@ -724,7 +905,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :search_aliases
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=new\" params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/search_aliases/page/1?id=new\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_search_aliases&quot;}\""
+                    ],
+                    "Previous Page"
         end
       end
     end
@@ -748,7 +934,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Next Page"
         end
 
         it "outputs new if the current item is nil" do
@@ -761,7 +952,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=new&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=new&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Next Page"
         end
 
         it "uses the recordset page value" do
@@ -774,7 +970,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Next Page"
         end
 
         it "doesn't output per page if it isn't specified" do
@@ -787,7 +988,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Next Page"
         end
 
         it "doesn't outputs per page if it matches the models per-page" do
@@ -800,7 +1006,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Next Page"
         end
 
         it "doesn't output the search text if not specified" do
@@ -813,7 +1024,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=#{current_item.id}&per_page=2\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=#{current_item.id}&per_page=2\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Next Page"
         end
 
         it "outputs a simple link if nothing is specified" do
@@ -826,7 +1042,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=new\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=new\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Next Page"
         end
 
         it "returns nil if it is the last page" do
@@ -852,7 +1073,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                 parent_item,
                                                 :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=new\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Next Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/3?id=new\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Next Page"
         end
       end
 
@@ -867,7 +1093,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Previous Page"
         end
 
         it "outputs new if the current item is nil" do
@@ -880,7 +1111,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=new&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=new&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Previous Page"
         end
 
         it "uses the recordset page value" do
@@ -893,7 +1129,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=#{current_item.id}&per_page=2&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Previous Page"
         end
 
         it "doesn't output per page if it isn't specified" do
@@ -906,7 +1147,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Previous Page"
         end
 
         it "doesn't outputs per page if it matches the models per-page" do
@@ -919,7 +1165,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=#{current_item.id}&search=something%20%26%20something%20%3D%20https%3A%2F%2Fwww.nothing%3F\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Previous Page"
         end
 
         it "doesn't output the search text if not specified" do
@@ -932,7 +1183,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=#{current_item.id}&per_page=2\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=#{current_item.id}&per_page=2\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Previous Page"
         end
 
         it "outputs a simple link if nothing is specified" do
@@ -945,7 +1201,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=new\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=new\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Previous Page"
         end
 
         it "returns nil if it is the last page" do
@@ -971,7 +1232,12 @@ RSpec.describe ScrollingListHelper, type: :helper do
                                                     parent_item,
                                                     :larger_measurement_conversions
 
-          expect(test_value).to eq("<a href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=new\" params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\">Previous Page</a>")
+          test_link test_value,
+                    [
+                        "href=\"http://test.host/measuring_units/#{parent_item.id}/larger_measurement_conversions/page/1?id=new\"",
+                        "params=\"{:use_route=&gt;&quot;measuring_unit_larger_measurement_conversions&quot;}\""
+                    ],
+                    "Previous Page"
         end
       end
     end
