@@ -1,7 +1,9 @@
 require "scrolling_list_helper"
+require "admin_tab_content_helper"
 
 class ScrollableListController < ApplicationController
   include ScrollingListHelper
+  include AdminTabContentHelper
 
   before_filter do
     authenticate_user!

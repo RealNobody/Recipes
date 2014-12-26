@@ -13,39 +13,7 @@
         = render partial: "ingredient_category", layout: false
 
     #aliases.tab-pane
-      .recipe-tab-content
-        - if @ingredient_category.search_aliases.first
-          = render(partial: "full_page",
-          layout: "scrollable_list/scrolling_list",
-          locals: { scroll_list_class: "scrolling-list-related",
-          model_class:                 SearchAlias,
-          list_item:                   @ingredient_category.search_aliases.first,
-          list_page:                   @ingredient_category.search_aliases.index_sort.page(1),
-          list_params:                 { page: 1 },
-          show_path:                   "search_aliases/tab_show",
-          list_content_name:           :search_alias_scroll_list,
-          item_content_name:           :search_alias_item,
-          list_parent_object:          @ingredient_category,
-          list_parent_relationship:    :search_aliases })
-        -else
-          No Aliases
-          %br/
+      = tab_content @ingredient_category, :search_aliases
 
     #ingredients.tab-pane
-      .recipe-tab-content
-        - if @ingredient_category.ingredients.first
-          = render(partial: "full_page",
-          layout: "scrollable_list/scrolling_list",
-          locals: { scroll_list_class: "scrolling-list-related",
-          model_class:                 Ingredient,
-          list_item:                   @ingredient_category.ingredients.first,
-          list_page:                   @ingredient_category.ingredients.index_sort.page(1),
-          list_params:                 { page: 1 },
-          show_path:                   "ingredients/tab_show",
-          list_content_name:           :ingredient_scroll_list,
-          item_content_name:           :ingredient_item,
-          list_parent_object:          @ingredient_category,
-          list_parent_relationship:    :ingredients })
-        - else
-          No Ingredients
-          %br/
+      = tab_content @ingredient_category, :ingredients

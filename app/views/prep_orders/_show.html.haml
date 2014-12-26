@@ -13,40 +13,7 @@
         = render partial: "prep_order", layout: false
 
     #aliases.tab-pane
-      .recipe-tab-content
-        - if @prep_order.search_aliases.first
-          = render(partial: "full_page",
-          layout: "scrollable_list/scrolling_list",
-          locals: { scroll_list_class: "scrolling-list-related",
-          model_class:                 SearchAlias,
-          list_item:                   @prep_order.search_aliases.first,
-          list_page:                   @prep_order.search_aliases.index_sort.page(1),
-          list_params:                 { page: 1 },
-          show_path:                   "search_aliases/tab_show",
-          list_content_name:           :search_alias_scroll_list,
-          item_content_name:           :search_alias_item,
-          list_parent_object:          @prep_order,
-          list_parent_relationship:    :search_aliases })
-        -else
-          No Aliases
-          %br/
+      = tab_content @prep_order, :search_aliases
 
     #recipes.tab-pane
-      .recipe-tab-content
-        - if @prep_order.recipes.first
-          .recipe-tab-content
-            = render(partial: "full_page",
-            layout: "scrollable_list/scrolling_list",
-            locals: { scroll_list_class: "scrolling-list-related",
-            model_class:                 Recipe,
-            list_item:                   @prep_order.recipes.first,
-            list_page:                   @prep_order.recipes.index_sort.page(1),
-            list_params:                 { page: 1 },
-            show_path:                   "recipes/tab_show",
-            list_content_name:           :recipe_scroll_list,
-            item_content_name:           :recipe_item,
-            list_parent_object:          @prep_order,
-            list_parent_relationship:    :recipes })
-        - else
-          No Recipes
-          %br/
+      = tab_content @prep_order, :recipes
