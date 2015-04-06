@@ -5,9 +5,10 @@ require "rails_helper"
 
 RSpec.describe UsersController, type: :controller do
   describe "an authenticated user" do
+    let(:test_user) { FactoryGirl.create(:user) }
+
     before(:each) do
-      @test_user = FactoryGirl.create(:user)
-      sign_in @test_user
+      sign_in test_user
     end
 
     describe "index" do
@@ -20,9 +21,9 @@ RSpec.describe UsersController, type: :controller do
 
     describe "show" do
       it "should show the uer" do
-        get :show, id: @test_user.id
+        get :show, id: test_user.id
         expect(response).to be_success
-        expect(assigns(:user)).to eq(@test_user)
+        expect(assigns(:user)).to eq(test_user)
       end
     end
 
@@ -36,9 +37,9 @@ RSpec.describe UsersController, type: :controller do
 
     describe "edit" do
       it "should render a page" do
-        get :edit, id: @test_user.id
+        get :edit, id: test_user.id
         expect(response).to be_success
-        expect(assigns(:user)).to eq(@test_user)
+        expect(assigns(:user)).to eq(test_user)
       end
     end
 
@@ -85,13 +86,13 @@ RSpec.describe UsersController, type: :controller do
       end
 
       it "should render a page" do
-        patch :update, id: @test_user.id, user: @new_user_information
+        patch :update, id: test_user.id, user: @new_user_information
 
         expect(response).to be_redirect
         expect(response).to redirect_to(user_path(assigns(:user).id))
         expect(flash[:notice]).to eq(I18n.t("user.update.success"))
 
-        loaded_user = User.find(@test_user.id)
+        loaded_user = User.find(test_user.id)
         @new_user_information.each do |key, value|
           unless (key == :password || key == :password_confirmation)
             expect(loaded_user.send(key)).to eq(value)
@@ -101,13 +102,13 @@ RSpec.describe UsersController, type: :controller do
 
       it "should not update the user if update is invalid" do
         @new_user_information[:name] = ""
-        original_name                = @test_user.name
+        original_name                = test_user.name
 
-        patch :update, id: @test_user.id, user: @new_user_information
+        patch :update, id: test_user.id, user: @new_user_information
 
         expect(response).to be_success
 
-        new_user = User.find(@test_user.id)
+        new_user = User.find(test_user.id)
         expect(new_user.name).to eq(original_name)
         @new_user_information.each do |key, value|
           unless (key == :password || key == :password_confirmation)
@@ -131,22 +132,20 @@ RSpec.describe UsersController, type: :controller do
       end
 
       it "should not delete self" do
-        delete :destroy, id: @test_user.id
+        delete :destroy, id: test_user.id
 
         expect(response).to be_redirect
         expect(response).to redirect_to(users_path)
         expect(flash[:notice]).to eq(I18n.t("user.delete.self"))
 
-        find_user = User.where(id: @test_user.id).first
-        expect(find_user).to eq(@test_user)
+        find_user = User.where(id: test_user.id).first
+        expect(find_user).to eq(test_user)
       end
     end
   end
 
   describe "an unauthenticated user" do
-    before(:each) do
-      @test_user = FactoryGirl.create(:user)
-    end
+    let!(:test_user) { FactoryGirl.create(:user) }
 
     it "should require a user for index" do
       get :index
@@ -155,8 +154,8 @@ RSpec.describe UsersController, type: :controller do
       expect(flash[:alert]).to eq(I18n.t("devise.failure.unauthenticated"))
     end
 
-    it "should require a user for show"do
-      get :show, id: @test_user.id
+    it "should require a user for show" do
+      get :show, id: test_user.id
       expect(response).to be_redirect
       expect(response).to redirect_to("/users/sign_in")
       expect(flash[:alert]).to eq(I18n.t("devise.failure.unauthenticated"))
@@ -170,7 +169,7 @@ RSpec.describe UsersController, type: :controller do
     end
 
     it "should require a user for edit" do
-      get :edit, id: @test_user.id
+      get :edit, id: test_user.id
       expect(response).to be_redirect
       expect(response).to redirect_to("/users/sign_in")
       expect(flash[:alert]).to eq(I18n.t("devise.failure.unauthenticated"))
@@ -184,14 +183,14 @@ RSpec.describe UsersController, type: :controller do
     end
 
     it "should require a user for update" do
-      patch :update, id: @test_user.id
+      patch :update, id: test_user.id
       expect(response).to be_redirect
       expect(response).to redirect_to("/users/sign_in")
       expect(flash[:alert]).to eq(I18n.t("devise.failure.unauthenticated"))
     end
 
     it "should require a user for delete" do
-      delete :destroy, id: @test_user.id
+      delete :destroy, id: test_user.id
       expect(response).to be_redirect
       expect(response).to redirect_to("/users/sign_in")
       expect(flash[:alert]).to eq(I18n.t("devise.failure.unauthenticated"))

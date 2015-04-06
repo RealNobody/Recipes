@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe PseudoCleaner::MasterCleaner do
+RSpec.describe PseudoCleaner::MasterCleaner, skip_validate: true do
   let(:example_object) { Object.new }
   let(:sample_string) { Faker::Lorem.sentence }
   let(:cleaner_double) { instance_double("PseudoCleaner::MasterCleaner") }
@@ -39,38 +39,60 @@ RSpec.describe PseudoCleaner::MasterCleaner do
     it "creates and starts a new MasterCleaner" do
       new_cleaner = PseudoCleaner::MasterCleaner.new(:suite)
 
-      expect(PseudoCleaner::MasterCleaner).to receive(:new).with(:suite).and_return(new_cleaner)
-      expect(new_cleaner).to receive(:start).with(:pseudo_delete)
-      expect(PseudoCleaner::MasterCleaner.class_variable_get(:@@suite_cleaner)).
-          to receive(:reset_suite).and_return(nil)
-      started_cleaner = PseudoCleaner::MasterCleaner.start_suite
+      begin
+        expect(PseudoCleaner::MasterCleaner).to receive(:new).with(:suite).and_return(new_cleaner)
+        expect(new_cleaner).to receive(:start).with(:pseudo_delete)
+        expect(PseudoCleaner::MasterCleaner.class_variable_get(:@@suite_cleaner)).
+            to receive(:reset_suite).and_return(nil)
+        started_cleaner = PseudoCleaner::MasterCleaner.start_suite
 
-      expect(started_cleaner).to eq new_cleaner
-      expect(PseudoCleaner::MasterCleaner.class_variable_get(:@@suite_cleaner)).to eq new_cleaner
+        expect(started_cleaner).to eq new_cleaner
+        expect(PseudoCleaner::MasterCleaner.class_variable_get(:@@suite_cleaner)).to eq new_cleaner
+
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+        RSpec::Mocks.space.proxy_for(new_cleaner).verify
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner.class_variable_get(:@@suite_cleaner)).verify
+      ensure
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+        RSpec::Mocks.space.proxy_for(new_cleaner).reset
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner.class_variable_get(:@@suite_cleaner)).reset
+      end
     end
   end
 
   describe "#end_suite" do
     it "calls @@suite_cleaner.end" do
       started_cleaner = PseudoCleaner::MasterCleaner.start_suite
-      expect(started_cleaner).to receive(:end).with({ test_strategy: :pseudo_delete })
-      PseudoCleaner::MasterCleaner.end_suite
+
+      begin
+        expect(started_cleaner).to receive(:end).with({ test_strategy: :pseudo_delete })
+
+        PseudoCleaner::MasterCleaner.end_suite
+
+        RSpec::Mocks.space.proxy_for(started_cleaner).verify
+      ensure
+        RSpec::Mocks.space.proxy_for(started_cleaner).reset
+      end
     end
   end
 
   describe "#start_example" do # 2413 3124 4321 1243 4231 1342 1324 3124 # 1432
     it "doesn't call much of anything when :none", strategy: :none do
-      expect(DatabaseCleaner).not_to receive(:start)
-      expect(PseudoCleaner::MasterCleaner).not_to receive(:start_test)
+      begin
+        expect_any_instance_of(DatabaseCleaner::Base).not_to receive(:start)
+        expect(PseudoCleaner::MasterCleaner).not_to receive(:start_test)
 
-      PseudoCleaner::MasterCleaner.start_example(example_object, :none)
+        PseudoCleaner::MasterCleaner.start_example(example_object, :none)
 
-      expect(example_object.instance_variable_get(:@pseudo_cleaner_data)).to eq({ test_strategy: :none })
+        expect(example_object.instance_variable_get(:@pseudo_cleaner_data)).to eq({ test_strategy: :none })
 
-      RSpec::Mocks.space.proxy_for(DatabaseCleaner).verify
-      RSpec::Mocks.space.proxy_for(DatabaseCleaner).reset
-      RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
-      RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+        RSpec::Mocks.space.any_instance_recorder_for(DatabaseCleaner::Base).verify
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+      ensure
+        RSpec::Mocks.space.any_instance_proxy_for(DatabaseCleaner::Base).unstub :start
+        allow_any_instance_of(DatabaseCleaner::Base).to receive(:start).and_call_original
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+      end
     end
 
     it "doesn't allow invalid strategies", strategy: :none do
@@ -78,30 +100,45 @@ RSpec.describe PseudoCleaner::MasterCleaner do
     end
 
     it "doesn't call DatabaseCleaner.start for :pseudo_delete", strategy: :none do
-      strategy = [:pseudo_delete].sample
+      begin
+        strategy = [:pseudo_delete].sample
 
-      expect(DatabaseCleaner).not_to receive(:start)
-      expect(PseudoCleaner::MasterCleaner).to receive(:start_test).with(strategy).and_return(sample_string)
+        expect_any_instance_of(DatabaseCleaner::Base).not_to receive(:start)
+        expect(PseudoCleaner::MasterCleaner).to receive(:start_test).with(strategy).and_return(sample_string)
 
-      PseudoCleaner::MasterCleaner.start_example(example_object, strategy)
+        PseudoCleaner::MasterCleaner.start_example(example_object, strategy)
 
-      expect(example_object.instance_variable_get(:@pseudo_cleaner_data)).
-          to eq({ test_strategy: strategy, pseudo_state: sample_string })
+        expect(example_object.instance_variable_get(:@pseudo_cleaner_data)).
+            to eq({ test_strategy: strategy, pseudo_state: sample_string })
 
-      RSpec::Mocks.space.proxy_for(DatabaseCleaner).verify
-      RSpec::Mocks.space.proxy_for(DatabaseCleaner).reset
+        RSpec::Mocks.space.any_instance_recorder_for(DatabaseCleaner::Base).verify
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+      ensure
+        RSpec::Mocks.space.any_instance_proxy_for(DatabaseCleaner::Base).unstub :start
+        allow_any_instance_of(DatabaseCleaner::Base).to receive(:start).and_call_original
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+      end
     end
 
     it "does call DatabaseCleaner.start for :transaction, :trunction or :deletion", strategy: :none do
-      strategy = [:transaction, :truncation, :deletion].sample
+      begin
+        strategy = [:transaction, :truncation, :deletion].sample
 
-      expect(DatabaseCleaner).to receive(:start).and_return(nil)
-      expect(PseudoCleaner::MasterCleaner).to receive(:start_test).with(strategy).and_return(sample_string)
+        expect_any_instance_of(DatabaseCleaner::Base).to receive(:start).and_return(nil)
+        expect(PseudoCleaner::MasterCleaner).to receive(:start_test).with(strategy).and_return(sample_string)
 
-      PseudoCleaner::MasterCleaner.start_example(example_object, strategy)
+        PseudoCleaner::MasterCleaner.start_example(example_object, strategy)
 
-      expect(example_object.instance_variable_get(:@pseudo_cleaner_data)).
-          to eq({ test_strategy: strategy, pseudo_state: sample_string })
+        expect(example_object.instance_variable_get(:@pseudo_cleaner_data)).
+            to eq({ test_strategy: strategy, pseudo_state: sample_string })
+
+        RSpec::Mocks.space.any_instance_recorder_for(DatabaseCleaner::Base).verify
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+      ensure
+        RSpec::Mocks.space.any_instance_proxy_for(DatabaseCleaner::Base).unstub :start
+        allow_any_instance_of(DatabaseCleaner::Base).to receive(:start).and_call_original
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+      end
     end
   end
 
@@ -109,49 +146,69 @@ RSpec.describe PseudoCleaner::MasterCleaner do
     let(:example_object) { Object.new }
 
     it "does nothing if the strategy is :none" do
-      example_object.instance_variable_set(:@pseudo_cleaner_data, { test_strategy: :none })
+      begin
+        example_object.instance_variable_set(:@pseudo_cleaner_data, { test_strategy: :none })
 
-      expect(DatabaseCleaner).not_to receive(:clean)
-      expect(PseudoCleaner::MasterCleaner).not_to receive(:database_reset)
+        # expect_any_instance_of(DatabaseCleaner::Base).not_to receive(:clean)
+        expect(PseudoCleaner::MasterCleaner).not_to receive(:database_cleaner)
+        expect(PseudoCleaner::MasterCleaner).not_to receive(:database_reset)
 
-      PseudoCleaner::MasterCleaner.end_example(example_object)
+        PseudoCleaner::MasterCleaner.end_example(example_object)
 
-      RSpec::Mocks.space.proxy_for(DatabaseCleaner).verify
-      RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
-      RSpec::Mocks.space.proxy_for(DatabaseCleaner).reset
-      RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+        # RSpec::Mocks.space.any_instance_recorder_for(DatabaseCleaner::Base).verify
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+      ensure
+        # RSpec::Mocks.space.any_instance_proxy_for(DatabaseCleaner::Base).unstub :clean
+        # allow_any_instance_of(DatabaseCleaner::Base).to receive(:clean).and_call_original
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+      end
     end
 
     it "only ends the test if :pseudo_delete" do
-      strategy = [:pseudo_delete].sample
-      example_object.instance_variable_set(:@pseudo_cleaner_data, { test_strategy: strategy, pseudo_state: cleaner_double })
+      cleaner_double
 
-      expect(DatabaseCleaner).not_to receive(:clean)
-      expect(PseudoCleaner::MasterCleaner).not_to receive(:database_reset)
-      expect(cleaner_double).to receive(:end).with({ test_type: :test, test_strategy: strategy }).and_return(nil)
+      begin
+        strategy = [:pseudo_delete].sample
+        example_object.instance_variable_set(:@pseudo_cleaner_data, { test_strategy: strategy, pseudo_state: cleaner_double })
 
-      PseudoCleaner::MasterCleaner.end_example(example_object)
+        # expect_any_instance_of(DatabaseCleaner::Base).not_to receive(:clean)
+        expect(PseudoCleaner::MasterCleaner).not_to receive(:database_cleaner)
+        expect(PseudoCleaner::MasterCleaner).not_to receive(:database_reset)
+        expect(cleaner_double).to receive(:end).with({ test_type: :test, test_strategy: strategy }).and_return(nil)
 
-      RSpec::Mocks.space.proxy_for(DatabaseCleaner).verify
-      RSpec::Mocks.space.proxy_for(DatabaseCleaner).reset
-      RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
-      RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+        PseudoCleaner::MasterCleaner.end_example(example_object)
+
+        # RSpec::Mocks.space.any_instance_recorder_for(DatabaseCleaner::Base).verify
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+        RSpec::Mocks.space.proxy_for(cleaner_double).verify
+      ensure
+        # RSpec::Mocks.space.any_instance_proxy_for(DatabaseCleaner::Base).unstub :clean
+        # allow_any_instance_of(DatabaseCleaner::Base).to receive(:clean).and_call_original
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+        RSpec::Mocks.space.proxy_for(cleaner_double).reset
+      end
     end
 
     it "resets the database if :deletion or :truncation" do
-      strategy = [:deletion, :truncation].sample
-      example_object.instance_variable_set(:@pseudo_cleaner_data, { test_strategy: strategy, pseudo_state: cleaner_double })
+      begin
+        strategy = [:deletion, :truncation].sample
+        example_object.instance_variable_set(:@pseudo_cleaner_data, { test_strategy: strategy, pseudo_state: cleaner_double })
 
-      expect(DatabaseCleaner).to receive(:clean).and_return(nil)
-      expect(PseudoCleaner::MasterCleaner).to receive(:database_reset).and_return nil
-      expect(cleaner_double).to receive(:end).with({ test_type: :test, test_strategy: strategy }).and_return(nil)
+        expect_any_instance_of(DatabaseCleaner::Base).to receive(:clean).and_return(nil)
+        expect(PseudoCleaner::MasterCleaner).to receive(:database_reset).and_return nil
+        expect(cleaner_double).to receive(:end).with({ test_type: :test, test_strategy: strategy }).and_return(nil)
 
-      PseudoCleaner::MasterCleaner.end_example(example_object)
+        PseudoCleaner::MasterCleaner.end_example(example_object)
 
-      RSpec::Mocks.space.proxy_for(DatabaseCleaner).verify
-      RSpec::Mocks.space.proxy_for(DatabaseCleaner).reset
-      RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
-      RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+        RSpec::Mocks.space.any_instance_recorder_for(DatabaseCleaner::Base).verify
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+        RSpec::Mocks.space.proxy_for(cleaner_double).verify
+      ensure
+        RSpec::Mocks.space.any_instance_proxy_for(DatabaseCleaner::Base).unstub :clean
+        allow_any_instance_of(DatabaseCleaner::Base).to receive(:clean).and_call_original
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+        RSpec::Mocks.space.proxy_for(cleaner_double).reset
+      end
     end
   end
 
@@ -167,14 +224,23 @@ RSpec.describe PseudoCleaner::MasterCleaner do
 
     describe "#start_test" do
       it "creates and starts a new MasterCleaner", strategy: :none do
-        test_strategy = PseudoCleaner::MasterCleaner::CLEANING_STRATEGIES.sample
-        new_cleaner   = PseudoCleaner::MasterCleaner.new(:test)
+        new_cleaner = PseudoCleaner::MasterCleaner.new(:test)
 
-        expect(PseudoCleaner::MasterCleaner).to receive(:new).with(:test).and_return(new_cleaner)
-        expect(new_cleaner).to receive(:start).with(test_strategy, { test_type: :test, test_strategy: test_strategy })
-        started_test = PseudoCleaner::MasterCleaner.start_test(test_strategy)
+        begin
+          test_strategy = PseudoCleaner::MasterCleaner::CLEANING_STRATEGIES.sample
 
-        expect(started_test).to eq new_cleaner
+          expect(PseudoCleaner::MasterCleaner).to receive(:new).with(:test).and_return(new_cleaner)
+          expect(new_cleaner).to receive(:start).with(test_strategy, { test_type: :test, test_strategy: test_strategy })
+          started_test = PseudoCleaner::MasterCleaner.start_test(test_strategy)
+
+          expect(started_test).to eq new_cleaner
+
+          RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+          RSpec::Mocks.space.proxy_for(new_cleaner).verify
+        ensure
+          RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+          RSpec::Mocks.space.proxy_for(new_cleaner).reset
+        end
       end
     end
 
@@ -227,38 +293,68 @@ RSpec.describe PseudoCleaner::MasterCleaner do
         global_cleaner = PseudoCleaner::MasterCleaner.class_variable_get(:@@suite_cleaner)
         test_strategy  = PseudoCleaner::MasterCleaner::CLEANING_STRATEGIES.sample
 
-        expect(PseudoCleaner::MasterCleaner).not_to receive(:new)
-        expect(global_cleaner).to receive(:start).with(test_strategy, { test_type: :test, test_strategy: test_strategy })
-        started_test = PseudoCleaner::MasterCleaner.start_test(test_strategy)
+        begin
+          expect(PseudoCleaner::MasterCleaner).not_to receive(:new)
+          expect(global_cleaner).to receive(:start).with(test_strategy, { test_type: :test, test_strategy: test_strategy })
 
-        expect(started_test).to eq global_cleaner
+          started_test = PseudoCleaner::MasterCleaner.start_test(test_strategy)
+
+          expect(started_test).to eq global_cleaner
+
+          RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+          RSpec::Mocks.space.proxy_for(global_cleaner).verify
+        ensure
+          RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+          RSpec::Mocks.space.proxy_for(global_cleaner).reset
+        end
       end
     end
   end
 
   describe "#reset_database" do
     it "truncates all tables and signals the database was reset", strategy: :none do
-      expect(DatabaseCleaner).to receive(:clean_with)
-      expect(PseudoCleaner::MasterCleaner).to receive(:database_reset)
+      begin
+        expect_any_instance_of(DatabaseCleaner::Base).to receive(:clean_with)
+        expect(PseudoCleaner::MasterCleaner).to receive(:database_reset)
 
-      PseudoCleaner::MasterCleaner.reset_database
+        PseudoCleaner::MasterCleaner.reset_database
+
+        RSpec::Mocks.space.any_instance_recorder_for(DatabaseCleaner::Base).verify
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+      ensure
+        RSpec::Mocks.space.any_instance_proxy_for(DatabaseCleaner::Base).unstub :clean_with
+        allow_any_instance_of(DatabaseCleaner::Base).to receive(:clean_with).and_call_original
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+      end
     end
   end
 
   describe "#database_reset" do
     it "seeds the tables and restarts the suite", strategy: :none do
-      expect(PseudoCleaner::MasterCleaner).to receive(:seed_data)
-      expect(PseudoCleaner::MasterCleaner).to receive(:start_suite)
+      begin
+        expect(PseudoCleaner::MasterCleaner).to receive(:seed_data)
+        expect(PseudoCleaner::MasterCleaner).to receive(:start_suite)
 
-      PseudoCleaner::MasterCleaner.database_reset
+        PseudoCleaner::MasterCleaner.database_reset
+
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+      ensure
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+      end
     end
   end
 
   describe "#seed_data" do
     it "seeds the tables", strategy: :none do
-      expect(Seedling::Seeder).to receive(:seed_all)
+      begin
+        expect(SortedSeeder::Seeder).to receive(:seed_all)
 
-      PseudoCleaner::MasterCleaner.seed_data
+        PseudoCleaner::MasterCleaner.seed_data
+
+        RSpec::Mocks.space.proxy_for(SortedSeeder::Seeder).verify
+      ensure
+        RSpec::Mocks.space.proxy_for(SortedSeeder::Seeder).reset
+      end
     end
   end
 
@@ -295,10 +391,10 @@ RSpec.describe PseudoCleaner::MasterCleaner do
         PseudoCleaner::MasterCleaner.create_table_cleaners
         cleaner_tables = PseudoCleaner::MasterCleaner.class_variable_get(:@@cleaner_classes)
 
-        Seedling::Seeder.create_order.each do |seed_table|
+        SortedSeeder::Seeder.create_order.each do |seed_table|
           expect(cleaner_tables.detect { |table| table[0] == seed_table }).to be_truthy
         end
-        Seedling::Seeder.unclassed_tables.each do |seed_table|
+        SortedSeeder::Seeder.unclassed_tables.each do |seed_table|
           expect(cleaner_tables.detect { |table| table[1] == seed_table }).to be_truthy
         end
       end
@@ -325,34 +421,56 @@ RSpec.describe PseudoCleaner::MasterCleaner do
       it "creates and starts cleaners" do
         cleaner = PseudoCleaner::MasterCleaner.new(:test)
 
-        expect(PseudoCleaner::MasterCleaner).to receive(:create_table_cleaners)
-        expect(PseudoCleaner::MasterCleaner).to receive(:create_custom_cleaners)
-        expect(cleaner).to receive(:start_all_cleaners)
+        begin
+          expect(PseudoCleaner::MasterCleaner).to receive(:create_table_cleaners)
+          expect(PseudoCleaner::MasterCleaner).to receive(:create_custom_cleaners)
+          expect(cleaner).to receive(:start_all_cleaners)
 
-        cleaner.start :pseudo_delete
+          cleaner.start :pseudo_delete
+
+          RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+          RSpec::Mocks.space.proxy_for(cleaner).verify
+        ensure
+          RSpec::Mocks.space.proxy_for(cleaner).reset
+          RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+        end
       end
 
       it "loads the cleaner classes only once" do
         first_cleaner = PseudoCleaner::MasterCleaner.new(:test)
         first_cleaner.start :pseudo_delete
-
         cleaner = PseudoCleaner::MasterCleaner.new(:test)
-        expect(PseudoCleaner::MasterCleaner).not_to receive(:create_table_cleaners)
-        expect(PseudoCleaner::MasterCleaner).not_to receive(:create_custom_cleaners)
-        expect(cleaner).to receive(:start_all_cleaners)
 
-        cleaner.start :pseudo_delete
+        begin
+          expect(PseudoCleaner::MasterCleaner).not_to receive(:create_table_cleaners)
+          expect(PseudoCleaner::MasterCleaner).not_to receive(:create_custom_cleaners)
+          expect(cleaner).to receive(:start_all_cleaners)
+
+          cleaner.start :pseudo_delete
+
+          RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+          RSpec::Mocks.space.proxy_for(cleaner).verify
+        ensure
+          RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+          RSpec::Mocks.space.proxy_for(cleaner).reset
+        end
       end
     end
 
     describe "#cleaner_classes" do
       it "initializes the class variable" do
-        expect(PseudoCleaner::MasterCleaner).to receive(:create_table_cleaners)
-        expect(PseudoCleaner::MasterCleaner).to receive(:create_custom_cleaners)
+        begin
+          expect(PseudoCleaner::MasterCleaner).to receive(:create_table_cleaners)
+          expect(PseudoCleaner::MasterCleaner).to receive(:create_custom_cleaners)
 
-        PseudoCleaner::MasterCleaner.cleaner_classes
+          PseudoCleaner::MasterCleaner.cleaner_classes
 
-        expect(PseudoCleaner::MasterCleaner.class_variable_get(:@@cleaner_classes)).to eq []
+          expect(PseudoCleaner::MasterCleaner.class_variable_get(:@@cleaner_classes)).to eq []
+
+          RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+        ensure
+          RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+        end
       end
     end
   end
@@ -361,17 +479,29 @@ RSpec.describe PseudoCleaner::MasterCleaner do
     it "ends all cleaners" do
       cleaner = PseudoCleaner::MasterCleaner.new(:test)
 
-      expect(cleaner).to receive(:end_all_cleaners)
+      begin
+        expect(cleaner).to receive(:end_all_cleaners)
 
-      cleaner.end
+        cleaner.end
+
+        RSpec::Mocks.space.proxy_for(cleaner).verify
+      ensure
+        RSpec::Mocks.space.proxy_for(cleaner).reset
+      end
     end
   end
 
   describe "#process_exception" do
     it "Outputs diagnostic information to the screen" do
-      expect(PseudoCleaner::Logger).to receive(:write).at_least(1)
+      begin
+        expect(PseudoCleaner::Logger).to receive(:write).at_least(1)
 
-      PseudoCleaner::MasterCleaner.process_exception Exception.new("test")
+        PseudoCleaner::MasterCleaner.process_exception Exception.new("test")
+
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).verify
+      ensure
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::Logger).reset
+      end
     end
   end
 
@@ -416,12 +546,18 @@ RSpec.describe PseudoCleaner::MasterCleaner do
     end
 
     it "logs all errors except for the last and raises the last error" do
-      cleaner  = PseudoCleaner::MasterCleaner.new(:test)
-      cleaners = [ExceptionCleaner.new, ExceptionCleaner.new, ExceptionCleaner.new, ExceptionCleaner.new]
+      begin
+        cleaner  = PseudoCleaner::MasterCleaner.new(:test)
+        cleaners = [ExceptionCleaner.new, ExceptionCleaner.new, ExceptionCleaner.new, ExceptionCleaner.new]
 
-      expect(PseudoCleaner::MasterCleaner).to receive(:process_exception).exactly(3).times
+        expect(PseudoCleaner::MasterCleaner).to receive(:process_exception).exactly(3).times
 
-      expect { cleaner.run_all_cleaners(:test_start, cleaners, :pseudo_delete) }.to raise_exception
+        expect { cleaner.run_all_cleaners(:test_start, cleaners, :pseudo_delete) }.to raise_exception
+
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).verify
+      ensure
+        RSpec::Mocks.space.proxy_for(PseudoCleaner::MasterCleaner).reset
+      end
     end
   end
 

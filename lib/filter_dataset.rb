@@ -190,16 +190,16 @@ class FilterDataset
                                      "#{@model.table_name}__id".to_sym }
               }
 
-            source_table      = relation_info.klass.table_name.to_sym
-            source_field_name = relation_info.options[:association_foreign_key]
-            source_field_name ||= "#{source_table.to_s.singularize}_id".to_sym
+              source_table      = relation_info.klass.table_name.to_sym
+              source_field_name = relation_info.options[:association_foreign_key]
+              source_field_name ||= "#{source_table.to_s.singularize}_id".to_sym
 
-            field_info[:join_info][0][:on_clause] = { "#{through_alias}__#{source_field_name}".to_sym =>
-                                                          "#{join_alias}__id".to_sym }
+              field_info[:join_info][0][:on_clause] = { "#{through_alias}__#{source_field_name}".to_sym =>
+                                                            "#{join_alias}__id".to_sym }
 
             when :belongs_to
               if relation_info.options[:polymorphic]
-                field_info[:join_info][0][:on_clause] = { "#{join_alias}__id".to_sym                     =>
+                field_info[:join_info][0][:on_clause] = { "#{join_alias}__id".to_sym                                =>
                                                               "#{@model.table_name}__#{relation_info.name}_id".to_sym,
                                                           "#{@model.table_name}__#{relation_info.name}_type".to_sym =>
                                                               table_name.to_s.classify }
@@ -278,10 +278,13 @@ class FilterDataset
 
   private
   def transform_params
+    # :nocov:
     @transformed_params = transform_field(@filter_params.parsed_fields) unless @filter_params.parsed_fields.empty?
+    # :nocov:
   end
 
   def transform_field(parsed_field)
+    # :nocov:
     case parsed_field.type
       when :not_filter, :group
         transform_group(parsed_field.type, parsed_field)
@@ -297,20 +300,27 @@ class FilterDataset
       when :&, :|
         transform_boolean(parsed_field.type, parsed_field)
     end
+    # :nocov:
   end
 
   def transform_group(type, parsed_field)
+    # :nocov:
     { type: type, filter_expression: transform_field(parsed_field[:filter_expression]) }
+    # :nocov:
   end
 
   def transform_boolean(type, parsed_field)
+    # :nocov:
     { type:               type,
       filter_expressions: parsed_field[:filter_expressions].map { |filter_expression| transform_field(filter_expression) }
     }
+    # :nocov:
   end
 
   def transform_comparison(type, parsed_field)
+    # :nocov:
     table_name, field_name, field_alias = split_field(parsed_field[:token])
     field_info                          = field_information(table_name, field_name)
+    # :nocov:
   end
 end

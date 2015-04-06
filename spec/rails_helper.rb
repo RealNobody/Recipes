@@ -9,6 +9,8 @@ require File.expand_path("../../config/environment", __FILE__)
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
 
+# $recipes_validate_data = true
+
 require 'rubygems'
 require 'spork'
 require "devise"
@@ -16,6 +18,8 @@ require 'capybara'
 require 'capybara/rspec'
 require 'selenium-webdriver'
 require 'site_prism'
+require "pseudo_cleaner"
+require File.absolute_path("spec/support/validate_data.rb")
 require "pseudo_cleaner/rspec"
 require "support/utils"
 require "support/factory_helper"
@@ -34,6 +38,7 @@ require "support/factory_helper"
 # require only the support files necessary.
 #
 Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
+Dir[Rails.root.join("spec/shared_examples/**/*.rb")].each { |f| require f }
 
 include LoginMacros
 
@@ -139,9 +144,15 @@ end
 require "cornucopia"
 
 # PseudoCleaner::Configuration.current_instance.output_diagnostics = true
+# PseudoCleaner::Configuration.current_instance.post_transaction_analysis = true
+PseudoCleaner::Configuration.db_connection = ActiveRecord::Base
+
 if ENV['IDE_PROCESS_DISPATCHER'] && ENV['RM_INFO']
   Cornucopia::Util::Configuration.auto_open_report_after_generation(true, "rspec_report")
 end
-# Cornucopia::Util::Configuration.seed = 846180077270723486430696101633142704209
+
+Cornucopia::Util::Configuration.order_seed = 7009
+# Cornucopia::Util::Configuration.seed = 1
+# Cornucopia::Util::Configuration.context_seed = 1
 
 require "cornucopia/rspec_hooks"

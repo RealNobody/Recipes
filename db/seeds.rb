@@ -6,8 +6,8 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
-require "seedling"
+require "sorted_seeder"
 
-Seedling::Seeder.seed_all
+SortedSeeder::Seeder.seed_all
 
 puts("Finished Seeding.")

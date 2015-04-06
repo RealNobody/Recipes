@@ -1,20 +1,28 @@
+require "singleton"
+
 class AliasWordList
+  include Singleton
+
+  class << self
+    def get_word_list(aliased_class)
+      AliasWordList.instance.get_word_list aliased_class
+    end
+  end
+
+  def get_word_list(aliased_class)
+    @cached_word_lists                     ||= {}
+    @cached_word_lists[aliased_class.name] ||= AliasWordListGenerator.new(aliased_class)
+
+    @cached_word_lists[aliased_class.name]
+  end
+end
+
+class AliasWordListGenerator
   SPECIAL_CHARACTERS = ["\u00E9", "", "\u00E5", "", "\u00EE", "", "\u00FC", "", "\u00F1", "", "\u00F8", ""] +
       ["\u00A5", "", "\u2122", "", "\u00A3", "", "\u00A2", "", "\u221E", "", "\u00A7", "", "\u00B6", "", "\u2022", ""] +
       ["\u00AA", "", "\u00BA", "", "\u0153", "", "\u2020", "", "\u03C0", "", "\u2202", "", "\u00A9", "", "\u02DA", ""] +
       ["\u00AC", "", "\u2026", "", "\u03A9", "", "\u2248", "", "\u221A", "", "\u222B", "", "\u2264", "", "\u2265", ""] +
       ["\u00B5", "", "\u00E6", "", "\u00AB", "", "\u201C", "", "\u2260", "", "\u2013", "", "\u00E8", ""]
-
-  class << self
-    def get_word_list(aliased_class)
-      @cached_word_lists ||= {}
-      unless @cached_word_lists[aliased_class.name]
-        @cached_word_lists[aliased_class.name] = AliasWordList.new(aliased_class)
-      end
-
-      @cached_word_lists[aliased_class.name]
-    end
-  end
 
   attr_reader :short_words, :long_words, :compound_words, :mixed_word_set, :used_words
 

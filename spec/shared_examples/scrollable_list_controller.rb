@@ -445,7 +445,7 @@ RSpec.shared_examples "a scrollable list controller" do
       end
 
       [:item, :edit, :show, :new_item, :new].each do |item_action|
-        describe "#item" do
+        describe "##{item_action}" do
           it "should return selected_item based on id for item" do
             get item_action, page: 2, per_page: 2, format: "json", id: last_item.id
 
@@ -539,7 +539,7 @@ RSpec.shared_examples "a scrollable list controller" do
             end
           end
 
-          it "doesn't worry about search" do
+          it "doesn't worry about search not json" do
             get item_action, page: 1, per_page: 2, id: last_item.id, search: first_page[0][model_class.initialize_field]
 
             expect(response).to be_success
@@ -689,7 +689,8 @@ RSpec.shared_examples "a scrollable list controller" do
         page_loop        = 1
         prev_page_loop   = 0
         next_scroll_link = nil
-        page_size        = rand(2..4)
+        page_size        = model_class.count / 4
+        page_size        = rand((page_size / 2)..page_size)
 
         scrolling_list_page.load page_number: 1, query: { per_page: page_size }
 

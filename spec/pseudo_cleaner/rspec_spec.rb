@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "rspec options for Pseudo-Cleaner" do
+RSpec.describe "rspec options for Pseudo-Cleaner", skip_validate: true do
   around(:each) do |example|
     orig_diagnostics                                                 = PseudoCleaner::Configuration.current_instance.output_diagnostics
     PseudoCleaner::Configuration.current_instance.output_diagnostics = true

@@ -12,7 +12,7 @@ class CompareLesser
   end
 end
 
-RSpec.describe Seedling::Seeder do
+RSpec.describe SortedSeeder::Seeder do
   before(:each) do
     FileUtils.rm_rf(File.join(Rails.root, "/db/seeders/rspec_fixture"))
   end
@@ -21,52 +21,52 @@ RSpec.describe Seedling::Seeder do
     FileUtils.rm_rf(File.join(Rails.root, "/db/seeders/rspec_fixture"))
   end
 
-  describe Seedling::Seeder::SeederSorter do
+  describe SortedSeeder::Seeder::SeederSorter do
     it "returns <=> if left objects respond to it" do
-      left_obj  = Seedling::Seeder::SeederSorter.new(Seedling::Seeder.new(MeasuringUnit, Seedling::Seeder.seed_class(MeasuringUnit)))
-      right_obj = Seedling::Seeder::SeederSorter.new(Seedling::Seeder.new(Ingredient, Seedling::Seeder.seed_class(Ingredient)))
+      left_obj  = SortedSeeder::Seeder::SeederSorter.new(SortedSeeder::Seeder.new(MeasuringUnit, SortedSeeder::Seeder.seed_class(MeasuringUnit)))
+      right_obj = SortedSeeder::Seeder::SeederSorter.new(SortedSeeder::Seeder.new(Ingredient, SortedSeeder::Seeder.seed_class(Ingredient)))
 
       expect(left_obj <=> right_obj).to eq(-1)
     end
 
     it "sorts by class name if both are classes" do
-      left_obj  = Seedling::Seeder::SeederSorter.new(MeasuringUnit)
-      right_obj = Seedling::Seeder::SeederSorter.new(Ingredient)
+      left_obj  = SortedSeeder::Seeder::SeederSorter.new(MeasuringUnit)
+      right_obj = SortedSeeder::Seeder::SeederSorter.new(Ingredient)
 
       expect(left_obj <=> right_obj).to eq(1)
     end
 
     it "returns -1 <=> if right object returns 1" do
-      left_obj  = Seedling::Seeder::SeederSorter.new(MeasuringUnit)
-      right_obj = Seedling::Seeder::SeederSorter.new(CompareGreater)
+      left_obj  = SortedSeeder::Seeder::SeederSorter.new(MeasuringUnit)
+      right_obj = SortedSeeder::Seeder::SeederSorter.new(CompareGreater)
 
       expect(left_obj <=> right_obj).to eq(-1)
     end
 
     it "returns 1 <=> if right object returns -1" do
-      left_obj  = Seedling::Seeder::SeederSorter.new(MeasuringUnit)
-      right_obj = Seedling::Seeder::SeederSorter.new(CompareLesser)
+      left_obj  = SortedSeeder::Seeder::SeederSorter.new(MeasuringUnit)
+      right_obj = SortedSeeder::Seeder::SeederSorter.new(CompareLesser)
 
       expect(left_obj <=> right_obj).to eq(1)
     end
 
     it "returns -1 <=> if left object is not a class" do
-      left_obj  = Seedling::Seeder::SeederSorter.new(1)
-      right_obj = Seedling::Seeder::SeederSorter.new(MeasuringUnit)
+      left_obj  = SortedSeeder::Seeder::SeederSorter.new(1)
+      right_obj = SortedSeeder::Seeder::SeederSorter.new(MeasuringUnit)
 
       expect(left_obj <=> right_obj).to eq(-1)
     end
 
     it "returns 1 <=> if right object is not a class" do
-      left_obj  = Seedling::Seeder::SeederSorter.new(MeasuringUnit)
-      right_obj = Seedling::Seeder::SeederSorter.new(1)
+      left_obj  = SortedSeeder::Seeder::SeederSorter.new(MeasuringUnit)
+      right_obj = SortedSeeder::Seeder::SeederSorter.new(1)
 
       expect(left_obj <=> right_obj).to eq(1)
     end
 
     it "returns 0 <=> if both objects are not classes" do
-      left_obj  = Seedling::Seeder::SeederSorter.new("fred")
-      right_obj = Seedling::Seeder::SeederSorter.new(1)
+      left_obj  = SortedSeeder::Seeder::SeederSorter.new("fred")
+      right_obj = SortedSeeder::Seeder::SeederSorter.new(1)
 
       expect(left_obj <=> right_obj).to eq(0)
     end
@@ -74,17 +74,17 @@ RSpec.describe Seedling::Seeder do
 
   describe "#create_order" do
     before(:each) do
-      Seedling::Seeder.class_variable_set("@@create_order", nil)
+      SortedSeeder::Seeder.class_variable_set("@@create_order", nil)
     end
 
     after(:each) do
-      Seedling::Seeder.class_variable_set("@@create_order", nil)
+      SortedSeeder::Seeder.class_variable_set("@@create_order", nil)
     end
 
     it "should order related tables" do
       allow(ActiveRecord::Base.connection).to receive_messages(tables: ["measurement_conversions", "measuring_units"])
 
-      ordered_tables = Seedling::Seeder.create_order
+      ordered_tables = SortedSeeder::Seeder.create_order
 
       expect(ordered_tables).to eq([MeasuringUnit, MeasurementConversion])
     end
@@ -97,7 +97,7 @@ RSpec.describe Seedling::Seeder do
                                                                         "ingredient_categories",
                                                                        ])
 
-      ordered_tables = Seedling::Seeder.create_order
+      ordered_tables = SortedSeeder::Seeder.create_order
 
       expect(ordered_tables).to eq([MeasuringUnit,
                                     IngredientCategory,
@@ -110,82 +110,82 @@ RSpec.describe Seedling::Seeder do
 
   describe "#pre_table" do
     before(:each) do
-      Seedling::Seeder.class_variable_set("@@create_order", [])
+      SortedSeeder::Seeder.class_variable_set("@@create_order", [])
     end
 
     after(:each) do
-      Seedling::Seeder.class_variable_set("@@create_order", nil)
+      SortedSeeder::Seeder.class_variable_set("@@create_order", nil)
     end
 
     it "should return a table that should be seeded before another table" do
-      create_order = Seedling::Seeder.class_variable_get("@@create_order")
+      create_order = SortedSeeder::Seeder.class_variable_get("@@create_order")
 
-      pre_class = Seedling::Seeder.active_record_pre_table(Ingredient, {}, [])
+      pre_class = SortedSeeder::Seeder.active_record_pre_table(Ingredient, {}, [])
       create_order << pre_class
 
       unless (pre_class == MeasuringUnit)
         expect(pre_class).to eq(IngredientCategory)
       end
 
-      pre_class = Seedling::Seeder.active_record_pre_table(Ingredient, {}, [])
+      pre_class = SortedSeeder::Seeder.active_record_pre_table(Ingredient, {}, [])
       create_order << pre_class
 
       unless (pre_class == MeasuringUnit)
         expect(pre_class).to eq(IngredientCategory)
       end
 
-      pre_class = Seedling::Seeder.active_record_pre_table(Ingredient, {}, [])
+      pre_class = SortedSeeder::Seeder.active_record_pre_table(Ingredient, {}, [])
       create_order << pre_class
 
       expect(pre_class).not_to be
     end
 
     it "should return polymporphic table pre-conditions pre-conditions" do
-      create_order = Seedling::Seeder.class_variable_get("@@create_order")
+      create_order = SortedSeeder::Seeder.class_variable_get("@@create_order")
 
-      pre_class = Seedling::Seeder.active_record_pre_table(SearchAlias, { "SearchAlias" => [Ingredient] }, [])
+      pre_class = SortedSeeder::Seeder.active_record_pre_table(SearchAlias, { "SearchAlias" => [Ingredient] }, [])
       create_order << pre_class
 
       unless (pre_class == MeasuringUnit)
         expect(pre_class).to eq(IngredientCategory)
       end
 
-      pre_class = Seedling::Seeder.active_record_pre_table(SearchAlias, { "SearchAlias" => [Ingredient] }, [])
+      pre_class = SortedSeeder::Seeder.active_record_pre_table(SearchAlias, { "SearchAlias" => [Ingredient] }, [])
       create_order << pre_class
 
       unless (pre_class == MeasuringUnit)
         expect(pre_class).to eq(IngredientCategory)
       end
 
-      pre_class = Seedling::Seeder.active_record_pre_table(SearchAlias, { "SearchAlias" => [Ingredient] }, [])
+      pre_class = SortedSeeder::Seeder.active_record_pre_table(SearchAlias, { "SearchAlias" => [Ingredient] }, [])
       create_order << pre_class
 
       expect(pre_class).to eq(Ingredient)
 
-      pre_class = Seedling::Seeder.active_record_pre_table(SearchAlias, { "SearchAlias" => [Ingredient] }, [])
+      pre_class = SortedSeeder::Seeder.active_record_pre_table(SearchAlias, { "SearchAlias" => [Ingredient] }, [])
       create_order << pre_class
 
       expect(pre_class).not_to be
     end
 
     it "should return polymporphic table pre-conditions if no other pre-conditions" do
-      create_order = Seedling::Seeder.class_variable_get("@@create_order")
+      create_order = SortedSeeder::Seeder.class_variable_get("@@create_order")
 
-      pre_class = Seedling::Seeder.active_record_pre_table(SearchAlias, { "SearchAlias" => [RecipeType, Container] }, [])
+      pre_class = SortedSeeder::Seeder.active_record_pre_table(SearchAlias, { "SearchAlias" => [RecipeType, Container] }, [])
       create_order << pre_class
 
       unless (pre_class == RecipeType)
         expect(pre_class).to eq(Container)
       end
 
-      pre_class = Seedling::Seeder.active_record_pre_table(SearchAlias, { "SearchAlias" => [RecipeType, Container] }, [])
+      pre_class = SortedSeeder::Seeder.active_record_pre_table(SearchAlias, { "SearchAlias" => [RecipeType, Container] }, [])
       create_order << pre_class
 
       unless (pre_class == RecipeType)
         expect(pre_class).to eq(Container)
       end
 
-      pre_class = Seedling::Seeder.active_record_pre_table(SearchAlias, { "SearchAlias" => [RecipeType, Container] }, [])
+      pre_class = SortedSeeder::Seeder.active_record_pre_table(SearchAlias, { "SearchAlias" => [RecipeType, Container] }, [])
       create_order << pre_class
 
       expect(pre_class).not_to be
@@ -194,10 +194,11 @@ RSpec.describe Seedling::Seeder do
 
   describe "#seed_class" do
     it "finds a named table seed_class in db/seeds" do
-      expect(Seedling::Seeder.seed_class(MeasuringUnit).name).to eq("MeasuringUnitSeeder")
+      expect(SortedSeeder::Seeder.seed_class(MeasuringUnit).name).to eq("MeasuringUnitSeeder")
     end
 
     it "does not find the table even if the table responds to #seed" do
+      allow(Object).to receive(:const_defined?).and_call_original
       allow(Object).to receive(:const_defined?).with("MeasuringUnitSeeder", false).and_return(false)
       allow(File).to receive(:exists?).and_return(false)
 
@@ -206,56 +207,57 @@ RSpec.describe Seedling::Seeder do
         end
       end
 
-      expect(Seedling::Seeder.seed_class(MeasuringUnit)).not_to be
+      expect(SortedSeeder::Seeder.seed_class(MeasuringUnit)).not_to be
     end
 
     it "returns nil if there is no file and the table doesn't respond to seed" do
+      allow(Object).to receive(:const_defined?).and_call_original
       allow(Object).to receive(:const_defined?).with("MeasuringUnitSeeder", false).and_return(false)
       allow(File).to receive(:exists?).and_return(false)
       allow(MeasuringUnit).to receive(:respond_to?).with(:seed).and_return(false)
 
-      expect(Seedling::Seeder.seed_class(MeasuringUnit)).not_to be
+      expect(SortedSeeder::Seeder.seed_class(MeasuringUnit)).not_to be
     end
   end
 
   describe "#<=>" do
     it "returns 0 if the tables are the same" do
-      left_obj  = Seedling::Seeder.new(MeasuringUnit, Seedling::Seeder.seed_class(MeasuringUnit))
-      right_obj = Seedling::Seeder.new(MeasuringUnit, Seedling::Seeder.seed_class(MeasuringUnit))
+      left_obj  = SortedSeeder::Seeder.new(MeasuringUnit, SortedSeeder::Seeder.seed_class(MeasuringUnit))
+      right_obj = SortedSeeder::Seeder.new(MeasuringUnit, SortedSeeder::Seeder.seed_class(MeasuringUnit))
 
       expect(left_obj <=> right_obj).to eq(0)
     end
 
     it "returns -1 if the left table seeds before the right table" do
-      left_obj  = Seedling::Seeder.new(MeasuringUnit, Seedling::Seeder.seed_class(MeasuringUnit))
-      right_obj = Seedling::Seeder.new(Ingredient, Seedling::Seeder.seed_class(Ingredient))
+      left_obj  = SortedSeeder::Seeder.new(MeasuringUnit, SortedSeeder::Seeder.seed_class(MeasuringUnit))
+      right_obj = SortedSeeder::Seeder.new(Ingredient, SortedSeeder::Seeder.seed_class(Ingredient))
 
       expect(left_obj <=> right_obj).to eq(-1)
     end
 
     it "returns 1 if the left table seeds after the right table" do
-      left_obj  = Seedling::Seeder.new(Ingredient, Seedling::Seeder.seed_class(Ingredient))
-      right_obj = Seedling::Seeder.new(MeasuringUnit, Seedling::Seeder.seed_class(MeasuringUnit))
+      left_obj  = SortedSeeder::Seeder.new(Ingredient, SortedSeeder::Seeder.seed_class(Ingredient))
+      right_obj = SortedSeeder::Seeder.new(MeasuringUnit, SortedSeeder::Seeder.seed_class(MeasuringUnit))
 
       expect(left_obj <=> right_obj).to eq(1)
     end
 
     it "returns -1 if the other object doesn't respond to <=>" do
-      left_obj  = Seedling::Seeder.new(Ingredient, Seedling::Seeder.seed_class(Ingredient))
-      right_obj = Seedling::Seeder
+      left_obj  = SortedSeeder::Seeder.new(Ingredient, SortedSeeder::Seeder.seed_class(Ingredient))
+      right_obj = SortedSeeder::Seeder
 
       expect(left_obj <=> right_obj).to eq(-1)
     end
 
     it "returns -1 if the other object responds to <=> and returns -1" do
-      left_obj  = Seedling::Seeder.new(Ingredient, Seedling::Seeder.seed_class(Ingredient))
+      left_obj  = SortedSeeder::Seeder.new(Ingredient, SortedSeeder::Seeder.seed_class(Ingredient))
       right_obj = CompareGreater
 
       expect(left_obj <=> right_obj).to eq(-1)
     end
 
     it "returns 1 if the other object responds to <=> and returns 1" do
-      left_obj  = Seedling::Seeder.new(Ingredient, Seedling::Seeder.seed_class(Ingredient))
+      left_obj  = SortedSeeder::Seeder.new(Ingredient, SortedSeeder::Seeder.seed_class(Ingredient))
       right_obj = CompareLesser
 
       expect(left_obj <=> right_obj).to eq(1)
@@ -264,15 +266,15 @@ RSpec.describe Seedling::Seeder do
 
   describe "#seed" do
     it "deals with it if there is no seed class" do
-      subject = Seedling::Seeder.new(SearchAlias, Seedling::Seeder.seed_class(SearchAlias))
+      subject = SortedSeeder::Seeder.new(SearchAlias, SortedSeeder::Seeder.seed_class(SearchAlias))
       expect { subject.seed }.not_to raise_exception
     end
 
     it "deals with it if there is no seed class" do
-      seed_class = Seedling::Seeder.seed_class(MeasuringUnit)
-      subject    = Seedling::Seeder.new(MeasuringUnit, seed_class)
+      seed_class = SortedSeeder::Seeder.seed_class(MeasuringUnit)
+      subject    = SortedSeeder::Seeder.new(MeasuringUnit, seed_class)
 
-      allow(Seedling::Seeder).to receive(:seed_class).and_return(seed_class)
+      allow(SortedSeeder::Seeder).to receive(:seed_class).and_return(seed_class)
       expect(seed_class).to receive(:seed).and_return(nil)
 
       expect { subject.seed }.not_to raise_exception
@@ -285,17 +287,17 @@ RSpec.describe Seedling::Seeder do
                                                                         "measuring_units",
                                                                         "search_aliases"])
 
-      Seedling::Seeder.class_variable_set("@@seeder_classes", nil)
-      Seedling::Seeder.class_variable_set("@@create_order", nil)
+      SortedSeeder::Seeder.class_variable_set("@@seeder_classes", nil)
+      SortedSeeder::Seeder.class_variable_set("@@create_order", nil)
     end
 
     after(:each) do
-      Seedling::Seeder.class_variable_set("@@seeder_classes", nil)
-      Seedling::Seeder.class_variable_set("@@create_order", nil)
+      SortedSeeder::Seeder.class_variable_set("@@seeder_classes", nil)
+      SortedSeeder::Seeder.class_variable_set("@@create_order", nil)
     end
 
     it "creates a sorted Seeder class for each table object that seeds" do
-      seeders = Seedling::Seeder.seeder_classes
+      seeders = SortedSeeder::Seeder.seeder_classes
 
       expect(seeders[0].table).to eq(MeasuringUnit)
       expect(seeders[1].table).to eq(MeasurementConversion)
@@ -305,10 +307,10 @@ RSpec.describe Seedling::Seeder do
     end
 
     it "creates custom seeder classes and sorts them" do
-      FileUtils.cp_r(File.join(Rails.root, "/spec/seedling/rspec_fixture"),
+      FileUtils.cp_r(File.join(Rails.root, "/spec/sorted_seeder/rspec_fixture"),
                      File.join(Rails.root, "/db/seeders"))
 
-      seeders = Seedling::Seeder.seeder_classes
+      seeders = SortedSeeder::Seeder.seeder_classes
 
       expect(seeders).not_to include(RspecFixture::BadNameSeeder)
       expect(seeders).not_to include(RspecFixture::EmptySeeder)
@@ -328,9 +330,9 @@ RSpec.describe Seedling::Seeder do
 
       expect(seeder_1).to receive(:seed).and_return nil
       expect(seeder_2).to receive(:seed).and_return nil
-      expect(Seedling::Seeder).to receive(:seeder_classes).and_return([seeder_1, seeder_2])
+      expect(SortedSeeder::Seeder).to receive(:seeder_classes).and_return([seeder_1, seeder_2])
 
-      Seedling::Seeder.seed_all
+      SortedSeeder::Seeder.seed_all
     end
   end
 end
