@@ -151,7 +151,7 @@ if ENV['IDE_PROCESS_DISPATCHER'] && ENV['RM_INFO']
   Cornucopia::Util::Configuration.auto_open_report_after_generation(true, "rspec_report")
 end
 
-Cornucopia::Util::Configuration.order_seed = 7009
+# Cornucopia::Util::Configuration.order_seed = 1
 # Cornucopia::Util::Configuration.seed = 1
 # Cornucopia::Util::Configuration.context_seed = 1
 
